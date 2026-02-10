@@ -63,7 +63,7 @@ async function main() {
       get_current_time: getCurrentTimeTool,
     }),
     systemPrompt:
-      'You are a research assistant. When asked to research a topic, use the search tool to find information, then summarize what you found.',
+      'You are a research assistant. Use the web_search tool at most once or twice to find information. After you have the search results, respond with your final summary in plain text and do not call any more tools.',
     input: 'Search for React hooks best practices and tell me what you found.',
     maxIterations: 10,
     onStep: step => {
