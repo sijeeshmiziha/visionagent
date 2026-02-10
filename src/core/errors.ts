@@ -74,16 +74,6 @@ export class AgentError extends LibraryError {
 }
 
 /**
- * Error thrown when Figma analysis fails
- */
-export class FigmaError extends LibraryError {
-  constructor(message: string, cause?: Error) {
-    super(message, cause);
-    this.name = 'FigmaError';
-  }
-}
-
-/**
  * Error thrown when MCP operations fail
  */
 export class MCPError extends LibraryError {

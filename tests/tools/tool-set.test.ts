@@ -10,9 +10,6 @@ import {
   getTools,
   getTool,
   getToolSchemas,
-  hasTool,
-  addTool,
-  removeTool,
 } from '../../src/tools/tool-set';
 
 describe('tool-set', () => {
@@ -79,34 +76,4 @@ describe('tool-set', () => {
     });
   });
 
-  describe('hasTool', () => {
-    it('should check if tool exists', () => {
-      const toolSet = createToolSet([tool1]);
-      expect(hasTool(toolSet, 'tool1')).toBe(true);
-      expect(hasTool(toolSet, 'tool2')).toBe(false);
-    });
-  });
-
-  describe('addTool', () => {
-    it('should add a tool to the set', () => {
-      const toolSet = createToolSet([tool1]);
-      const newSet = addTool(toolSet, tool2);
-      expect(newSet).toHaveLength(2);
-      expect(toolSet).toHaveLength(1); // Original unchanged
-    });
-
-    it('should throw on duplicate', () => {
-      const toolSet = createToolSet([tool1]);
-      expect(() => addTool(toolSet, tool1)).toThrow('already exists');
-    });
-  });
-
-  describe('removeTool', () => {
-    it('should remove a tool from the set', () => {
-      const toolSet = createToolSet([tool1, tool2]);
-      const newSet = removeTool(toolSet, 'tool1');
-      expect(newSet).toHaveLength(1);
-      expect(newSet[0]?.name).toBe('tool2');
-    });
-  });
 });

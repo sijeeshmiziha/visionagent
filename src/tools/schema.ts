@@ -31,19 +31,3 @@ export function zodToJsonSchema(schema: z.ZodType, _name?: string): JsonSchema {
   return jsonSchema as JsonSchema;
 }
 
-/**
- * Create a simple JSON Schema object
- */
-export function createJsonSchema(
-  type: string,
-  properties?: Record<string, JsonSchema>,
-  required?: string[],
-  description?: string
-): JsonSchema {
-  return {
-    type,
-    ...(properties && { properties }),
-    ...(required && { required }),
-    ...(description && { description }),
-  };
-}

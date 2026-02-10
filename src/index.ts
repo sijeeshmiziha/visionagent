@@ -1,21 +1,21 @@
 /**
- * Figma to Requirements Library
- *
- * Analyze Figma design images using AI vision to extract
- * product requirements, user stories, and feature specifications.
+ * VisionAgent - Multi-provider AI agent framework
+ * with vision, tool calling, and MCP support
  *
  * @example
  * ```typescript
- * import { createModel, analyzeFigmaDesigns } from 'figma-to-requirements';
+ * import { createModel, runAgent, defineTool } from 'visionagent';
  *
  * const model = createModel({ provider: 'openai', model: 'gpt-4o' });
  *
- * const result = await analyzeFigmaDesigns({
+ * const result = await runAgent({
  *   model,
- *   source: '/path/to/figma/exports'
+ *   tools: [],
+ *   systemPrompt: 'You are a helpful assistant.',
+ *   input: 'Hello!',
  * });
  *
- * console.log(result.analysis);
+ * console.log(result.output);
  * ```
  */
 

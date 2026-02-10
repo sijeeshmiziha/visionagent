@@ -9,7 +9,6 @@ import {
   ToolError,
   ValidationError,
   AgentError,
-  FigmaError,
   MCPError,
 } from '../../src/core/errors';
 
@@ -58,13 +57,6 @@ describe('errors', () => {
       const error = new AgentError('Agent failed', 5);
       expect(error.iteration).toBe(5);
       expect(error.name).toBe('AgentError');
-    });
-  });
-
-  describe('FigmaError', () => {
-    it('should create Figma error', () => {
-      const error = new FigmaError('Analysis failed');
-      expect(error.name).toBe('FigmaError');
     });
   });
 

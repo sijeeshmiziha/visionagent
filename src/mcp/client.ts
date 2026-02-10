@@ -112,7 +112,7 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
 
         client = new Client(
           {
-            name: 'figma-to-requirements-client',
+            name: 'visionagent-mcp-client',
             version: '1.0.0',
           },
           {

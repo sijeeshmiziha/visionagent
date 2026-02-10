@@ -54,11 +54,3 @@ export interface AgentResult {
   messages: Message[];
 }
 
-/**
- * Information about an agent error
- */
-export interface AgentErrorInfo {
-  message: string;
-  step?: AgentStep;
-  cause?: Error;
-}

@@ -46,50 +46,9 @@ export function getTool(toolSet: ToolSet, name: string): Tool | undefined {
 }
 
 /**
- * Get a tool by name, throwing if not found
- */
-export function getToolOrThrow(toolSet: ToolSet, name: string): Tool {
-  const tool = getTool(toolSet, name);
-  if (!tool) {
-    throw new ToolError(`Tool not found: ${name}`);
-  }
-  return tool;
-}
-
-/**
  * Get tool definitions for LLM function calling
  */
 export function getToolSchemas(toolSet: ToolSet): ToolDefinition[] {
   return toolSet.map(tool => tool.toDefinition());
 }
 
-/**
- * Get tool names
- */
-export function getToolNames(toolSet: ToolSet): string[] {
-  return toolSet.map(tool => tool.name);
-}
-
-/**
- * Check if a tool exists in the set
- */
-export function hasTool(toolSet: ToolSet, name: string): boolean {
-  return toolSet.some(t => t.name === name);
-}
-
-/**
- * Add a tool to a tool set (returns new array)
- */
-export function addTool(toolSet: ToolSet, tool: Tool): ToolSet {
-  if (hasTool(toolSet, tool.name)) {
-    throw new ToolError(`Tool already exists: ${tool.name}`);
-  }
-  return [...toolSet, tool];
-}
-
-/**
- * Remove a tool from a tool set (returns new array)
- */
-export function removeTool(toolSet: ToolSet, name: string): ToolSet {
-  return toolSet.filter(t => t.name !== name);
-}
