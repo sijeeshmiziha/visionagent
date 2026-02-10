@@ -25,6 +25,9 @@ Thumbs.db
 *.log
 npm-debug.log*
 
+# Internal Scripts
+.scripts/
+
 # Test coverage
 coverage/
 
