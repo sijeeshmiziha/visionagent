@@ -1,5 +1,5 @@
 /**
- * Simple agent loop implementation (ModelMessage[], AI SDK shapes)
+ * Agent loop: model + tools, AI SDK message shapes
  */
 
 import type { AgentConfig, AgentResult, AgentStep, AgentToolResult } from '../types/agent';
@@ -10,14 +10,26 @@ import { sumTokenUsage } from '../core/utils';
 import { executeToolByName } from '../tools/execute-tool';
 
 /**
- * Run the agent loop
+ * Run an agent with the given configuration.
  *
- * 1. Calls the model with ModelMessage[] and tools (Record<string, Tool>)
+ * 1. Calls the model with ModelMessage[] and tools
  * 2. If no tool calls, returns the response
  * 3. If tool calls, executes them and appends assistant + tool messages (AI SDK shape)
  * 4. Repeats until done or max iterations reached
+ *
+ * @example
+ * ```typescript
+ * const result = await runAgent({
+ *   model: createModel({ provider: 'openai', model: 'gpt-4o' }),
+ *   tools: createToolSet([searchTool, calculatorTool]),
+ *   systemPrompt: 'You are a helpful assistant.',
+ *   input: 'What is 2 + 2?',
+ *   maxIterations: 10
+ * });
+ * console.log(result.output);
+ * ```
  */
-export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
+export async function runAgent(config: AgentConfig): Promise<AgentResult> {
   const { model, tools, systemPrompt, input, maxIterations = 10, onStep } = config;
 
   const messages: ModelMessage[] = [
@@ -48,7 +60,6 @@ export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
       };
     }
 
-    // Assistant message with tool-call parts (AI SDK shape)
     const assistantContent = [
       ...(response.text ? [{ type: 'text' as const, text: response.text }] : []),
       ...response.toolCalls.map((tc: ModelToolCall) => ({
@@ -75,7 +86,7 @@ export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
       };
       toolResults.push(agentResult);
 
-      const toolResultOutput = agentResult.isError
+      const outputVal = agentResult.isError
         ? { type: 'error-text' as const, value: String(agentResult.output) }
         : {
             type: 'text' as const,
@@ -92,7 +103,7 @@ export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
             type: 'tool-result' as const,
             toolCallId: toolCall.toolCallId,
             toolName: toolCall.toolName,
-            output: toolResultOutput,
+            output: outputVal,
           },
         ],
       });

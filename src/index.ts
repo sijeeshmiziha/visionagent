@@ -42,8 +42,7 @@ export { helloWorldTool, runHelloWorldAgent, createHelloWorldMCPServer } from '.
 export type { HelloWorldAgentConfig } from './hello-world';
 
 // Agents
-export { runAgent } from './agents/run-agent';
-export { agentLoop } from './agents/agent-loop';
+export { runAgent } from './agents/agent';
 
 // MCP
 export { createMCPServer } from './mcp/server';

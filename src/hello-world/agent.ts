@@ -4,7 +4,7 @@
 
 import type { AgentResult } from '../types/agent';
 import type { ModelConfig } from '../types/model';
-import { runAgent } from '../agents/run-agent';
+import { runAgent } from '../agents';
 import { createModel } from '../models/create-model';
 import { createToolSet } from '../tools/tool-set';
 import { helloWorldTool } from './tool';

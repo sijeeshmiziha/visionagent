@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { agentLoop } from '../../../src/agents/agent-loop';
+import { runAgent } from '../../../src/agents';
 import { createToolSet } from '../../../src/tools/tool-set';
 import { defineTool } from '../../../src/tools/define-tool';
 import { z } from 'zod';
@@ -57,7 +57,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
       },
     ]);
 
-    const result = await agentLoop({
+    const result = await runAgent({
       model,
       tools: {},
       systemPrompt: 'Test prompt',
@@ -101,7 +101,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
       },
     ]);
 
-    const result = await agentLoop({
+    const result = await runAgent({
       model,
       tools: createToolSet([mockTool]),
       systemPrompt: 'Use tools',
@@ -126,7 +126,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
 
     const onStep = vi.fn();
 
-    await agentLoop({
+    await runAgent({
       model,
       tools: {},
       systemPrompt: 'Test',
@@ -167,7 +167,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
       },
     ]);
 
-    const result = await agentLoop({
+    const result = await runAgent({
       model,
       tools: createToolSet([mockTool]),
       systemPrompt: 'Test',
@@ -189,7 +189,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
       },
     ]);
 
-    const result = await agentLoop({
+    const result = await runAgent({
       model,
       tools: {},
       systemPrompt: 'You are helpful',
@@ -229,7 +229,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
       },
     ]);
 
-    const result = await agentLoop({
+    const result = await runAgent({
       model,
       tools: createToolSet([errorTool]),
       systemPrompt: 'Test',
