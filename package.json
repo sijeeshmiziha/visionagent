@@ -40,7 +40,6 @@
     "example:05": "tsx --env-file=.env examples/05-mcp-server.ts",
     "example:06": "tsx --env-file=.env examples/06-hello-world.ts",
     "example:07": "tsx --env-file=.env examples/07-hello-world-mcp.ts",
-    "example:all": "npm run example:01 && npm run example:02 && npm run example:03 && npm run example:04 && npm run example:05 && npm run example:06 && npm run example:07",
     "tokens": "tsx .scripts/token-calculator.ts",
     "tokens:verbose": "tsx .scripts/token-calculator.ts --verbose",
     "tokens:json": "tsx .scripts/token-calculator.ts --json",
