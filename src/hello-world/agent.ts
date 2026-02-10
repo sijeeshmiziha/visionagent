@@ -2,7 +2,7 @@
  * Hello World agent - runs an agent with the hello world tool
  */
 
-import type { AgentResult } from '../types/agent';
+import type { AgentResult, AgentStep } from '../types/agent';
 import type { ModelConfig } from '../types/model';
 import { runAgent } from '../agents';
 import { createModel } from '../models/create-model';
@@ -18,6 +18,8 @@ export interface HelloWorldAgentConfig {
   systemPrompt?: string;
   /** Max iterations; default 3 */
   maxIterations?: number;
+  /** Callback for each step */
+  onStep?: (step: AgentStep) => void;
 }
 
 const DEFAULT_SYSTEM_PROMPT =
@@ -29,6 +31,7 @@ export async function runHelloWorldAgent(config: HelloWorldAgentConfig): Promise
     model: modelConfig,
     systemPrompt = DEFAULT_SYSTEM_PROMPT,
     maxIterations = 3,
+    onStep,
   } = config;
 
   const model = createModel(modelConfig ?? { provider: 'openai', model: 'gpt-4o-mini' });
@@ -39,5 +42,6 @@ export async function runHelloWorldAgent(config: HelloWorldAgentConfig): Promise
     systemPrompt,
     input,
     maxIterations,
+    onStep,
   });
 }
