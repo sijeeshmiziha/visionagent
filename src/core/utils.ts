@@ -24,10 +24,9 @@ export function sumTokenUsage(usages: (LanguageModelUsage | undefined)[]): Langu
 
   for (const usage of usages) {
     if (usage) {
-      // AI SDK types these fields loosely; default to 0 if undefined
-      inputTokens += usage.inputTokens !== undefined ? usage.inputTokens : 0;
-      outputTokens += usage.outputTokens !== undefined ? usage.outputTokens : 0;
-      totalTokens += usage.totalTokens !== undefined ? usage.totalTokens : 0;
+      inputTokens += usage.inputTokens ?? 0;
+      outputTokens += usage.outputTokens ?? 0;
+      totalTokens += usage.totalTokens ?? 0;
     }
   }
 

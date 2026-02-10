@@ -77,13 +77,3 @@ export const handlers = [
     });
   }),
 ];
-
-export const errorHandlers = [
-  // Test error handling
-  http.post('https://api.openai.com/v1/chat/completions', () => {
-    return HttpResponse.json(
-      { error: { message: 'Rate limit exceeded', type: 'rate_limit_error' } },
-      { status: 429 }
-    );
-  }),
-];
