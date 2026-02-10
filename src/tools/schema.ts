@@ -3,31 +3,27 @@
  */
 
 import type { z } from 'zod';
-import type { JsonSchema } from '../types/tool';
+// Import at top level for ESM compatibility
+import { zodToJsonSchema as zodToJsonSchemaLib } from 'zod-to-json-schema';
+
+/** JSON Schema shape for MCP / tool parameters */
+export type JsonSchemaObject = Record<string, unknown>;
 
 /**
  * Convert a Zod schema to JSON Schema
  *
  * Uses zod-to-json-schema under the hood
  */
-// Import at top level for ESM compatibility
-import { zodToJsonSchema as zodToJsonSchemaLib } from 'zod-to-json-schema';
-
-export function zodToJsonSchema(schema: z.ZodType, _name?: string): JsonSchema {
+export function zodToJsonSchema(schema: z.ZodType, _name?: string): JsonSchemaObject {
   const result = zodToJsonSchemaLib(schema, {
     $refStrategy: 'none',
   });
 
-  // Remove $schema and definitions if present
   const {
     $schema: _schema,
     definitions: _definitions,
     ...jsonSchema
-  } = result as JsonSchema & {
-    $schema?: string;
-    definitions?: unknown;
-  };
+  } = result as JsonSchemaObject & { $schema?: string; definitions?: unknown };
 
-  return jsonSchema as JsonSchema;
+  return jsonSchema as JsonSchemaObject;
 }
-

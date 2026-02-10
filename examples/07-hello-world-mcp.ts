@@ -16,7 +16,7 @@ async function main() {
   console.log('Server configuration:');
   console.log('  Name:', server.name);
   console.log('  Version:', server.version);
-  console.log('  Tools:', server.tools.map(t => t.name).join(', '));
+  console.log('  Tools:', Object.keys(server.tools).join(', '));
   console.log('  Transport: stdio');
 
   console.log('\nTo use this server with an MCP client:');

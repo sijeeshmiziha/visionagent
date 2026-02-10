@@ -1,8 +1,8 @@
 /**
- * Execute a tool with error handling
+ * Execute a tool with error handling (AI SDK Tool.execute)
  */
 
-import type { Tool, ToolContext, ToolExecutionResult } from '../types/tool';
+import type { Tool, ToolExecutionResult } from '../types/tool';
 import { ToolError } from '../core/errors';
 
 /**
@@ -18,16 +18,25 @@ import { ToolError } from '../core/errors';
  * }
  * ```
  */
-export async function executeTool<TInput, TOutput>(
-  tool: Tool<TInput, TOutput>,
-  input: TInput,
-  context?: ToolContext
+export async function executeTool<TOutput>(
+  tool: Tool,
+  input: unknown,
+  toolCallId = ''
 ): Promise<ToolExecutionResult<TOutput>> {
+  if (!tool.execute) {
+    return {
+      success: false,
+      error: 'Tool has no execute function',
+    };
+  }
   try {
-    const result = await tool.execute(input, context);
+    const result = await tool.execute(input, {
+      toolCallId,
+      messages: [],
+    });
     return {
       success: true,
-      result,
+      result: result as TOutput,
     };
   } catch (error) {
     return {
@@ -38,19 +47,19 @@ export async function executeTool<TInput, TOutput>(
 }
 
 /**
- * Execute a tool by name from a list of tools
+ * Execute a tool by name from a tool set (Record<string, Tool>)
  */
 export async function executeToolByName(
-  tools: Tool[],
+  tools: Record<string, Tool>,
   name: string,
   input: unknown,
-  context?: ToolContext
+  toolCallId = ''
 ): Promise<ToolExecutionResult> {
-  const tool = tools.find(t => t.name === name);
+  const tool = tools[name];
 
   if (!tool) {
     throw new ToolError(`Tool not found: ${name}`);
   }
 
-  return executeTool(tool, input, context);
+  return executeTool(tool, input, toolCallId);
 }

@@ -22,7 +22,7 @@ async function main() {
     { role: 'user', content: 'Explain what TypeScript is in one sentence.' },
   ]);
 
-  console.log('Response:', response.content);
+  console.log('Response:', response.text);
   console.log('Tokens:', response.usage);
 }
 

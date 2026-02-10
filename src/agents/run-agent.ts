@@ -12,7 +12,7 @@ import { agentLoop } from './agent-loop';
  * ```typescript
  * const result = await runAgent({
  *   model: createModel({ provider: 'openai', model: 'gpt-4o' }),
- *   tools: [searchTool, calculatorTool],
+ *   tools: createToolSet([searchTool, calculatorTool]),
  *   systemPrompt: 'You are a helpful assistant.',
  *   input: 'What is 2 + 2?',
  *   maxIterations: 10

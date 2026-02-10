@@ -17,8 +17,8 @@ export interface MCPServerConfig {
   name: string;
   /** Server version */
   version: string;
-  /** Tools to expose via MCP */
-  tools: Tool[];
+  /** Tools to expose via MCP (Record<string, Tool>) */
+  tools: Record<string, Tool>;
   /** Optional description */
   description?: string;
 }
@@ -42,7 +42,7 @@ export interface MCPServer {
   /** Server version */
   version: string;
   /** Tools exposed by the server */
-  tools: Tool[];
+  tools: Record<string, Tool>;
   /** Start the server with the specified transport */
   start(transport: MCPTransport, options?: MCPServerStartOptions): Promise<void>;
   /** Stop the server */
@@ -71,8 +71,8 @@ export interface MCPClient {
   connect(): Promise<void>;
   /** Disconnect from the server */
   disconnect(): Promise<void>;
-  /** Get available tools from the server */
-  getTools(): Promise<Tool[]>;
+  /** Get available tools from the server (Record<string, Tool>) */
+  getTools(): Promise<Record<string, Tool>>;
   /** Call a tool on the server */
   callTool(name: string, args: Record<string, unknown>): Promise<unknown>;
 }

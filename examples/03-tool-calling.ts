@@ -7,7 +7,7 @@
  * Requires: OPENAI_API_KEY environment variable
  */
 
-import { createModel, defineTool, runAgent } from '../src/index';
+import { createModel, createToolSet, defineTool, runAgent } from '../src/index';
 import { z } from 'zod';
 
 // Define a calculator tool
@@ -36,12 +36,12 @@ async function main() {
 
   const result = await runAgent({
     model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-    tools: [calculatorTool],
+    tools: createToolSet([calculatorTool]),
     systemPrompt: 'You are a helpful math assistant. Use the calculator tool to solve problems.',
     input: 'What is 25 multiplied by 4?',
     maxIterations: 5,
     onStep: step => {
-      console.log(`Step ${step.iteration + 1}:`, step.toolCalls?.[0]?.name || 'thinking...');
+      console.log(`Step ${step.iteration + 1}:`, step.toolCalls?.[0]?.toolName || 'thinking...');
     },
   });
 

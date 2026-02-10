@@ -1,11 +1,15 @@
 /**
  * Tool-related types
+ * Re-exports AI SDK Tool, tool, zodSchema; keeps ToolConfig and ToolContext for defineTool
  */
 
 import type { z } from 'zod';
 
+export type { Tool } from 'ai';
+export { tool, zodSchema, jsonSchema } from 'ai';
+
 /**
- * Configuration for defining a tool
+ * Configuration for defining a tool (input to defineTool)
  */
 export interface ToolConfig<TInput extends z.ZodType = z.ZodType, TOutput = unknown> {
   /** Unique name for the tool */
@@ -31,50 +35,7 @@ export interface ToolContext {
 }
 
 /**
- * A defined tool ready for use
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface Tool<TInput = any, TOutput = any> {
-  /** Unique name for the tool */
-  name: string;
-  /** Description of what the tool does */
-  description: string;
-  /** Execute the tool with validated input */
-  execute: (input: TInput, context?: ToolContext) => Promise<TOutput>;
-  /** Get the JSON Schema for the tool input */
-  getInputSchema: () => JsonSchema;
-  /** Get the tool definition for LLM */
-  toDefinition: () => ToolDefinition;
-}
-
-/**
- * Tool definition for LLM function calling
- */
-export interface ToolDefinition {
-  type: 'function';
-  function: {
-    name: string;
-    description: string;
-    parameters: JsonSchema;
-  };
-}
-
-/**
- * JSON Schema type (simplified)
- */
-export interface JsonSchema {
-  type?: string;
-  properties?: Record<string, JsonSchema>;
-  required?: string[];
-  description?: string;
-  items?: JsonSchema;
-  enum?: unknown[];
-  default?: unknown;
-  [key: string]: unknown;
-}
-
-/**
- * Result of tool execution
+ * Result of tool execution (for executeTool / executeToolByName)
  */
 export interface ToolExecutionResult<T = unknown> {
   success: boolean;

@@ -5,12 +5,7 @@
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
 import { defineTool } from '../../src/tools/define-tool';
-import {
-  createToolSet,
-  getTools,
-  getTool,
-  getToolSchemas,
-} from '../../src/tools/tool-set';
+import { createToolSet, getTools, getTool } from '../../src/tools/tool-set';
 
 describe('tool-set', () => {
   const tool1 = defineTool({
@@ -30,7 +25,9 @@ describe('tool-set', () => {
   describe('createToolSet', () => {
     it('should create a tool set from an array', () => {
       const tools = createToolSet([tool1, tool2]);
-      expect(tools).toHaveLength(2);
+      expect(Object.keys(tools)).toHaveLength(2);
+      expect(tools.tool1).toBeDefined();
+      expect(tools.tool2).toBeDefined();
     });
 
     it('should throw on duplicate names', () => {
@@ -57,7 +54,8 @@ describe('tool-set', () => {
     it('should find a tool by name', () => {
       const toolSet = createToolSet([tool1, tool2]);
       const found = getTool(toolSet, 'tool1');
-      expect(found?.name).toBe('tool1');
+      expect(found).toBeDefined();
+      expect(found).toBe(tool1.tool);
     });
 
     it('should return undefined for unknown tool', () => {
@@ -66,14 +64,4 @@ describe('tool-set', () => {
       expect(found).toBeUndefined();
     });
   });
-
-  describe('getToolSchemas', () => {
-    it('should return tool definitions for LLM', () => {
-      const toolSet = createToolSet([tool1, tool2]);
-      const schemas = getToolSchemas(toolSet);
-      expect(schemas).toHaveLength(2);
-      expect(schemas[0]?.type).toBe('function');
-    });
-  });
-
 });

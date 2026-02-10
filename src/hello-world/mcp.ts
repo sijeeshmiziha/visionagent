@@ -10,7 +10,7 @@ export function createHelloWorldMCPServer(): MCPServer {
   return createMCPServer({
     name: 'hello-world',
     version: '1.0.0',
-    tools: [helloWorldTool],
+    tools: { [helloWorldTool.name]: helloWorldTool.tool },
     description: 'Hello World MCP server',
   });
 }

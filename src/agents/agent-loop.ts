@@ -1,80 +1,94 @@
 /**
- * Simple agent loop implementation
+ * Simple agent loop implementation (CoreMessage[], AI SDK shapes)
  */
 
-import type { AgentConfig, AgentResult, AgentStep } from '../types/agent';
-import type { Message, ToolCall, ToolResult } from '../types/common';
+import type { AgentConfig, AgentResult, AgentStep, AgentToolResult } from '../types/agent';
+import type { CoreMessage } from '../types/common';
+import type { ModelToolCall } from '../types/model';
 import { AgentError } from '../core/errors';
 import { sumTokenUsage } from '../core/utils';
-import { getToolSchemas, getTool } from '../tools/tool-set';
+import { executeToolByName } from '../tools/execute-tool';
 
 /**
  * Run the agent loop
  *
- * This is a simple while loop that:
- * 1. Calls the model with messages and tool definitions
+ * 1. Calls the model with CoreMessage[] and tools (Record<string, Tool>)
  * 2. If no tool calls, returns the response
- * 3. If tool calls, executes them and adds results to messages
+ * 3. If tool calls, executes them and appends assistant + tool messages (AI SDK shape)
  * 4. Repeats until done or max iterations reached
  */
 export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
   const { model, tools, systemPrompt, input, maxIterations = 10, onStep } = config;
 
-  // Initialize messages
-  const messages: Message[] = [
+  const messages: CoreMessage[] = [
     { role: 'system', content: systemPrompt },
     { role: 'user', content: input },
   ];
 
   const steps: AgentStep[] = [];
-  const toolDefinitions = getToolSchemas(tools);
 
   for (let iteration = 0; iteration < maxIterations; iteration++) {
-    // Call the model
-    const response = await model.invoke(messages, {
-      tools: toolDefinitions,
-    });
+    const response = await model.invoke(messages, { tools });
 
-    // Create step
     const step: AgentStep = {
       iteration,
-      content: response.content,
+      content: response.text,
       toolCalls: response.toolCalls,
       usage: response.usage,
     };
 
-    // If no tool calls, we're done
     if (!response.toolCalls?.length) {
       steps.push(step);
       onStep?.(step);
-
       return {
-        output: response.content,
+        output: response.text,
         steps,
         totalUsage: sumTokenUsage(steps.map(s => s.usage)),
         messages,
       };
     }
 
-    // Add assistant message with tool calls
-    messages.push({
-      role: 'assistant',
-      content: response.content || '',
-      toolCalls: response.toolCalls,
-    });
+    // Assistant message with tool-call parts (AI SDK shape)
+    const assistantContent = [
+      ...(response.text ? [{ type: 'text' as const, text: response.text }] : []),
+      ...response.toolCalls.map((tc: ModelToolCall) => ({
+        type: 'tool-call' as const,
+        toolCallId: tc.toolCallId,
+        toolName: tc.toolName,
+        args: tc.args,
+      })),
+    ];
+    messages.push({ role: 'assistant', content: assistantContent });
 
-    // Execute tool calls
-    const toolResults: ToolResult[] = [];
+    const toolResults: AgentToolResult[] = [];
 
     for (const toolCall of response.toolCalls) {
-      const result = await executeToolCall(tools, toolCall);
-      toolResults.push(result);
+      const execResult = await executeToolByName(
+        tools,
+        toolCall.toolName,
+        toolCall.args,
+        toolCall.toolCallId
+      );
 
-      // Add tool result to messages
+      const agentResult: AgentToolResult = {
+        toolCallId: toolCall.toolCallId,
+        toolName: toolCall.toolName,
+        result: execResult.success ? execResult.result : execResult.error,
+        isError: !execResult.success,
+      };
+      toolResults.push(agentResult);
+
       messages.push({
         role: 'tool',
-        content: typeof result.result === 'string' ? result.result : JSON.stringify(result.result),
-        toolCallId: toolCall.id,
+        content: [
+          {
+            type: 'tool-result' as const,
+            toolCallId: toolCall.toolCallId,
+            toolName: toolCall.toolName,
+            result: agentResult.result,
+            isError: agentResult.isError,
+          },
+        ],
       });
     }
 
@@ -83,42 +97,8 @@ export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
     onStep?.(step);
   }
 
-  // Max iterations reached
   throw new AgentError(
     `Agent reached maximum iterations (${maxIterations}) without completing`,
     maxIterations - 1
   );
-}
-
-/**
- * Execute a single tool call
- */
-async function executeToolCall(
-  tools: AgentConfig['tools'],
-  toolCall: ToolCall
-): Promise<ToolResult> {
-  const tool = getTool(tools, toolCall.name);
-
-  if (!tool) {
-    return {
-      callId: toolCall.id,
-      result: null,
-      error: `Tool not found: ${toolCall.name}`,
-    };
-  }
-
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const result = await tool.execute(toolCall.args);
-    return {
-      callId: toolCall.id,
-      result,
-    };
-  } catch (error) {
-    return {
-      callId: toolCall.id,
-      result: null,
-      error: (error as Error).message,
-    };
-  }
 }

@@ -7,7 +7,7 @@
  * This server can be used with MCP-compatible clients.
  */
 
-import { createMCPServer, defineTool } from '../src/index';
+import { createMCPServer, createToolSet, defineTool } from '../src/index';
 import { z } from 'zod';
 
 const weatherTool = defineTool({
@@ -54,14 +54,14 @@ async function main() {
   const server = createMCPServer({
     name: 'demo-tools',
     version: '1.0.0',
-    tools: [weatherTool, calculatorTool],
+    tools: createToolSet([weatherTool, calculatorTool]),
     description: 'Demo MCP server with weather and calculator tools',
   });
 
   console.log('Server configuration:');
   console.log('  Name:', server.name);
   console.log('  Version:', server.version);
-  console.log('  Tools:', server.tools.map(t => t.name).join(', '));
+  console.log('  Tools:', Object.keys(server.tools).join(', '));
   console.log('  Transport: stdio');
 
   console.log('\nTo use this server with an MCP client:');

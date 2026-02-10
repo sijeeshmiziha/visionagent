@@ -1,5 +1,5 @@
 /**
- * Model module - LangChain model wrappers
+ * Model module - AI SDK model wrappers
  */
 
 export { createModel } from './create-model';

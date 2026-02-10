@@ -31,10 +31,11 @@ export { createOpenAIModel } from './models/providers/openai';
 export { createAnthropicModel } from './models/providers/anthropic';
 export { createGoogleModel } from './models/providers/google';
 
-// Tools
+// Tools (re-export AI SDK tool helpers for advanced use)
+export { tool, zodSchema, jsonSchema } from './types/tool';
 export { defineTool } from './tools/define-tool';
 export { executeTool, executeToolByName } from './tools/execute-tool';
-export { createToolSet, getTools, getTool, getToolSchemas } from './tools/tool-set';
+export { createToolSet, getTools, getTool } from './tools/tool-set';
 
 // Hello World module
 export { helloWorldTool, runHelloWorldAgent, createHelloWorldMCPServer } from './hello-world';

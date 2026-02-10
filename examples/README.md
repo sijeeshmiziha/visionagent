@@ -33,11 +33,11 @@ Before running any examples, ensure you have:
 
 You need at least one AI provider API key:
 
-| Provider  | Environment Variable | Get Key                                                       |
-| --------- | -------------------- | ------------------------------------------------------------- |
-| OpenAI    | `OPENAI_API_KEY`     | [platform.openai.com](https://platform.openai.com/api-keys)   |
-| Anthropic | `ANTHROPIC_API_KEY`  | [console.anthropic.com](https://console.anthropic.com/)       |
-| Google    | `GOOGLE_API_KEY`     | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
+| Provider  | Environment Variable           | Get Key                                                       |
+| --------- | ------------------------------ | ------------------------------------------------------------- |
+| OpenAI    | `OPENAI_API_KEY`               | [platform.openai.com](https://platform.openai.com/api-keys)   |
+| Anthropic | `ANTHROPIC_API_KEY`            | [console.anthropic.com](https://console.anthropic.com/)       |
+| Google    | `GOOGLE_GENERATIVE_AI_API_KEY` | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
 
 ---
 
@@ -64,7 +64,7 @@ Example `.env` file:
 ```bash
 OPENAI_API_KEY=sk-proj-...
 ANTHROPIC_API_KEY=sk-ant-api03-...
-GOOGLE_API_KEY=AIza...
+GOOGLE_GENERATIVE_AI_API_KEY=AIza...
 ```
 
 ### 3. Run an Example
@@ -113,7 +113,7 @@ Tokens: { promptTokens: 15, completionTokens: 32, totalTokens: 47 }
 
 **Use case**: Compare responses across providers, verify multi-provider setup.
 
-**Required API keys**: All three (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`)
+**Required API keys**: All three (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`)
 
 <details>
 <summary><strong>Expected Output</strong></summary>

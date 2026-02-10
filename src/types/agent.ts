@@ -1,10 +1,23 @@
 /**
  * Agent-related types
+ * Uses AI SDK types for messages, tool calls/results, and usage
  */
 
 import type { Model } from './model';
 import type { Tool } from './tool';
-import type { Message, ToolCall, ToolResult, TokenUsage } from './common';
+import type { CoreMessage } from './common';
+import type { LanguageModelUsage } from './model';
+import type { ModelToolCall } from './model';
+
+/**
+ * Tool result shape (AI SDK compatible)
+ */
+export interface AgentToolResult {
+  toolCallId: string;
+  toolName: string;
+  result: unknown;
+  isError?: boolean;
+}
 
 /**
  * Configuration for running an agent
@@ -12,8 +25,8 @@ import type { Message, ToolCall, ToolResult, TokenUsage } from './common';
 export interface AgentConfig {
   /** The model to use for generation */
   model: Model;
-  /** Tools available to the agent */
-  tools: Tool[];
+  /** Tools available to the agent (Record<string, Tool>) */
+  tools: Record<string, Tool>;
   /** System prompt for the agent */
   systemPrompt: string;
   /** The user's input/query */
@@ -30,14 +43,14 @@ export interface AgentConfig {
 export interface AgentStep {
   /** The iteration number (0-indexed) */
   iteration: number;
-  /** The model's response content (if any) */
+  /** The model's response text (if any) */
   content?: string;
-  /** Tool calls made in this step */
-  toolCalls?: ToolCall[];
-  /** Results from tool executions */
-  toolResults?: ToolResult[];
+  /** Tool calls made in this step (AI SDK shape) */
+  toolCalls?: ModelToolCall[];
+  /** Results from tool executions (AI SDK shape) */
+  toolResults?: AgentToolResult[];
   /** Token usage for this step */
-  usage?: TokenUsage;
+  usage?: LanguageModelUsage;
 }
 
 /**
@@ -49,8 +62,7 @@ export interface AgentResult {
   /** All steps taken during execution */
   steps: AgentStep[];
   /** Total token usage across all steps */
-  totalUsage?: TokenUsage;
-  /** The full message history */
-  messages: Message[];
+  totalUsage?: LanguageModelUsage;
+  /** The full message history (CoreMessage[]) */
+  messages: CoreMessage[];
 }
-

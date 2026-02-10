@@ -2,23 +2,23 @@
  * Utility functions
  */
 
+import type { LanguageModelUsage } from 'ai';
+
 /**
- * Sum token usage
+ * Sum token usage from multiple steps (AI SDK LanguageModelUsage)
  */
-export function sumTokenUsage(
-  usages: ({ input: number; output: number; total: number } | undefined)[]
-): { input: number; output: number; total: number } {
-  let input = 0;
-  let output = 0;
-  let total = 0;
+export function sumTokenUsage(usages: (LanguageModelUsage | undefined)[]): LanguageModelUsage {
+  let promptTokens = 0;
+  let completionTokens = 0;
+  let totalTokens = 0;
 
   for (const usage of usages) {
     if (usage) {
-      input += usage.input;
-      output += usage.output;
-      total += usage.total;
+      promptTokens += usage.promptTokens;
+      completionTokens += usage.completionTokens;
+      totalTokens += usage.totalTokens;
     }
   }
 
-  return { input, output, total };
+  return { promptTokens, completionTokens, totalTokens };
 }

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { agentLoop } from '../../../src/agents/agent-loop';
+import { createToolSet } from '../../../src/tools/tool-set';
 import { defineTool } from '../../../src/tools/define-tool';
 import { z } from 'zod';
 import type { Model, ModelResponse } from '../../../src/types/model';
 
-// Create a mock model for testing the agent loop
 function createMockModel(responses: ModelResponse[]): Model {
   let callIndex = 0;
 
@@ -12,11 +12,16 @@ function createMockModel(responses: ModelResponse[]): Model {
     provider: 'openai',
     modelName: 'gpt-4o-mini',
     invoke: vi.fn().mockImplementation(async () => {
-      const response = responses[callIndex] || responses[responses.length - 1];
+      const response = responses[callIndex] ?? responses[responses.length - 1]!;
       callIndex++;
       return response;
     }),
-    generateVision: vi.fn().mockResolvedValue({ content: 'Vision response' }),
+    generateVision: vi.fn().mockResolvedValue({
+      text: 'Vision response',
+      toolCalls: [],
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+      finishReason: 'stop',
+    }),
   };
 }
 
@@ -28,14 +33,16 @@ describe('Agent Loop (Unit - Mocked)', () => {
   it('should complete without tool calls', async () => {
     const model = createMockModel([
       {
-        content: 'Mocked response',
-        usage: { input: 10, output: 5, total: 15 },
+        text: 'Mocked response',
+        toolCalls: [],
+        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+        finishReason: 'stop',
       },
     ]);
 
     const result = await agentLoop({
       model,
-      tools: [],
+      tools: {},
       systemPrompt: 'Test prompt',
       input: 'Hello',
       maxIterations: 3,
@@ -56,28 +63,30 @@ describe('Agent Loop (Unit - Mocked)', () => {
       handler: mockHandler,
     });
 
-    // First call returns tool call, second call returns final response
     const model = createMockModel([
       {
-        content: '',
+        text: '',
         toolCalls: [
           {
-            id: 'call_123',
-            name: 'test_tool',
+            toolCallId: 'call_123',
+            toolName: 'test_tool',
             args: { test: true },
           },
         ],
-        usage: { input: 50, output: 20, total: 70 },
+        usage: { promptTokens: 50, completionTokens: 20, totalTokens: 70 },
+        finishReason: 'tool-calls',
       },
       {
-        content: 'Final answer after tool execution',
-        usage: { input: 30, output: 10, total: 40 },
+        text: 'Final answer after tool execution',
+        toolCalls: [],
+        usage: { promptTokens: 30, completionTokens: 10, totalTokens: 40 },
+        finishReason: 'stop',
       },
     ]);
 
     const result = await agentLoop({
       model,
-      tools: [mockTool],
+      tools: createToolSet([mockTool]),
       systemPrompt: 'Use tools',
       input: 'Test',
       maxIterations: 5,
@@ -91,8 +100,10 @@ describe('Agent Loop (Unit - Mocked)', () => {
   it('should call onStep callback', async () => {
     const model = createMockModel([
       {
-        content: 'Done',
-        usage: { input: 10, output: 5, total: 15 },
+        text: 'Done',
+        toolCalls: [],
+        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+        finishReason: 'stop',
       },
     ]);
 
@@ -100,7 +111,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
 
     await agentLoop({
       model,
-      tools: [],
+      tools: {},
       systemPrompt: 'Test',
       input: 'Hello',
       maxIterations: 3,
@@ -126,39 +137,44 @@ describe('Agent Loop (Unit - Mocked)', () => {
 
     const model = createMockModel([
       {
-        content: '',
-        toolCalls: [{ id: 'call_1', name: 'test_tool', args: {} }],
-        usage: { input: 50, output: 20, total: 70 },
+        text: '',
+        toolCalls: [{ toolCallId: 'call_1', toolName: 'test_tool', args: {} }],
+        usage: { promptTokens: 50, completionTokens: 20, totalTokens: 70 },
+        finishReason: 'tool-calls',
       },
       {
-        content: 'Final',
-        usage: { input: 30, output: 10, total: 40 },
+        text: 'Final',
+        toolCalls: [],
+        usage: { promptTokens: 30, completionTokens: 10, totalTokens: 40 },
+        finishReason: 'stop',
       },
     ]);
 
     const result = await agentLoop({
       model,
-      tools: [mockTool],
+      tools: createToolSet([mockTool]),
       systemPrompt: 'Test',
       input: 'Hello',
       maxIterations: 3,
     });
 
     expect(result.totalUsage).toBeDefined();
-    expect(result.totalUsage?.total).toBe(110); // 70 + 40
+    expect(result.totalUsage?.totalTokens).toBe(110); // 70 + 40
   });
 
   it('should include messages in result', async () => {
     const model = createMockModel([
       {
-        content: 'Response',
-        usage: { input: 10, output: 5, total: 15 },
+        text: 'Response',
+        toolCalls: [],
+        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+        finishReason: 'stop',
       },
     ]);
 
     const result = await agentLoop({
       model,
-      tools: [],
+      tools: {},
       systemPrompt: 'You are helpful',
       input: 'Hello',
       maxIterations: 3,
@@ -183,25 +199,29 @@ describe('Agent Loop (Unit - Mocked)', () => {
 
     const model = createMockModel([
       {
-        content: '',
-        toolCalls: [{ id: 'call_1', name: 'error_tool', args: {} }],
-        usage: { input: 20, output: 10, total: 30 },
+        text: '',
+        toolCalls: [{ toolCallId: 'call_1', toolName: 'error_tool', args: {} }],
+        usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 },
+        finishReason: 'tool-calls',
       },
       {
-        content: 'Handled the error',
-        usage: { input: 30, output: 10, total: 40 },
+        text: 'Handled the error',
+        toolCalls: [],
+        usage: { promptTokens: 30, completionTokens: 10, totalTokens: 40 },
+        finishReason: 'stop',
       },
     ]);
 
     const result = await agentLoop({
       model,
-      tools: [errorTool],
+      tools: createToolSet([errorTool]),
       systemPrompt: 'Test',
       input: 'Call tool',
       maxIterations: 5,
     });
 
-    expect(result.steps[0]?.toolResults?.[0]?.error).toContain('Tool execution failed');
+    expect(result.steps[0]?.toolResults?.[0]?.isError).toBe(true);
+    expect(String(result.steps[0]?.toolResults?.[0]?.result)).toContain('Tool execution failed');
     expect(result.output).toBe('Handled the error');
   });
 });

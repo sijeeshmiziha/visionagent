@@ -3,22 +3,30 @@
  */
 
 import type { MCPServer, MCPServerConfig, MCPServerStartOptions, MCPTransport } from '../types/mcp';
+import type { Tool } from '../types/tool';
 import { MCPError } from '../core/errors';
 import { createLogger } from '../core/logger';
 
 const logger = createLogger({ prefix: 'mcp-server' });
 
 /**
- * Create an MCP server that exposes tools
+ * Get JSON schema from an AI SDK Tool's parameters (Schema has .jsonSchema)
+ */
+function getInputSchemaFromTool(tool: Tool): Record<string, unknown> {
+  const params = tool.parameters as { jsonSchema?: Record<string, unknown> } | undefined;
+  return params?.jsonSchema ?? {};
+}
+
+/**
+ * Create an MCP server that exposes tools (Record<string, Tool>)
  *
  * @example
  * ```typescript
  * const server = createMCPServer({
  *   name: 'figma-analyzer',
  *   version: '1.0.0',
- *   tools: [figmaAnalysisTool]
+ *   tools: { figmaAnalysis: figmaAnalysisTool }
  * });
- *
  * await server.start('stdio');
  * ```
  */
@@ -35,45 +43,39 @@ export function createMCPServer(config: MCPServerConfig): MCPServer {
 
     async start(transportType: MCPTransport, _options?: MCPServerStartOptions): Promise<void> {
       try {
-        // Dynamic import to avoid requiring the package if not used
         const { McpServer } = await import('@modelcontextprotocol/sdk/server/mcp.js');
         const { StdioServerTransport } = await import('@modelcontextprotocol/sdk/server/stdio.js');
 
-        // Create MCP server
-        server = new McpServer(
-          {
-            name,
-            version,
-          },
-          {
-            capabilities: {
-              tools: {},
-            },
-          }
-        );
+        server = new McpServer({ name, version }, { capabilities: { tools: {} } });
 
         const mcpServer = server as {
           registerTool: (
-            name: string,
+            toolName: string,
             meta: { description: string; inputSchema: Record<string, unknown> },
-            handler: (args: unknown) => Promise<{ content: { type: string; text: string }[] }>
+            handler: (
+              args: unknown
+            ) => Promise<{ content: { type: string; text: string }[]; isError?: boolean }>
           ) => void;
-          connect: (transport: unknown) => Promise<void>;
+          connect: (t: unknown) => Promise<void>;
           close: () => Promise<void>;
         };
 
-        // Register all tools
-        for (const tool of tools) {
+        for (const [toolName, tool] of Object.entries(tools)) {
           mcpServer.registerTool(
-            tool.name,
+            toolName,
             {
-              description: tool.description,
-              inputSchema: tool.getInputSchema(),
+              description: tool.description ?? '',
+              inputSchema: getInputSchemaFromTool(tool),
             },
             async (args: unknown) => {
               try {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                const result = await tool.execute(args as Record<string, unknown>);
+                if (!tool.execute) {
+                  return {
+                    content: [{ type: 'text', text: 'Tool has no execute function' }],
+                    isError: true,
+                  };
+                }
+                const result = await tool.execute(args, { toolCallId: '', messages: [] });
                 return {
                   content: [
                     {
@@ -84,12 +86,7 @@ export function createMCPServer(config: MCPServerConfig): MCPServer {
                 };
               } catch (error) {
                 return {
-                  content: [
-                    {
-                      type: 'text',
-                      text: `Error: ${(error as Error).message}`,
-                    },
-                  ],
+                  content: [{ type: 'text', text: `Error: ${(error as Error).message}` }],
                   isError: true,
                 };
               }
@@ -97,12 +94,10 @@ export function createMCPServer(config: MCPServerConfig): MCPServer {
           );
         }
 
-        // Create transport
         if (transportType === 'stdio') {
           transport = new StdioServerTransport();
           logger.info(`Starting MCP server "${name}" with stdio transport`);
         } else if (transportType === 'sse' || transportType === 'http') {
-          // SSE/HTTP transport would require additional setup
           throw new MCPError(`Transport "${transportType}" is not yet implemented`);
         } else {
           throw new MCPError(`Unknown transport: ${transportType}`);

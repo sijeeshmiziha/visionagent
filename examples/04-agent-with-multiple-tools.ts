@@ -7,7 +7,7 @@
  * Requires: OPENAI_API_KEY environment variable
  */
 
-import { createModel, defineTool, runAgent } from '../src/index';
+import { createModel, createToolSet, defineTool, runAgent } from '../src/index';
 import { z } from 'zod';
 
 const searchTool = defineTool({
@@ -57,7 +57,7 @@ async function main() {
 
   const result = await runAgent({
     model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-    tools: [searchTool, writeFileTool, getCurrentTimeTool],
+    tools: createToolSet([searchTool, writeFileTool, getCurrentTimeTool]),
     systemPrompt:
       'You are a research assistant. When asked to research a topic, use the search tool to find information, then summarize what you found.',
     input: 'Search for React hooks best practices and tell me what you found.',
@@ -65,7 +65,7 @@ async function main() {
     onStep: step => {
       if (step.toolCalls?.length) {
         step.toolCalls.forEach(tc => {
-          console.log(`Step ${step.iteration + 1}: ${tc.name}()`);
+          console.log(`Step ${step.iteration + 1}: ${tc.toolName}()`);
         });
       } else {
         console.log(`Step ${step.iteration + 1}: Generating response...`);

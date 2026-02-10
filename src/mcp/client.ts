@@ -33,25 +33,22 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
   let transport: unknown = null;
 
   /**
-   * Convert MCP tools to our tool format
+   * Convert one MCP tool to AI SDK Tool (via defineTool -> .tool)
    */
-  function convertMCPTool(mcpTool: {
+  function convertMCPTool(mcpTool: { name: string; description?: string; inputSchema?: unknown }): {
     name: string;
-    description?: string;
-    inputSchema?: unknown;
-  }): Tool {
-    const tool = defineTool({
+    tool: Tool;
+  } {
+    const named = defineTool({
       name: mcpTool.name,
       description: mcpTool.description || '',
-      input: z.record(z.unknown()), // Generic input since we don't have the Zod schema
+      input: z.record(z.unknown()),
       handler: async input => {
-        if (!client) {
-          throw new MCPError('Client not connected');
-        }
+        if (!client) throw new MCPError('Client not connected');
         return callMCPTool(mcpTool.name, input);
       },
     });
-    return tool as Tool;
+    return { name: named.name, tool: named.tool };
   }
 
   /**
@@ -145,7 +142,7 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
       }
     },
 
-    async getTools(): Promise<Tool[]> {
+    async getTools(): Promise<Record<string, Tool>> {
       if (!client) {
         throw new MCPError('Client not connected');
       }
@@ -161,10 +158,15 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
       };
 
       if (!result.tools) {
-        return [];
+        return {};
       }
 
-      return result.tools.map(convertMCPTool);
+      const record: Record<string, Tool> = {};
+      for (const mcpTool of result.tools) {
+        const { name, tool } = convertMCPTool(mcpTool);
+        record[name] = tool;
+      }
+      return record;
     },
 
     async callTool(name: string, args: Record<string, unknown>): Promise<unknown> {

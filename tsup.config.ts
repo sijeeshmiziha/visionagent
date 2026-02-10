@@ -9,9 +9,10 @@ export default defineConfig({
   treeshake: true,
   minify: true,
   external: [
-    '@langchain/openai',
-    '@langchain/anthropic',
-    '@langchain/google-genai',
+    'ai',
+    '@ai-sdk/openai',
+    '@ai-sdk/anthropic',
+    '@ai-sdk/google',
     '@modelcontextprotocol/sdk',
   ],
 });

@@ -1,14 +1,24 @@
 /**
- * Define a tool with Zod schema validation
+ * Define a tool with Zod schema validation (AI SDK tool() + zodSchema)
  */
 
 import type { z } from 'zod';
-import type { Tool, ToolConfig, ToolContext, ToolDefinition } from '../types/tool';
-import { zodToJsonSchema } from './schema';
-import { ValidationError, ToolError } from '../core/errors';
+import { tool, zodSchema } from 'ai';
+import type { ToolConfig, ToolContext } from '../types/tool';
+import type { Tool } from '../types/tool';
+import { ToolError } from '../core/errors';
 
 /**
- * Define a tool with input validation using Zod
+ * Return type: named tool for use with createToolSet or manual record.
+ */
+export interface NamedTool {
+  name: string;
+  tool: Tool;
+}
+
+/**
+ * Define a tool with input validation using Zod. Returns { name, tool } for createToolSet or use .tool in a record.
+ * Use as: createToolSet([defineTool({...})]) or { [defineTool({...}).name]: defineTool({...}).tool }
  *
  * @example
  * ```typescript
@@ -24,36 +34,26 @@ import { ValidationError, ToolError } from '../core/errors';
  *     return { results };
  *   }
  * });
+ * const tools = createToolSet([searchTool]);
  * ```
  */
 export function defineTool<TInput extends z.ZodType, TOutput>(
   config: ToolConfig<TInput, TOutput>
-): Tool<z.infer<TInput>, TOutput> {
+): NamedTool {
   const { name, description, input: inputSchema, handler } = config;
 
-  // Generate JSON Schema once
-  const jsonSchema = zodToJsonSchema(inputSchema, name);
-
-  return {
-    name,
+  const toolImpl = tool({
     description,
-
-    async execute(input: z.infer<TInput>, context?: ToolContext): Promise<TOutput> {
-      // Validate input
-      const parseResult = inputSchema.safeParse(input);
-
-      if (!parseResult.success) {
-        throw new ValidationError(
-          `Invalid input for tool "${name}": ${parseResult.error.message}`,
-          parseResult.error.errors
-        );
+    parameters: zodSchema(inputSchema),
+    execute: async (args, _opts) => {
+      const parsed = inputSchema.safeParse(args);
+      if (!parsed.success) {
+        throw new ToolError(`Invalid input: ${parsed.error.message}`, name, parsed.error);
       }
-
       try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        return await handler(parseResult.data, context);
+        return await handler(parsed.data, undefined as unknown as ToolContext);
       } catch (error) {
-        if (error instanceof ValidationError || error instanceof ToolError) {
+        if (error instanceof ToolError) {
           throw error;
         }
         throw new ToolError(
@@ -63,20 +63,6 @@ export function defineTool<TInput extends z.ZodType, TOutput>(
         );
       }
     },
-
-    getInputSchema() {
-      return jsonSchema;
-    },
-
-    toDefinition(): ToolDefinition {
-      return {
-        type: 'function',
-        function: {
-          name,
-          description,
-          parameters: jsonSchema,
-        },
-      };
-    },
-  };
+  });
+  return { name, tool: toolImpl };
 }

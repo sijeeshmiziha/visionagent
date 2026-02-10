@@ -6,6 +6,7 @@ import type { AgentResult } from '../types/agent';
 import type { ModelConfig } from '../types/model';
 import { runAgent } from '../agents/run-agent';
 import { createModel } from '../models/create-model';
+import { createToolSet } from '../tools/tool-set';
 import { helloWorldTool } from './tool';
 
 export interface HelloWorldAgentConfig {
@@ -34,7 +35,7 @@ export async function runHelloWorldAgent(config: HelloWorldAgentConfig): Promise
 
   return runAgent({
     model,
-    tools: [helloWorldTool],
+    tools: createToolSet([helloWorldTool]),
     systemPrompt,
     input,
     maxIterations,

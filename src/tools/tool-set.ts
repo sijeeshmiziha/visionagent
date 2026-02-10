@@ -1,54 +1,48 @@
 /**
- * Simple functions for working with tool collections
+ * Tool set as Record<string, Tool> (AI SDK ToolSet)
  */
 
-import type { Tool, ToolDefinition } from '../types/tool';
+import type { Tool } from '../types/tool';
+import type { NamedTool } from './define-tool';
 import { ToolError } from '../core/errors';
 
 /**
- * A tool set is just an array of tools with helper functions
+ * Tool set is a record of tool name to AI SDK Tool
  */
-export type ToolSet = Tool[];
+export type ToolSet = Record<string, Tool>;
 
 /**
- * Create a tool set from an array of tools
+ * Create a tool set from an array of named tools or from an existing record.
  *
  * @example
  * ```typescript
- * const tools = createToolSet([searchTool, calculatorTool]);
+ * const tools = createToolSet([defineTool({ name: 'search', ... }), defineTool({ name: 'calc', ... })]);
  * ```
  */
-export function createToolSet(tools: Tool[]): ToolSet {
-  // Validate no duplicate names
-  const names = new Set<string>();
-  for (const tool of tools) {
-    if (names.has(tool.name)) {
-      throw new ToolError(`Duplicate tool name: ${tool.name}`);
+export function createToolSet(tools: NamedTool[] | Record<string, Tool>): ToolSet {
+  if (Array.isArray(tools)) {
+    const record: ToolSet = {};
+    for (const item of tools) {
+      if (record[item.name]) {
+        throw new ToolError(`Duplicate tool name: ${item.name}`);
+      }
+      record[item.name] = item.tool;
     }
-    names.add(tool.name);
+    return record;
   }
-
   return tools;
 }
 
 /**
- * Get all tools from a tool set
+ * Get all tools from a tool set (array of Tool values)
  */
 export function getTools(toolSet: ToolSet): Tool[] {
-  return toolSet;
+  return Object.values(toolSet);
 }
 
 /**
  * Get a tool by name from a tool set
  */
 export function getTool(toolSet: ToolSet, name: string): Tool | undefined {
-  return toolSet.find(t => t.name === name);
+  return toolSet[name];
 }
-
-/**
- * Get tool definitions for LLM function calling
- */
-export function getToolSchemas(toolSet: ToolSet): ToolDefinition[] {
-  return toolSet.map(tool => tool.toDefinition());
-}
-

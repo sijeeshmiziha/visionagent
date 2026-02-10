@@ -12,7 +12,7 @@ import { createModel } from '../../src/index';
 
 const hasOpenAI = !!process.env.OPENAI_API_KEY;
 const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
-const hasGoogle = !!process.env.GOOGLE_API_KEY;
+const hasGoogle = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 describe('Model Integration Tests', () => {
   describe('OpenAI', () => {
@@ -20,36 +20,30 @@ describe('Model Integration Tests', () => {
       const model = createModel({ provider: 'openai', model: 'gpt-4o-mini' });
       const response = await model.invoke([{ role: 'user', content: 'Say "test passed"' }]);
 
-      expect(response.content).toBeTruthy();
-      expect(response.content.toLowerCase()).toContain('test');
-      expect(response.usage?.total).toBeGreaterThan(0);
+      expect(response.text).toBeTruthy();
+      expect(response.text.toLowerCase()).toContain('test');
+      expect(response.usage?.totalTokens).toBeGreaterThan(0);
     });
 
     it.skipIf(!hasOpenAI)('should handle tool calling', async () => {
-      const model = createModel({ provider: 'openai', model: 'gpt-4o-mini' });
+      const { createToolSet, defineTool } = await import('../../src/index');
+      const { z } = await import('zod');
 
-      const tools = [
-        {
-          type: 'function' as const,
-          function: {
-            name: 'get_weather',
-            description: 'Get weather for a location',
-            parameters: {
-              type: 'object',
-              properties: { city: { type: 'string' } },
-              required: ['city'],
-            },
-          },
-        },
-      ];
+      const model = createModel({ provider: 'openai', model: 'gpt-4o-mini' });
+      const getWeather = defineTool({
+        name: 'get_weather',
+        description: 'Get weather for a location',
+        input: z.object({ city: z.string() }),
+        handler: async () => ({ temp: 72, condition: 'Sunny' }),
+      });
 
       const response = await model.invoke(
         [{ role: 'user', content: 'What is the weather in Paris?' }],
-        { tools }
+        { tools: createToolSet([getWeather]) }
       );
 
       expect(response.toolCalls).toBeDefined();
-      expect(response.toolCalls?.[0]?.name).toBe('get_weather');
+      expect(response.toolCalls?.[0]?.toolName).toBe('get_weather');
     });
 
     it.skipIf(!hasOpenAI)('should handle system messages', async () => {
@@ -60,7 +54,7 @@ describe('Model Integration Tests', () => {
         { role: 'user', content: 'Hello!' },
       ]);
 
-      expect(response.content).toBeTruthy();
+      expect(response.text).toBeTruthy();
     });
   });
 
@@ -72,7 +66,7 @@ describe('Model Integration Tests', () => {
       });
       const response = await model.invoke([{ role: 'user', content: 'Say "test passed"' }]);
 
-      expect(response.content).toBeTruthy();
+      expect(response.text).toBeTruthy();
     });
 
     it.skipIf(!hasAnthropic)('should handle multi-turn conversations', async () => {
@@ -87,7 +81,7 @@ describe('Model Integration Tests', () => {
         { role: 'user', content: 'What is my name?' },
       ]);
 
-      expect(response.content.toLowerCase()).toContain('alice');
+      expect(response.text.toLowerCase()).toContain('alice');
     });
   });
 
@@ -99,7 +93,7 @@ describe('Model Integration Tests', () => {
       });
       const response = await model.invoke([{ role: 'user', content: 'Say "test passed"' }]);
 
-      expect(response.content).toBeTruthy();
+      expect(response.text).toBeTruthy();
     });
   });
 

@@ -1,9 +1,13 @@
 /**
  * Model-related types
+ * Uses AI SDK types for messages, tools, usage, and result shape
  */
 
-import type { Message, ImageInput, TokenUsage, ToolCall } from './common';
-import type { ToolDefinition } from './tool';
+import type { CoreMessage, FinishReason, LanguageModelUsage } from 'ai';
+import type { ImageInput } from './common';
+import type { Tool } from './tool';
+
+export type { LanguageModelUsage, FinishReason } from 'ai';
 
 /**
  * Supported model providers
@@ -29,11 +33,20 @@ export interface ModelConfig {
 }
 
 /**
+ * Tool call shape returned by the model (AI SDK compatible)
+ */
+export interface ModelToolCall {
+  toolCallId: string;
+  toolName: string;
+  args: unknown;
+}
+
+/**
  * Options for model invocation
  */
 export interface InvokeOptions {
-  /** Tool definitions for function calling */
-  tools?: ToolDefinition[];
+  /** Tools the model can call (AI SDK ToolSet = Record<string, Tool>) */
+  tools?: Record<string, Tool>;
   /** Maximum tokens to generate */
   maxTokens?: number;
   /** Temperature for generation */
@@ -53,17 +66,17 @@ export interface VisionOptions extends InvokeOptions {
 }
 
 /**
- * Response from a model invocation
+ * Response from a model invocation (AI SDK GenerateTextResult subset)
  */
 export interface ModelResponse {
-  /** The generated content */
-  content: string;
+  /** The generated text */
+  text: string;
   /** Tool calls if any were made */
-  toolCalls?: ToolCall[];
-  /** Token usage statistics */
-  usage?: TokenUsage;
+  toolCalls: ModelToolCall[];
+  /** Token usage */
+  usage: LanguageModelUsage;
   /** The finish reason */
-  finishReason?: 'stop' | 'tool_calls' | 'length' | 'content_filter';
+  finishReason: FinishReason;
 }
 
 /**
@@ -76,9 +89,9 @@ export interface Model {
   modelName: string;
 
   /**
-   * Invoke the model with messages
+   * Invoke the model with messages (AI SDK CoreMessage[])
    */
-  invoke(messages: Message[], options?: InvokeOptions): Promise<ModelResponse>;
+  invoke(messages: CoreMessage[], options?: InvokeOptions): Promise<ModelResponse>;
 
   /**
    * Generate a response with vision (images)

@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createModel, defineTool, runAgent } from '../../src/index';
+import { createModel, createToolSet, defineTool, runAgent } from '../../src/index';
 import { z } from 'zod';
 
 const hasOpenAI = !!process.env.OPENAI_API_KEY;
@@ -26,7 +26,7 @@ describe('Agent Integration Tests', () => {
 
       const result = await runAgent({
         model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-        tools: [testTool],
+        tools: createToolSet([testTool]),
         systemPrompt: 'You are a helpful assistant. Use the get_time tool when asked about time.',
         input: 'What time is it right now?',
         maxIterations: 3,
@@ -59,7 +59,7 @@ describe('Agent Integration Tests', () => {
 
       const result = await runAgent({
         model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-        tools: [addTool, multiplyTool],
+        tools: createToolSet([addTool, multiplyTool]),
         systemPrompt: 'You are a math assistant. Use tools to calculate.',
         input: 'What is 5 + 3?',
         maxIterations: 5,
@@ -76,7 +76,7 @@ describe('Agent Integration Tests', () => {
     async () => {
       const result = await runAgent({
         model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-        tools: [],
+        tools: {},
         systemPrompt: 'You are a helpful assistant.',
         input: 'Say hello!',
         maxIterations: 3,
@@ -93,14 +93,14 @@ describe('Agent Integration Tests', () => {
     async () => {
       const result = await runAgent({
         model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-        tools: [],
+        tools: {},
         systemPrompt: 'Be brief.',
         input: 'Hi',
         maxIterations: 3,
       });
 
       expect(result.totalUsage).toBeDefined();
-      expect(result.totalUsage?.total).toBeGreaterThan(0);
+      expect(result.totalUsage?.totalTokens).toBeGreaterThan(0);
     },
     20000
   );
@@ -112,7 +112,7 @@ describe('Agent Integration Tests', () => {
 
       await runAgent({
         model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-        tools: [],
+        tools: {},
         systemPrompt: 'Be brief.',
         input: 'Hi',
         maxIterations: 3,

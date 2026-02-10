@@ -6,15 +6,16 @@ import { describe, it, expect } from 'vitest';
 import { helloWorldTool } from '../../src/hello-world';
 
 describe('helloWorldTool', () => {
-  it('should have correct name and description', () => {
+  it('should have correct name and description (NamedTool)', () => {
     expect(helloWorldTool.name).toBe('hello_world');
-    expect(helloWorldTool.description).toBe(
-      'Returns a greeting message for the given name'
-    );
+    expect(helloWorldTool.tool.description).toBe('Returns a greeting message for the given name');
   });
 
   it('should execute and return greeting for given name', async () => {
-    const result = await helloWorldTool.execute({ name: 'Alice' });
+    const result = await helloWorldTool.tool.execute!(
+      { name: 'Alice' },
+      { toolCallId: '', messages: [] }
+    );
     expect(result).toEqual({
       greeting: 'Hello, Alice! Welcome to VisionAgent.',
     });
@@ -22,29 +23,24 @@ describe('helloWorldTool', () => {
 
   it('should throw on invalid input', async () => {
     await expect(
-      helloWorldTool.execute({ name: 123 as unknown as string })
+      helloWorldTool.tool.execute!(
+        { name: 123 as unknown as string },
+        { toolCallId: '', messages: [] }
+      )
     ).rejects.toThrow();
   });
 
   it('should throw when name is missing', async () => {
     await expect(
-      helloWorldTool.execute({} as { name: string })
+      helloWorldTool.tool.execute!({} as { name: string }, { toolCallId: '', messages: [] })
     ).rejects.toThrow();
   });
 
-  it('should generate JSON Schema with name property', () => {
-    const schema = helloWorldTool.getInputSchema();
-    expect(schema.type).toBe('object');
-    expect(schema.properties).toBeDefined();
-    expect(schema.properties?.name).toBeDefined();
-  });
-
-  it('should generate correct LLM tool definition', () => {
-    const definition = helloWorldTool.toDefinition();
-    expect(definition.type).toBe('function');
-    expect(definition.function.name).toBe('hello_world');
-    expect(definition.function.description).toBe(
-      'Returns a greeting message for the given name'
-    );
+  it('should have parameters with jsonSchema including name', () => {
+    const params = helloWorldTool.tool.parameters as { jsonSchema?: Record<string, unknown> };
+    expect(params?.jsonSchema).toBeDefined();
+    expect(params?.jsonSchema?.type).toBe('object');
+    const props = params?.jsonSchema?.properties as Record<string, unknown> | undefined;
+    expect(props?.name).toBeDefined();
   });
 });
