@@ -1,7 +1,7 @@
 /**
- * Example 10: Hello World MCP Server
+ * Example 07: Hello World MCP Server
  *
- * Run with: npm run example:10
+ * Run with: npm run example:07
  *
  * MCP server from the hello-world module (exposes hello_world tool over stdio).
  */
@@ -21,7 +21,7 @@ async function main() {
 
   console.log('\nTo use this server with an MCP client:');
   console.log('1. Configure your MCP client to connect via stdio');
-  console.log('2. Point it to: npx tsx examples/10-hello-world-mcp.ts');
+  console.log('2. Point it to: npx tsx examples/07-hello-world-mcp.ts');
   console.log('\nStarting server on stdio...');
 
   await server.start('stdio');

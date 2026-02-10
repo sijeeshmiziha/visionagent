@@ -1,7 +1,7 @@
 /**
- * Example 07: MCP Server Demo
+ * Example 05: MCP Server Demo
  *
- * Run with: npm run example:07
+ * Run with: npm run example:05
  *
  * Demonstrates creating an MCP server with tools.
  * This server can be used with MCP-compatible clients.
@@ -66,7 +66,7 @@ async function main() {
 
   console.log('\nTo use this server with an MCP client:');
   console.log('1. Configure your MCP client to connect via stdio');
-  console.log('2. Point it to: npx tsx examples/07-mcp-server.ts');
+  console.log('2. Point it to: npx tsx examples/05-mcp-server.ts');
   console.log('\nStarting server on stdio...');
 
   // Start the server

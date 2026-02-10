@@ -1,7 +1,7 @@
 /**
- * Example 09: Hello World Agent
+ * Example 06: Hello World Agent
  *
- * Run with: npm run example:09
+ * Run with: npm run example:06
  *
  * Demonstrates the hello world module agent (LangChain-backed model).
  * Requires: OPENAI_API_KEY environment variable
