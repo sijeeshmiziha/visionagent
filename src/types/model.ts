@@ -3,11 +3,16 @@
  * Uses AI SDK types for messages, tools, usage, and result shape
  */
 
-import type { CoreMessage, FinishReason, LanguageModelUsage } from 'ai';
+import type { Tool, ModelMessage, FinishReason, LanguageModelUsage } from 'ai';
 import type { ImageInput } from './common';
-import type { Tool } from './tool';
 
 export type { LanguageModelUsage, FinishReason } from 'ai';
+
+/**
+ * Tool type for model invocation
+ * Uses the default Tool type which accepts any input/output schema
+ */
+export type ModelTool = Tool;
 
 /**
  * Supported model providers
@@ -26,8 +31,8 @@ export interface ModelConfig {
   apiKey?: string;
   /** Temperature for generation (0-1) */
   temperature?: number;
-  /** Maximum tokens to generate */
-  maxTokens?: number;
+  /** Maximum output tokens to generate */
+  maxOutputTokens?: number;
   /** Base URL for the API (optional) */
   baseUrl?: string;
 }
@@ -38,17 +43,17 @@ export interface ModelConfig {
 export interface ModelToolCall {
   toolCallId: string;
   toolName: string;
-  args: unknown;
+  input: unknown;
 }
 
 /**
  * Options for model invocation
  */
 export interface InvokeOptions {
-  /** Tools the model can call (AI SDK ToolSet = Record<string, Tool>) */
-  tools?: Record<string, Tool>;
-  /** Maximum tokens to generate */
-  maxTokens?: number;
+  /** Tools the model can call */
+  tools?: Record<string, ModelTool>;
+  /** Maximum output tokens to generate */
+  maxOutputTokens?: number;
   /** Temperature for generation */
   temperature?: number;
   /** Stop sequences */
@@ -89,9 +94,9 @@ export interface Model {
   modelName: string;
 
   /**
-   * Invoke the model with messages (AI SDK CoreMessage[])
+   * Invoke the model with messages (AI SDK ModelMessage[])
    */
-  invoke(messages: CoreMessage[], options?: InvokeOptions): Promise<ModelResponse>;
+  invoke(messages: ModelMessage[], options?: InvokeOptions): Promise<ModelResponse>;
 
   /**
    * Generate a response with vision (images)

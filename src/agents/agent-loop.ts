@@ -1,9 +1,9 @@
 /**
- * Simple agent loop implementation (CoreMessage[], AI SDK shapes)
+ * Simple agent loop implementation (ModelMessage[], AI SDK shapes)
  */
 
 import type { AgentConfig, AgentResult, AgentStep, AgentToolResult } from '../types/agent';
-import type { CoreMessage } from '../types/common';
+import type { ModelMessage } from '../types/common';
 import type { ModelToolCall } from '../types/model';
 import { AgentError } from '../core/errors';
 import { sumTokenUsage } from '../core/utils';
@@ -12,7 +12,7 @@ import { executeToolByName } from '../tools/execute-tool';
 /**
  * Run the agent loop
  *
- * 1. Calls the model with CoreMessage[] and tools (Record<string, Tool>)
+ * 1. Calls the model with ModelMessage[] and tools (Record<string, Tool>)
  * 2. If no tool calls, returns the response
  * 3. If tool calls, executes them and appends assistant + tool messages (AI SDK shape)
  * 4. Repeats until done or max iterations reached
@@ -20,7 +20,7 @@ import { executeToolByName } from '../tools/execute-tool';
 export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
   const { model, tools, systemPrompt, input, maxIterations = 10, onStep } = config;
 
-  const messages: CoreMessage[] = [
+  const messages: ModelMessage[] = [
     { role: 'system', content: systemPrompt },
     { role: 'user', content: input },
   ];
@@ -55,7 +55,7 @@ export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
         type: 'tool-call' as const,
         toolCallId: tc.toolCallId,
         toolName: tc.toolName,
-        args: tc.args,
+        input: tc.input,
       })),
     ];
     messages.push({ role: 'assistant', content: assistantContent });
@@ -63,20 +63,27 @@ export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
     const toolResults: AgentToolResult[] = [];
 
     for (const toolCall of response.toolCalls) {
-      const execResult = await executeToolByName(
-        tools,
-        toolCall.toolName,
-        toolCall.args,
-        toolCall.toolCallId
-      );
+      const execResult = await executeToolByName(tools, toolCall.toolName, toolCall.input, {
+        toolCallId: toolCall.toolCallId,
+      });
 
       const agentResult: AgentToolResult = {
         toolCallId: toolCall.toolCallId,
         toolName: toolCall.toolName,
-        result: execResult.success ? execResult.result : execResult.error,
+        output: execResult.success ? execResult.output : execResult.error,
         isError: !execResult.success,
       };
       toolResults.push(agentResult);
+
+      const toolResultOutput = agentResult.isError
+        ? { type: 'error-text' as const, value: String(agentResult.output) }
+        : {
+            type: 'text' as const,
+            value:
+              typeof agentResult.output === 'string'
+                ? agentResult.output
+                : JSON.stringify(agentResult.output),
+          };
 
       messages.push({
         role: 'tool',
@@ -85,8 +92,7 @@ export async function agentLoop(config: AgentConfig): Promise<AgentResult> {
             type: 'tool-result' as const,
             toolCallId: toolCall.toolCallId,
             toolName: toolCall.toolName,
-            result: agentResult.result,
-            isError: agentResult.isError,
+            output: toolResultOutput,
           },
         ],
       });

@@ -1,12 +1,12 @@
 /**
  * Tool-related types
- * Re-exports AI SDK Tool, tool, zodSchema; keeps ToolConfig and ToolContext for defineTool
+ * Re-exports AI SDK Tool, tool, jsonSchema, ToolExecutionOptions; keeps ToolConfig and ToolContext for defineTool
  */
 
 import type { z } from 'zod';
 
-export type { Tool } from 'ai';
-export { tool, zodSchema, jsonSchema } from 'ai';
+export type { Tool, ToolExecutionOptions } from 'ai';
+export { tool, jsonSchema } from 'ai';
 
 /**
  * Configuration for defining a tool (input to defineTool)
@@ -23,13 +23,23 @@ export interface ToolConfig<TInput extends z.ZodType = z.ZodType, TOutput = unkn
 }
 
 /**
+ * Logger interface for tool context
+ */
+export interface ToolLogger {
+  debug(message: string, data?: Record<string, unknown>): void;
+  info(message: string, data?: Record<string, unknown>): void;
+  warn(message: string, data?: Record<string, unknown>): void;
+  error(message: string, error?: Error | Record<string, unknown>): void;
+}
+
+/**
  * Context passed to tool handlers
  */
 export interface ToolContext {
   /** Optional model for tools that need AI capabilities */
-  model?: unknown;
+  model?: { invoke: (...args: unknown[]) => Promise<unknown> };
   /** Optional logger */
-  logger?: unknown;
+  logger?: ToolLogger;
   /** Additional custom context */
   [key: string]: unknown;
 }
@@ -39,6 +49,6 @@ export interface ToolContext {
  */
 export interface ToolExecutionResult<T = unknown> {
   success: boolean;
-  result?: T;
+  output?: T;
   error?: string;
 }

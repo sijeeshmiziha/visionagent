@@ -32,7 +32,7 @@ export { createAnthropicModel } from './models/providers/anthropic';
 export { createGoogleModel } from './models/providers/google';
 
 // Tools (re-export AI SDK tool helpers for advanced use)
-export { tool, zodSchema, jsonSchema } from './types/tool';
+export { tool, jsonSchema } from './types/tool';
 export { defineTool } from './tools/define-tool';
 export { executeTool, executeToolByName } from './tools/execute-tool';
 export { createToolSet, getTools, getTool } from './tools/tool-set';

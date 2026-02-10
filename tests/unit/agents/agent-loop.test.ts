@@ -4,6 +4,23 @@ import { createToolSet } from '../../../src/tools/tool-set';
 import { defineTool } from '../../../src/tools/define-tool';
 import { z } from 'zod';
 import type { Model, ModelResponse } from '../../../src/types/model';
+import type { LanguageModelUsage } from 'ai';
+
+function mockUsage(u: {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+}): LanguageModelUsage {
+  return {
+    ...u,
+    inputTokenDetails: {
+      noCacheTokens: undefined,
+      cacheReadTokens: undefined,
+      cacheWriteTokens: undefined,
+    },
+    outputTokenDetails: { textTokens: undefined, reasoningTokens: undefined },
+  };
+}
 
 function createMockModel(responses: ModelResponse[]): Model {
   let callIndex = 0;
@@ -19,7 +36,7 @@ function createMockModel(responses: ModelResponse[]): Model {
     generateVision: vi.fn().mockResolvedValue({
       text: 'Vision response',
       toolCalls: [],
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+      usage: mockUsage({ inputTokens: 0, outputTokens: 0, totalTokens: 0 }),
       finishReason: 'stop',
     }),
   };
@@ -35,7 +52,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
       {
         text: 'Mocked response',
         toolCalls: [],
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+        usage: mockUsage({ inputTokens: 10, outputTokens: 5, totalTokens: 15 }),
         finishReason: 'stop',
       },
     ]);
@@ -70,16 +87,16 @@ describe('Agent Loop (Unit - Mocked)', () => {
           {
             toolCallId: 'call_123',
             toolName: 'test_tool',
-            args: { test: true },
+            input: { test: true },
           },
         ],
-        usage: { promptTokens: 50, completionTokens: 20, totalTokens: 70 },
+        usage: mockUsage({ inputTokens: 50, outputTokens: 20, totalTokens: 70 }),
         finishReason: 'tool-calls',
       },
       {
         text: 'Final answer after tool execution',
         toolCalls: [],
-        usage: { promptTokens: 30, completionTokens: 10, totalTokens: 40 },
+        usage: mockUsage({ inputTokens: 30, outputTokens: 10, totalTokens: 40 }),
         finishReason: 'stop',
       },
     ]);
@@ -102,7 +119,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
       {
         text: 'Done',
         toolCalls: [],
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+        usage: mockUsage({ inputTokens: 10, outputTokens: 5, totalTokens: 15 }),
         finishReason: 'stop',
       },
     ]);
@@ -138,14 +155,14 @@ describe('Agent Loop (Unit - Mocked)', () => {
     const model = createMockModel([
       {
         text: '',
-        toolCalls: [{ toolCallId: 'call_1', toolName: 'test_tool', args: {} }],
-        usage: { promptTokens: 50, completionTokens: 20, totalTokens: 70 },
+        toolCalls: [{ toolCallId: 'call_1', toolName: 'test_tool', input: {} }],
+        usage: mockUsage({ inputTokens: 50, outputTokens: 20, totalTokens: 70 }),
         finishReason: 'tool-calls',
       },
       {
         text: 'Final',
         toolCalls: [],
-        usage: { promptTokens: 30, completionTokens: 10, totalTokens: 40 },
+        usage: mockUsage({ inputTokens: 30, outputTokens: 10, totalTokens: 40 }),
         finishReason: 'stop',
       },
     ]);
@@ -167,7 +184,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
       {
         text: 'Response',
         toolCalls: [],
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+        usage: mockUsage({ inputTokens: 10, outputTokens: 5, totalTokens: 15 }),
         finishReason: 'stop',
       },
     ]);
@@ -200,14 +217,14 @@ describe('Agent Loop (Unit - Mocked)', () => {
     const model = createMockModel([
       {
         text: '',
-        toolCalls: [{ toolCallId: 'call_1', toolName: 'error_tool', args: {} }],
-        usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 },
+        toolCalls: [{ toolCallId: 'call_1', toolName: 'error_tool', input: {} }],
+        usage: mockUsage({ inputTokens: 20, outputTokens: 10, totalTokens: 30 }),
         finishReason: 'tool-calls',
       },
       {
         text: 'Handled the error',
         toolCalls: [],
-        usage: { promptTokens: 30, completionTokens: 10, totalTokens: 40 },
+        usage: mockUsage({ inputTokens: 30, outputTokens: 10, totalTokens: 40 }),
         finishReason: 'stop',
       },
     ]);
@@ -221,7 +238,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
     });
 
     expect(result.steps[0]?.toolResults?.[0]?.isError).toBe(true);
-    expect(String(result.steps[0]?.toolResults?.[0]?.result)).toContain('Tool execution failed');
+    expect(String(result.steps[0]?.toolResults?.[0]?.output)).toContain('Tool execution failed');
     expect(result.output).toBe('Handled the error');
   });
 });

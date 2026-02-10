@@ -1,9 +1,9 @@
 /**
- * Define a tool with Zod schema validation (AI SDK tool() + zodSchema)
+ * Define a tool with Zod schema validation (AI SDK tool() + inputSchema)
  */
 
 import type { z } from 'zod';
-import { tool, zodSchema } from 'ai';
+import { tool } from 'ai';
 import type { ToolConfig, ToolContext } from '../types/tool';
 import type { Tool } from '../types/tool';
 import { ToolError } from '../core/errors';
@@ -42,27 +42,31 @@ export function defineTool<TInput extends z.ZodType, TOutput>(
 ): NamedTool {
   const { name, description, input: inputSchema, handler } = config;
 
-  const toolImpl = tool({
+  const toolConfig = {
     description,
-    parameters: zodSchema(inputSchema),
-    execute: async (args, _opts) => {
+    inputSchema,
+    execute: async (
+      args: unknown,
+      _opts: { toolCallId: string; messages: unknown[] }
+    ): Promise<TOutput> => {
       const parsed = inputSchema.safeParse(args);
       if (!parsed.success) {
         throw new ToolError(`Invalid input: ${parsed.error.message}`, name, parsed.error);
       }
       try {
-        return await handler(parsed.data, undefined as unknown as ToolContext);
+        // Context is optional for handlers, pass undefined
+        const context: ToolContext | undefined = undefined;
+        return await handler(parsed.data, context);
       } catch (error) {
         if (error instanceof ToolError) {
           throw error;
         }
-        throw new ToolError(
-          `Tool "${name}" execution failed: ${(error as Error).message}`,
-          name,
-          error as Error
-        );
+        const err = error instanceof Error ? error : new Error(String(error));
+        throw new ToolError(`Tool "${name}" execution failed: ${err.message}`, name, err);
       }
     },
-  });
+  };
+  // Zod 4 ZodType and AI SDK 6 FlexibleSchema overload resolution: cast via unknown
+  const toolImpl = tool(toolConfig as unknown as Parameters<typeof tool>[0]);
   return { name, tool: toolImpl };
 }

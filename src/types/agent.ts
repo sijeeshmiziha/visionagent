@@ -3,11 +3,17 @@
  * Uses AI SDK types for messages, tool calls/results, and usage
  */
 
+import type { Tool } from 'ai';
 import type { Model } from './model';
-import type { Tool } from './tool';
-import type { CoreMessage } from './common';
+import type { ModelMessage } from './common';
 import type { LanguageModelUsage } from './model';
 import type { ModelToolCall } from './model';
+
+/**
+ * Tool type for agent context
+ * Uses the default Tool type which accepts any input/output schema
+ */
+export type AgentTool = Tool;
 
 /**
  * Tool result shape (AI SDK compatible)
@@ -15,7 +21,7 @@ import type { ModelToolCall } from './model';
 export interface AgentToolResult {
   toolCallId: string;
   toolName: string;
-  result: unknown;
+  output: unknown;
   isError?: boolean;
 }
 
@@ -25,8 +31,8 @@ export interface AgentToolResult {
 export interface AgentConfig {
   /** The model to use for generation */
   model: Model;
-  /** Tools available to the agent (Record<string, Tool>) */
-  tools: Record<string, Tool>;
+  /** Tools available to the agent */
+  tools: Record<string, AgentTool>;
   /** System prompt for the agent */
   systemPrompt: string;
   /** The user's input/query */
@@ -63,6 +69,6 @@ export interface AgentResult {
   steps: AgentStep[];
   /** Total token usage across all steps */
   totalUsage?: LanguageModelUsage;
-  /** The full message history (CoreMessage[]) */
-  messages: CoreMessage[];
+  /** The full message history (ModelMessage[]) */
+  messages: ModelMessage[];
 }

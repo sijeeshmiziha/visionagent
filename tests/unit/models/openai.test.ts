@@ -1,6 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { LanguageModelUsage } from 'ai';
 import type { Model, ModelResponse } from '../../../src/types/model';
-import type { CoreMessage } from '../../../src/types/common';
+import type { ModelMessage } from '../../../src/types/common';
+import type { Tool } from '../../../src/types/tool';
+
+function mockUsage(u: {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+}): LanguageModelUsage {
+  return {
+    ...u,
+    inputTokenDetails: {
+      noCacheTokens: undefined,
+      cacheReadTokens: undefined,
+      cacheWriteTokens: undefined,
+    },
+    outputTokenDetails: { textTokens: undefined, reasoningTokens: undefined },
+  };
+}
 
 function createMockModel(options?: {
   mockResponse?: Partial<ModelResponse>;
@@ -9,7 +27,7 @@ function createMockModel(options?: {
   const mockResponse: ModelResponse = {
     text: 'Mocked response',
     toolCalls: [],
-    usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+    usage: mockUsage({ inputTokens: 10, outputTokens: 5, totalTokens: 15 }),
     finishReason: 'stop',
     ...options?.mockResponse,
   };
@@ -19,7 +37,7 @@ function createMockModel(options?: {
     modelName: 'gpt-4o-mini',
     invoke: vi
       .fn()
-      .mockImplementation(async (_messages: CoreMessage[], invokeOptions?: unknown) => {
+      .mockImplementation(async (_messages: ModelMessage[], invokeOptions?: unknown) => {
         const opts = invokeOptions as { tools?: Record<string, unknown> } | undefined;
         const hasTools = opts?.tools && Object.keys(opts.tools).length > 0;
         if (hasTools && options?.toolCallResponse) {
@@ -56,15 +74,21 @@ describe('OpenAI Model (Unit - Mocked)', () => {
           {
             toolCallId: 'call_123',
             toolName: 'test_tool',
-            args: { test: true },
+            input: { test: true },
           },
         ],
-        usage: { promptTokens: 50, completionTokens: 20, totalTokens: 70 },
+        usage: mockUsage({ inputTokens: 50, outputTokens: 20, totalTokens: 70 }),
         finishReason: 'tool-calls',
       },
     });
 
-    const tools = { test_tool: { description: 'Test', parameters: {}, execute: async () => ({}) } };
+    const tools = {
+      test_tool: {
+        description: 'Test',
+        inputSchema: {},
+        execute: async () => ({}),
+      } as unknown as Tool,
+    };
 
     const response = await model.invoke([{ role: 'user', content: 'use tool' }], { tools });
 

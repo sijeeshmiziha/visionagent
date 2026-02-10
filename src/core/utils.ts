@@ -4,21 +4,38 @@
 
 import type { LanguageModelUsage } from 'ai';
 
+const emptyDetails = {
+  noCacheTokens: undefined as number | undefined,
+  cacheReadTokens: undefined as number | undefined,
+  cacheWriteTokens: undefined as number | undefined,
+};
+const emptyOutputDetails = {
+  textTokens: undefined as number | undefined,
+  reasoningTokens: undefined as number | undefined,
+};
+
 /**
  * Sum token usage from multiple steps (AI SDK LanguageModelUsage)
  */
 export function sumTokenUsage(usages: (LanguageModelUsage | undefined)[]): LanguageModelUsage {
-  let promptTokens = 0;
-  let completionTokens = 0;
+  let inputTokens = 0;
+  let outputTokens = 0;
   let totalTokens = 0;
 
   for (const usage of usages) {
     if (usage) {
-      promptTokens += usage.promptTokens;
-      completionTokens += usage.completionTokens;
-      totalTokens += usage.totalTokens;
+      // AI SDK types these fields loosely; default to 0 if undefined
+      inputTokens += usage.inputTokens !== undefined ? usage.inputTokens : 0;
+      outputTokens += usage.outputTokens !== undefined ? usage.outputTokens : 0;
+      totalTokens += usage.totalTokens !== undefined ? usage.totalTokens : 0;
     }
   }
 
-  return { promptTokens, completionTokens, totalTokens };
+  return {
+    inputTokens,
+    outputTokens,
+    totalTokens,
+    inputTokenDetails: emptyDetails,
+    outputTokenDetails: emptyOutputDetails,
+  };
 }

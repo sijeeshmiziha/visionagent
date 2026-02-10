@@ -1,10 +1,8 @@
 /**
- * Convert Zod schemas to JSON Schema
+ * Convert Zod schemas to JSON Schema (Zod 4 native)
  */
 
-import type { z } from 'zod';
-// Import at top level for ESM compatibility
-import { zodToJsonSchema as zodToJsonSchemaLib } from 'zod-to-json-schema';
+import { z } from 'zod';
 
 /** JSON Schema shape for MCP / tool parameters */
 export type JsonSchemaObject = Record<string, unknown>;
@@ -12,18 +10,15 @@ export type JsonSchemaObject = Record<string, unknown>;
 /**
  * Convert a Zod schema to JSON Schema
  *
- * Uses zod-to-json-schema under the hood
+ * Uses Zod 4 native z.toJSONSchema()
  */
 export function zodToJsonSchema(schema: z.ZodType, _name?: string): JsonSchemaObject {
-  const result = zodToJsonSchemaLib(schema, {
-    $refStrategy: 'none',
-  });
+  const result = z.toJSONSchema(schema) as JsonSchemaObject & {
+    $schema?: string;
+    definitions?: unknown;
+  };
 
-  const {
-    $schema: _schema,
-    definitions: _definitions,
-    ...jsonSchema
-  } = result as JsonSchemaObject & { $schema?: string; definitions?: unknown };
+  const { $schema: _schema, definitions: _definitions, ...jsonSchema } = result;
 
   return jsonSchema as JsonSchemaObject;
 }

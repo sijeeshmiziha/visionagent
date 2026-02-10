@@ -17,7 +17,7 @@ describe('defineTool', () => {
 
     expect(named.name).toBe('test_tool');
     expect(named.tool.description).toBe('A test tool');
-    expect(named.tool.parameters).toBeDefined();
+    expect(named.tool.inputSchema).toBeDefined();
     expect(named.tool.execute).toBeDefined();
   });
 
@@ -52,7 +52,7 @@ describe('defineTool', () => {
     ).rejects.toThrow();
   });
 
-  it('should have parameters with jsonSchema (AI SDK Schema)', () => {
+  it('should have inputSchema (Zod) with object shape', () => {
     const named = defineTool({
       name: 'schema_tool',
       description: 'Tool with schema',
@@ -63,10 +63,11 @@ describe('defineTool', () => {
       handler: async input => input,
     });
 
-    const params = named.tool.parameters as { jsonSchema?: Record<string, unknown> };
-    expect(params?.jsonSchema).toBeDefined();
-    expect(params?.jsonSchema?.type).toBe('object');
-    const props = params?.jsonSchema?.properties as Record<string, unknown> | undefined;
+    const schema = named.tool.inputSchema as z.ZodType;
+    expect(schema).toBeDefined();
+    const jsonSchema = z.toJSONSchema(schema) as Record<string, unknown>;
+    expect(jsonSchema.type).toBe('object');
+    const props = jsonSchema.properties as Record<string, unknown> | undefined;
     expect(props?.name).toBeDefined();
   });
 });

@@ -2,14 +2,50 @@
  * MCP Client implementation using @modelcontextprotocol/sdk
  */
 
-import type { MCPClient, MCPClientConfig } from '../types/mcp';
-import type { Tool } from '../types/tool';
+import type { MCPClient, MCPClientConfig, MCPTool } from '../types/mcp';
 import { MCPError } from '../core/errors';
 import { createLogger } from '../core/logger';
 import { defineTool } from '../tools/define-tool';
 import { z } from 'zod';
 
 const logger = createLogger({ prefix: 'mcp-client' });
+
+/** Shape of an MCP tool definition from server */
+interface MCPToolDefinition {
+  name: string;
+  description?: string;
+  inputSchema?: unknown;
+}
+
+/** Shape of MCP tool call response content */
+interface MCPToolResponseContent {
+  text?: string;
+}
+
+/** Shape of MCP tool call response */
+interface MCPToolResponse {
+  content?: MCPToolResponseContent[];
+}
+
+/** Shape of MCP tools list response */
+interface MCPToolsListResponse {
+  tools?: MCPToolDefinition[];
+}
+
+/** MCP client request method signature */
+interface MCPClientRequestMethod {
+  request: (request: { method: string; params?: unknown }, schema: object) => Promise<unknown>;
+}
+
+/** MCP client connect method signature */
+interface MCPClientConnectMethod {
+  connect: (transport: unknown) => Promise<void>;
+}
+
+/** MCP client close method signature */
+interface MCPClientCloseMethod {
+  close: () => Promise<void>;
+}
 
 /**
  * Create an MCP client to connect to MCP servers
@@ -35,15 +71,12 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
   /**
    * Convert one MCP tool to AI SDK Tool (via defineTool -> .tool)
    */
-  function convertMCPTool(mcpTool: { name: string; description?: string; inputSchema?: unknown }): {
-    name: string;
-    tool: Tool;
-  } {
+  function convertMCPTool(mcpTool: MCPToolDefinition): { name: string; tool: MCPTool } {
     const named = defineTool({
       name: mcpTool.name,
-      description: mcpTool.description || '',
-      input: z.record(z.unknown()),
-      handler: async input => {
+      description: mcpTool.description ?? '',
+      input: z.record(z.string(), z.unknown()),
+      handler: async (input: Record<string, unknown>): Promise<unknown> => {
         if (!client) throw new MCPError('Client not connected');
         return callMCPTool(mcpTool.name, input);
       },
@@ -54,32 +87,31 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
   /**
    * Call a tool on the MCP server
    */
-  async function callMCPTool(name: string, args: Record<string, unknown>): Promise<unknown> {
+  async function callMCPTool(name: string, toolArgs: Record<string, unknown>): Promise<unknown> {
     if (!client) {
       throw new MCPError('Client not connected');
     }
 
-    const mcpClient = client as {
-      request: (request: unknown, schema: unknown) => Promise<unknown>;
-    };
+    const mcpClient = client as MCPClientRequestMethod;
 
     const response = await mcpClient.request(
       {
         method: 'tools/call',
         params: {
           name,
-          arguments: args,
+          arguments: toolArgs,
         },
       },
-      {} // Schema placeholder
+      {}
     );
 
-    const result = response as { content?: { text?: string }[] };
-    if (result.content?.[0]?.text) {
+    const result = response as MCPToolResponse;
+    const textContent = result.content?.[0]?.text;
+    if (textContent) {
       try {
-        return JSON.parse(result.content[0].text);
+        return JSON.parse(textContent) as unknown;
       } catch {
-        return result.content[0].text;
+        return textContent;
       }
     }
 
@@ -117,24 +149,25 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
           }
         );
 
-        const mcpClient = client as { connect: (transport: unknown) => Promise<void> };
+        const mcpClient = client as MCPClientConnectMethod;
         await mcpClient.connect(transport);
 
         logger.info('Connected to MCP server');
       } catch (error) {
-        if ((error as Error).message?.includes('Cannot find module')) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        if (err.message.includes('Cannot find module')) {
           throw new MCPError(
             'Failed to load @modelcontextprotocol/sdk. Please install it: npm install @modelcontextprotocol/sdk',
-            error as Error
+            err
           );
         }
-        throw new MCPError(`Failed to connect: ${(error as Error).message}`, error as Error);
+        throw new MCPError(`Failed to connect: ${err.message}`, err);
       }
     },
 
     async disconnect(): Promise<void> {
       if (client) {
-        const mcpClient = client as { close: () => Promise<void> };
+        const mcpClient = client as MCPClientCloseMethod;
         await mcpClient.close();
         logger.info('Disconnected from MCP server');
         client = null;
@@ -142,26 +175,20 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
       }
     },
 
-    async getTools(): Promise<Record<string, Tool>> {
+    async getTools(): Promise<Record<string, MCPTool>> {
       if (!client) {
         throw new MCPError('Client not connected');
       }
 
-      const mcpClient = client as {
-        request: (request: unknown, schema: unknown) => Promise<unknown>;
-      };
-
+      const mcpClient = client as MCPClientRequestMethod;
       const response = await mcpClient.request({ method: 'tools/list' }, {});
-
-      const result = response as {
-        tools?: { name: string; description?: string; inputSchema?: unknown }[];
-      };
+      const result = response as MCPToolsListResponse;
 
       if (!result.tools) {
         return {};
       }
 
-      const record: Record<string, Tool> = {};
+      const record: Record<string, MCPTool> = {};
       for (const mcpTool of result.tools) {
         const { name, tool } = convertMCPTool(mcpTool);
         record[name] = tool;
@@ -169,8 +196,8 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
       return record;
     },
 
-    async callTool(name: string, args: Record<string, unknown>): Promise<unknown> {
-      return callMCPTool(name, args);
+    async callTool(name: string, toolArgs: Record<string, unknown>): Promise<unknown> {
+      return callMCPTool(name, toolArgs);
     },
   };
 }

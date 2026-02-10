@@ -2,7 +2,13 @@
  * MCP (Model Context Protocol) types
  */
 
-import type { Tool } from './tool';
+import type { Tool } from 'ai';
+
+/**
+ * Tool type for MCP context
+ * Uses the default Tool type which accepts any input/output schema
+ */
+export type MCPTool = Tool;
 
 /**
  * Transport type for MCP server
@@ -17,8 +23,8 @@ export interface MCPServerConfig {
   name: string;
   /** Server version */
   version: string;
-  /** Tools to expose via MCP (Record<string, Tool>) */
-  tools: Record<string, Tool>;
+  /** Tools to expose via MCP */
+  tools: Record<string, MCPTool>;
   /** Optional description */
   description?: string;
 }
@@ -42,7 +48,7 @@ export interface MCPServer {
   /** Server version */
   version: string;
   /** Tools exposed by the server */
-  tools: Record<string, Tool>;
+  tools: Record<string, MCPTool>;
   /** Start the server with the specified transport */
   start(transport: MCPTransport, options?: MCPServerStartOptions): Promise<void>;
   /** Stop the server */
@@ -71,8 +77,8 @@ export interface MCPClient {
   connect(): Promise<void>;
   /** Disconnect from the server */
   disconnect(): Promise<void>;
-  /** Get available tools from the server (Record<string, Tool>) */
-  getTools(): Promise<Record<string, Tool>>;
+  /** Get available tools from the server */
+  getTools(): Promise<Record<string, MCPTool>>;
   /** Call a tool on the server */
   callTool(name: string, args: Record<string, unknown>): Promise<unknown>;
 }

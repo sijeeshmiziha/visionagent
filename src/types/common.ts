@@ -3,7 +3,7 @@
  * Re-exports AI SDK message types; keeps VisionAgent-specific ImageInput and Logger
  */
 
-export type { CoreMessage } from 'ai';
+export type { ModelMessage } from 'ai';
 
 /**
  * Image input for vision models

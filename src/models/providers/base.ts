@@ -3,7 +3,7 @@
  */
 
 import { generateText } from 'ai';
-import type { LanguageModelV1 } from '@ai-sdk/provider';
+import type { LanguageModelV3 } from '@ai-sdk/provider';
 import type {
   Model,
   ModelResponse,
@@ -12,13 +12,13 @@ import type {
   ModelProvider,
   ModelToolCall,
 } from '../../types/model';
-import type { CoreMessage, ImageInput } from '../../types/common';
+import type { ModelMessage, ImageInput } from '../../types/common';
 import { ModelError } from '../../core/errors';
 
 export interface CreateAIModelParams {
   provider: ModelProvider;
   modelName: string;
-  getModel: () => LanguageModelV1 | Promise<LanguageModelV1>;
+  getModel: () => LanguageModelV3 | Promise<LanguageModelV3>;
 }
 
 /**
@@ -32,15 +32,14 @@ export function createAIModel(params: CreateAIModelParams): Model {
     provider,
     modelName,
 
-    async invoke(messages: CoreMessage[], options?: InvokeOptions): Promise<ModelResponse> {
+    async invoke(messages: ModelMessage[], options?: InvokeOptions): Promise<ModelResponse> {
       try {
         const model = await getModel();
         const result = await generateText({
           model,
           messages,
           tools: options?.tools,
-          maxSteps: 1,
-          maxTokens: options?.maxTokens,
+          maxOutputTokens: options?.maxOutputTokens,
           temperature: options?.temperature,
           stopSequences: options?.stop,
         });
@@ -48,7 +47,7 @@ export function createAIModel(params: CreateAIModelParams): Model {
         const toolCalls: ModelToolCall[] = result.toolCalls.map(tc => ({
           toolCallId: tc.toolCallId,
           toolName: tc.toolName,
-          args: tc.args,
+          input: tc.input as unknown,
         }));
 
         return {
@@ -58,7 +57,8 @@ export function createAIModel(params: CreateAIModelParams): Model {
           finishReason: result.finishReason,
         };
       } catch (error) {
-        throw new ModelError(`Failed to invoke ${provider} model`, provider, error as Error);
+        const err = error instanceof Error ? error : new Error(String(error));
+        throw new ModelError(`Failed to invoke ${provider} model`, provider, err);
       }
     },
 
@@ -83,7 +83,7 @@ export function createAIModel(params: CreateAIModelParams): Model {
         }
         content.push({ type: 'text', text: prompt });
 
-        const messages: CoreMessage[] = [];
+        const messages: ModelMessage[] = [];
         if (options?.systemPrompt) {
           messages.push({ role: 'system', content: options.systemPrompt });
         }
@@ -92,8 +92,7 @@ export function createAIModel(params: CreateAIModelParams): Model {
         const result = await generateText({
           model,
           messages,
-          maxSteps: 1,
-          maxTokens: options?.maxTokens,
+          maxOutputTokens: options?.maxOutputTokens,
           temperature: options?.temperature,
         });
 
@@ -104,7 +103,8 @@ export function createAIModel(params: CreateAIModelParams): Model {
           finishReason: result.finishReason,
         };
       } catch (error) {
-        throw new ModelError(`Failed to generate vision response`, provider, error as Error);
+        const err = error instanceof Error ? error : new Error(String(error));
+        throw new ModelError(`Failed to generate vision response`, provider, err);
       }
     },
   };

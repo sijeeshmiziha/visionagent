@@ -2,19 +2,47 @@
  * MCP Server implementation using @modelcontextprotocol/sdk
  */
 
-import type { MCPServer, MCPServerConfig, MCPServerStartOptions, MCPTransport } from '../types/mcp';
-import type { Tool } from '../types/tool';
+import type { z } from 'zod';
+import type { ToolExecutionOptions } from 'ai';
+import type {
+  MCPServer,
+  MCPServerConfig,
+  MCPServerStartOptions,
+  MCPTransport,
+  MCPTool,
+} from '../types/mcp';
 import { MCPError } from '../core/errors';
 import { createLogger } from '../core/logger';
+import { zodToJsonSchema } from '../tools/schema';
 
 const logger = createLogger({ prefix: 'mcp-server' });
 
+/** Shape of a schema that might be a Zod schema (has safeParse) */
+interface ZodLikeSchema {
+  safeParse?: (input: unknown) => unknown;
+}
+
+/** Shape of a schema that has jsonSchema property */
+interface JsonSchemaWrapper {
+  jsonSchema?: Record<string, unknown>;
+}
+
 /**
- * Get JSON schema from an AI SDK Tool's parameters (Schema has .jsonSchema)
+ * Get JSON schema from an AI SDK Tool (inputSchema: Zod or { jsonSchema })
  */
-function getInputSchemaFromTool(tool: Tool): Record<string, unknown> {
-  const params = tool.parameters as { jsonSchema?: Record<string, unknown> } | undefined;
-  return params?.jsonSchema ?? {};
+function getInputSchemaFromTool(tool: MCPTool): Record<string, unknown> {
+  const schema = tool.inputSchema as unknown;
+  if (!schema) return {};
+
+  // Check if it's a Zod schema (has safeParse method)
+  const zodLike = schema as ZodLikeSchema;
+  if (typeof zodLike.safeParse === 'function') {
+    return zodToJsonSchema(schema as z.ZodType);
+  }
+
+  // Check if it has a jsonSchema property
+  const withJson = schema as JsonSchemaWrapper;
+  return withJson.jsonSchema ?? {};
 }
 
 /**
@@ -75,18 +103,19 @@ export function createMCPServer(config: MCPServerConfig): MCPServer {
                     isError: true,
                   };
                 }
-                const result = await tool.execute(args, { toolCallId: '', messages: [] });
+                const execOptions: ToolExecutionOptions = {
+                  toolCallId: '',
+                  messages: [],
+                };
+                const result: unknown = await tool.execute(args, execOptions);
+                const text = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
                 return {
-                  content: [
-                    {
-                      type: 'text',
-                      text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
-                    },
-                  ],
+                  content: [{ type: 'text', text }],
                 };
               } catch (error) {
+                const err = error instanceof Error ? error : new Error(String(error));
                 return {
-                  content: [{ type: 'text', text: `Error: ${(error as Error).message}` }],
+                  content: [{ type: 'text', text: `Error: ${err.message}` }],
                   isError: true,
                 };
               }
@@ -106,16 +135,14 @@ export function createMCPServer(config: MCPServerConfig): MCPServer {
         await mcpServer.connect(transport);
         logger.info(`MCP server "${name}" started`);
       } catch (error) {
-        if ((error as Error).message?.includes('Cannot find module')) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        if (err.message.includes('Cannot find module')) {
           throw new MCPError(
             'Failed to load @modelcontextprotocol/sdk. Please install it: npm install @modelcontextprotocol/sdk',
-            error as Error
+            err
           );
         }
-        throw new MCPError(
-          `Failed to start MCP server: ${(error as Error).message}`,
-          error as Error
-        );
+        throw new MCPError(`Failed to start MCP server: ${err.message}`, err);
       }
     },
 

@@ -3,6 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { z } from 'zod';
 import { helloWorldTool } from '../../src/hello-world';
 
 describe('helloWorldTool', () => {
@@ -36,11 +37,12 @@ describe('helloWorldTool', () => {
     ).rejects.toThrow();
   });
 
-  it('should have parameters with jsonSchema including name', () => {
-    const params = helloWorldTool.tool.parameters as { jsonSchema?: Record<string, unknown> };
-    expect(params?.jsonSchema).toBeDefined();
-    expect(params?.jsonSchema?.type).toBe('object');
-    const props = params?.jsonSchema?.properties as Record<string, unknown> | undefined;
+  it('should have inputSchema (Zod) including name', () => {
+    const schema = helloWorldTool.tool.inputSchema as z.ZodType;
+    expect(schema).toBeDefined();
+    const jsonSchema = z.toJSONSchema(schema) as Record<string, unknown>;
+    expect(jsonSchema.type).toBe('object');
+    const props = jsonSchema.properties as Record<string, unknown> | undefined;
     expect(props?.name).toBeDefined();
   });
 });
