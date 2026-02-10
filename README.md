@@ -608,11 +608,10 @@ See the [examples directory](./examples/README.md) for runnable examples:
 | Basic Model      | `npm run example:01` | Simple model invocation          |
 | All Providers    | `npm run example:02` | Test OpenAI, Anthropic, Google   |
 | Tool Calling     | `npm run example:03` | Agent with calculator tool       |
-| Figma Analysis   | `npm run example:04` | Analyze design images            |
-| Vision Test      | `npm run example:05` | Custom image analysis            |
-| Multi-Tool Agent | `npm run example:06` | Complex multi-tool orchestration |
-| MCP Server       | `npm run example:07` | Create an MCP server             |
-| Figma to Code    | `npm run example:08` | Structured code generation data  |
+| Multi-Tool Agent | `npm run example:04` | Complex multi-tool orchestration |
+| MCP Server       | `npm run example:05` | Create an MCP server             |
+| Hello World      | `npm run example:06` | Basic agent with greeting tool   |
+| Hello World MCP  | `npm run example:07` | MCP server with hello-world tool |
 
 ---
 

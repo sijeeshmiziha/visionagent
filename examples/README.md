@@ -10,11 +10,10 @@ This directory contains runnable examples demonstrating VisionAgent's capabiliti
   - [01 - Basic Model](#01---basic-model)
   - [02 - All Providers](#02---all-providers)
   - [03 - Tool Calling](#03---tool-calling)
-  - [04 - Figma Analysis](#04---figma-analysis)
-  - [05 - Vision Test](#05---vision-test)
-  - [06 - Multi-Tool Agent](#06---multi-tool-agent)
-  - [07 - MCP Server](#07---mcp-server)
-- [Test Data](#test-data)
+  - [04 - Multi-Tool Agent](#04---multi-tool-agent)
+  - [05 - MCP Server](#05---mcp-server)
+  - [06 - Hello World](#06---hello-world)
+  - [07 - Hello World MCP](#07---hello-world-mcp)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -171,87 +170,9 @@ Total tokens: { promptTokens: 245, completionTokens: 67, totalTokens: 312 }
 
 ---
 
-### 04 - Figma Analysis
+### 04 - Multi-Tool Agent
 
 **Command**: `npm run example:04`
-
-**What it does**: Analyzes Figma design screenshots and extracts requirements.
-
-**Use case**: Turn design mockups into user stories and acceptance criteria.
-
-**Required API key**: `OPENAI_API_KEY`
-
-**Required test data**: Images in `examples/test-data/figma-screens/`
-
-<details>
-<summary><strong>Expected Output</strong></summary>
-
-```
-Analyzing Figma designs...
-
-Found 3 images in ./examples/test-data/figma-screens
-
-Analysis:
-## User Types
-- Admin users
-- Regular users
-
-## User Stories
-- As a user, I want to log in so that I can access my dashboard
-- As an admin, I want to manage users so that I can control access
-
-## Features
-1. Authentication
-   - Login form with email/password
-   - Remember me checkbox
-   - Forgot password link
-
-2. Dashboard
-   - Overview statistics
-   - Recent activity feed
-   ...
-
-Tokens used: { promptTokens: 1250, completionTokens: 450 }
-```
-
-</details>
-
----
-
-### 05 - Vision Test
-
-**Command**: `npm run example:05`
-
-**What it does**: Custom image analysis with configurable prompts.
-
-**Use case**: Analyze any image with custom questions (not just Figma designs).
-
-**Required API key**: `OPENAI_API_KEY`
-
-**Required test data**: `examples/test-data/sample-ui.png`
-
-<details>
-<summary><strong>Expected Output</strong></summary>
-
-```
-Testing vision capabilities...
-
-Analyzing: ./examples/test-data/sample-ui.png
-
-Response: This image shows a modern web application dashboard with...
-- Navigation sidebar on the left
-- Main content area with cards
-- Header with user profile dropdown
-...
-```
-
-</details>
-
----
-
-### 06 - Multi-Tool Agent
-
-**Command**: `npm run example:06`
 
 **What it does**: Complex agent with multiple tools (search, file operations, calculations).
 
@@ -279,9 +200,9 @@ Steps taken: 3
 
 ---
 
-### 07 - MCP Server
+### 05 - MCP Server
 
-**Command**: `npm run example:07`
+**Command**: `npm run example:05`
 
 **What it does**: Creates an MCP (Model Context Protocol) server with custom tools.
 
@@ -315,7 +236,7 @@ Add to your MCP configuration:
   "mcpServers": {
     "visionagent-example": {
       "command": "npx",
-      "args": ["tsx", "examples/07-mcp-server.ts"]
+      "args": ["tsx", "examples/05-mcp-server.ts"]
     }
   }
 }
@@ -323,22 +244,27 @@ Add to your MCP configuration:
 
 ---
 
-## Test Data
+### 06 - Hello World
 
-For vision and Figma analysis examples, you need test images:
+**Command**: `npm run example:06`
 
-```
-examples/
-└── test-data/
-    ├── README.md           # Test data documentation
-    ├── sample-ui.png       # For vision tests (05)
-    └── figma-screens/      # For Figma analysis (04)
-        ├── login.png
-        ├── dashboard.png
-        └── settings.png
-```
+**What it does**: Runs a simple hello-world agent that demonstrates the basic agent loop with a greeting tool.
 
-See [test-data/README.md](./test-data/README.md) for details on preparing test images.
+**Use case**: Minimal starting point for understanding how agents and tools work together.
+
+**Required API key**: `OPENAI_API_KEY`
+
+---
+
+### 07 - Hello World MCP
+
+**Command**: `npm run example:07`
+
+**What it does**: Creates an MCP server exposing the hello-world tool, demonstrating how to serve tools over the Model Context Protocol.
+
+**Use case**: Learn how to wrap tools as MCP servers for use with Cursor, Claude Desktop, etc.
+
+**Required API key**: None (server-side only)
 
 ---
 
