@@ -9,7 +9,7 @@ import {
   ToolError,
   ValidationError,
   AgentError,
-} from '../../src/core/errors';
+} from '../../src/lib/utils/errors';
 
 describe('errors', () => {
   describe('LibraryError', () => {

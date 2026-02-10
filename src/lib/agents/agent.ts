@@ -5,8 +5,8 @@
 import type { AgentConfig, AgentResult, AgentStep, AgentToolResult } from '../types/agent';
 import type { ModelMessage } from '../types/common';
 import type { ModelToolCall } from '../types/model';
-import { AgentError } from '../core/errors';
-import { sumTokenUsage } from '../core/utils';
+import { AgentError } from '../utils/errors';
+import { sumTokenUsage } from '../utils/utils';
 import { executeToolByName } from '../tools';
 
 /**

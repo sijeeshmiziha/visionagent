@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { tool } from 'ai';
 import type { Tool, ToolExecutionOptions } from 'ai';
 import type { ToolConfig, ToolContext, ToolExecutionResult } from '../types/tool';
-import { ToolError } from '../core/errors';
+import { ToolError } from '../utils/errors';
 
 /** Tool has description (and optional title) in config; name is the key in createToolSet. */
 export function defineTool<TInput extends z.ZodType, TOutput>(

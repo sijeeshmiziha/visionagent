@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { defineTool } from '../tools';
+import { defineTool } from '../../lib/tools';
 
 export const helloWorldTool = defineTool({
   name: 'hello_world',

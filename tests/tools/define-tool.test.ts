@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
-import { defineTool } from '../../src/tools';
+import { defineTool } from '../../src/lib/tools';
 
 describe('defineTool', () => {
   it('should return AI SDK Tool with description and execute', () => {

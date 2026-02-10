@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
-import { defineTool, createToolSet, getTools, getTool } from '../../src/tools';
+import { defineTool, createToolSet, getTools, getTool } from '../../src/lib/tools';
 
 describe('tool-set', () => {
   const tool1 = defineTool({

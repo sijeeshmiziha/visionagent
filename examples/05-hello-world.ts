@@ -8,7 +8,8 @@
  * Requires: OPENAI_API_KEY environment variable
  */
 
-import { runHelloWorldAgent } from '../src/hello-world';
+import { runHelloWorldAgent } from '../src/modules/hello-world';
+import type { AgentStep } from '../src/lib/types/agent';
 
 async function main() {
   console.log('=== Hello World Agent (multiple greetings) ===\n');
@@ -20,7 +21,7 @@ async function main() {
       'You are a friendly greeter. Use the hello_world tool to greet each person the user mentions. ' +
       'Call the tool once per person. After greeting everyone, write a short summary.',
     maxIterations: 5,
-    onStep: step => {
+    onStep: (step: AgentStep) => {
       const stepNum = step.iteration + 1;
 
       if (step.toolCalls?.length) {

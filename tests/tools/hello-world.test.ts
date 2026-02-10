@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
-import { helloWorldTool } from '../../src/hello-world';
+import { helloWorldTool } from '../../src/modules/hello-world';
 
 describe('helloWorldTool', () => {
   it('should have correct description', () => {

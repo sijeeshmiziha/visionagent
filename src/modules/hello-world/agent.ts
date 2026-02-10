@@ -2,11 +2,11 @@
  * Hello World agent - runs an agent with the hello world tool
  */
 
-import type { AgentResult, AgentStep } from '../types/agent';
-import type { ModelConfig } from '../types/model';
-import { runAgent } from '../agents';
-import { createModel } from '../models/create-model';
-import { createToolSet } from '../tools';
+import type { AgentResult, AgentStep } from '../../lib/types/agent';
+import type { ModelConfig } from '../../lib/types/model';
+import { runAgent } from '../../lib/agents';
+import { createModel } from '../../lib/models/create-model';
+import { createToolSet } from '../../lib/tools';
 import { helloWorldTool } from './tool';
 
 export interface HelloWorldAgentConfig {

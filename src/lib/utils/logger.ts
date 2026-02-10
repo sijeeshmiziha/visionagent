@@ -78,4 +78,3 @@ export function createLogger(config: LoggerConfig = {}): Logger {
     },
   };
 }
-

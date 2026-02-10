@@ -19,32 +19,8 @@
  * ```
  */
 
-// Core
-export * from './core/index';
+// Framework
+export * from './lib';
 
-// Types
-export type * from './types/index';
-
-// Models
-export { createModel } from './models/index';
-export { createOpenAIModel } from './models/providers/openai';
-export { createAnthropicModel } from './models/providers/anthropic';
-export { createGoogleModel } from './models/providers/google';
-
-// Tools (re-export AI SDK tool helpers for advanced use)
-export { tool, jsonSchema } from './types/tool';
-export {
-  defineTool,
-  executeTool,
-  executeToolByName,
-  createToolSet,
-  getTools,
-  getTool,
-} from './tools';
-
-// Hello World module
-export { helloWorldTool, runHelloWorldAgent } from './hello-world';
-export type { HelloWorldAgentConfig } from './hello-world';
-
-// Agents
-export { runAgent } from './agents/agent';
+// Modules
+export * from './modules';

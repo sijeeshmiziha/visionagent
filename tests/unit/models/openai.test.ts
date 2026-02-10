@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { LanguageModelUsage } from 'ai';
-import type { Model, ModelResponse } from '../../../src/types/model';
-import type { ModelMessage } from '../../../src/types/common';
-import type { Tool } from '../../../src/types/tool';
+import type { Model, ModelResponse } from '../../../src/lib/types/model';
+import type { ModelMessage } from '../../../src/lib/types/common';
+import type { Tool } from '../../../src/lib/types/tool';
 
 function mockUsage(u: {
   inputTokens: number;

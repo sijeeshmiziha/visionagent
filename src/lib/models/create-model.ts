@@ -3,7 +3,7 @@
  */
 
 import type { Model, ModelConfig } from '../types/model';
-import { ModelError } from '../core/errors';
+import { ModelError } from '../utils/errors';
 import { createOpenAIModel } from './providers/openai';
 import { createAnthropicModel } from './providers/anthropic';
 import { createGoogleModel } from './providers/google';

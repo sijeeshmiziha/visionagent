@@ -13,7 +13,7 @@ import type {
   ModelToolCall,
 } from '../../types/model';
 import type { ModelMessage, ImageInput } from '../../types/common';
-import { ModelError } from '../../core/errors';
+import { ModelError } from '../../utils/errors';
 
 export interface CreateAIModelParams {
   provider: ModelProvider;

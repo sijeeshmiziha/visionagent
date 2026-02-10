@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runAgent } from '../../../src/agents';
-import { createToolSet, defineTool } from '../../../src/tools';
+import { runAgent } from '../../../src/lib/agents';
+import { createToolSet, defineTool } from '../../../src/lib/tools';
 import { z } from 'zod';
-import type { Model, ModelResponse } from '../../../src/types/model';
+import type { Model, ModelResponse } from '../../../src/lib/types/model';
 import type { LanguageModelUsage } from 'ai';
 
 function mockUsage(u: {
