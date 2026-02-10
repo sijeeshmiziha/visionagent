@@ -23,7 +23,7 @@
 export * from './core/index';
 
 // Types
-export * from './types/index';
+export type * from './types/index';
 
 // Models
 export { createModel } from './models/index';
@@ -35,6 +35,10 @@ export { createGoogleModel } from './models/providers/google';
 export { defineTool } from './tools/define-tool';
 export { executeTool, executeToolByName } from './tools/execute-tool';
 export { createToolSet, getTools, getTool, getToolSchemas } from './tools/tool-set';
+
+// Hello World module
+export { helloWorldTool, runHelloWorldAgent, createHelloWorldMCPServer } from './hello-world';
+export type { HelloWorldAgentConfig } from './hello-world';
 
 // Agents
 export { runAgent } from './agents/run-agent';
