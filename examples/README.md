@@ -11,9 +11,7 @@ This directory contains runnable examples demonstrating VisionAgent's capabiliti
   - [02 - All Providers](#02---all-providers)
   - [03 - Tool Calling](#03---tool-calling)
   - [04 - Multi-Tool Agent](#04---multi-tool-agent)
-  - [05 - MCP Server](#05---mcp-server)
-  - [06 - Hello World](#06---hello-world)
-  - [07 - Hello World MCP](#07---hello-world-mcp)
+  - [05 - Hello World](#05---hello-world)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -200,71 +198,15 @@ Steps taken: 3
 
 ---
 
-### 05 - MCP Server
+### 05 - Hello World
 
 **Command**: `npm run example:05`
-
-**What it does**: Creates an MCP (Model Context Protocol) server with custom tools.
-
-**Use case**: Expose your tools to MCP-compatible clients (Cursor, Claude Desktop).
-
-**Required API key**: None (server-side only)
-
-<details>
-<summary><strong>Expected Output</strong></summary>
-
-```
-Starting MCP server...
-
-Server: my-tools v1.0.0
-Transport: stdio
-Available tools:
-  - search: Search the web for information
-  - analyze: Analyze text content
-
-Server is running. Press Ctrl+C to stop.
-```
-
-</details>
-
-**To use with Cursor/Claude Desktop**:
-
-Add to your MCP configuration:
-
-```json
-{
-  "mcpServers": {
-    "visionagent-example": {
-      "command": "npx",
-      "args": ["tsx", "examples/05-mcp-server.ts"]
-    }
-  }
-}
-```
-
----
-
-### 06 - Hello World
-
-**Command**: `npm run example:06`
 
 **What it does**: Runs a simple hello-world agent that demonstrates the basic agent loop with a greeting tool.
 
 **Use case**: Minimal starting point for understanding how agents and tools work together.
 
 **Required API key**: `OPENAI_API_KEY`
-
----
-
-### 07 - Hello World MCP
-
-**Command**: `npm run example:07`
-
-**What it does**: Creates an MCP server exposing the hello-world tool, demonstrating how to serve tools over the Model Context Protocol.
-
-**Use case**: Learn how to wrap tools as MCP servers for use with Cursor, Claude Desktop, etc.
-
-**Required API key**: None (server-side only)
 
 ---
 

@@ -72,12 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Built-in prompts for user story extraction
   - `validateFigmaFolder()` for input validation
 
-- **MCP Integration**
-  - `createMCPServer()` for exposing tools via MCP
-  - `createMCPClient()` for consuming MCP servers
-  - stdio transport support
-  - Compatible with Cursor, Claude Desktop, and other MCP clients
-
 #### Developer Experience
 
 - Full TypeScript support with comprehensive type definitions
@@ -101,9 +95,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-| Version | Date       | Highlights                                          |
-| ------- | ---------- | --------------------------------------------------- |
-| 0.0.1   | 2026-02-05 | Initial release with vision, tools, agents, and MCP |
+| Version | Date       | Highlights                                     |
+| ------- | ---------- | ---------------------------------------------- |
+| 0.0.1   | 2026-02-05 | Initial release with vision, tools, and agents |
 
 ---
 
@@ -125,13 +119,12 @@ While in 0.x.x versions:
 
 ### Stability Guarantees
 
-| Component               | Stability    |
-| ----------------------- | ------------ |
-| `createModel()`         | Stable       |
-| `defineTool()`          | Stable       |
-| `runAgent()`            | Stable       |
-| `analyzeFigmaDesigns()` | Stable       |
-| MCP Server/Client       | Experimental |
+| Component               | Stability |
+| ----------------------- | --------- |
+| `createModel()`         | Stable    |
+| `defineTool()`          | Stable    |
+| `runAgent()`            | Stable    |
+| `analyzeFigmaDesigns()` | Stable    |
 
 ---
 

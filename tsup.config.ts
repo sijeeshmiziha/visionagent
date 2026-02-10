@@ -8,11 +8,5 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   minify: true,
-  external: [
-    'ai',
-    '@ai-sdk/openai',
-    '@ai-sdk/anthropic',
-    '@ai-sdk/google',
-    '@modelcontextprotocol/sdk',
-  ],
+  external: ['ai', '@ai-sdk/openai', '@ai-sdk/anthropic', '@ai-sdk/google'],
 });

@@ -1,6 +1,6 @@
 /**
  * VisionAgent - Multi-provider AI agent framework
- * with vision, tool calling, and MCP support
+ * with vision and tool calling support
  *
  * @example
  * ```typescript
@@ -43,12 +43,8 @@ export {
 } from './tools';
 
 // Hello World module
-export { helloWorldTool, runHelloWorldAgent, createHelloWorldMCPServer } from './hello-world';
+export { helloWorldTool, runHelloWorldAgent } from './hello-world';
 export type { HelloWorldAgentConfig } from './hello-world';
 
 // Agents
 export { runAgent } from './agents/agent';
-
-// MCP
-export { createMCPServer } from './mcp/server';
-export { createMCPClient } from './mcp/client';

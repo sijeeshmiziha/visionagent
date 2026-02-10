@@ -9,7 +9,6 @@ import {
   ToolError,
   ValidationError,
   AgentError,
-  MCPError,
 } from '../../src/core/errors';
 
 describe('errors', () => {
@@ -57,13 +56,6 @@ describe('errors', () => {
       const error = new AgentError('Agent failed', 5);
       expect(error.iteration).toBe(5);
       expect(error.name).toBe('AgentError');
-    });
-  });
-
-  describe('MCPError', () => {
-    it('should create MCP error', () => {
-      const error = new MCPError('Connection failed');
-      expect(error.name).toBe('MCPError');
     });
   });
 });

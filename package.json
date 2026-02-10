@@ -1,7 +1,7 @@
 {
   "name": "visionagent",
   "version": "0.0.1",
-  "description": "Multi-provider AI agent framework with vision, tool calling, and MCP support",
+  "description": "Multi-provider AI agent framework with vision and tool calling support",
   "author": {
     "name": "sijeeshmiziha",
     "email": "sijeeshmonbalan@gmail.com",
@@ -37,10 +37,8 @@
     "example:02": "tsx --env-file=.env examples/02-all-providers.ts",
     "example:03": "tsx --env-file=.env examples/03-tool-calling.ts",
     "example:04": "tsx --env-file=.env examples/04-agent-with-multiple-tools.ts",
-    "example:05": "tsx --env-file=.env examples/05-mcp-server.ts",
-    "example:06": "tsx --env-file=.env examples/06-hello-world.ts",
-    "example:07": "tsx --env-file=.env examples/07-hello-world-mcp.ts",
-    "example:all": "npm run example:01 && npm run example:02 && npm run example:03 && npm run example:04 && npm run example:05 && npm run example:06 && npm run example:07",
+    "example:05": "tsx --env-file=.env examples/05-hello-world.ts",
+    "example:all": "npm run example:01 && npm run example:02 && npm run example:03 && npm run example:04 && npm run example:05",
     "tokens": "tsx .scripts/token-calculator.ts",
     "tokens:verbose": "tsx .scripts/token-calculator.ts --verbose",
     "tokens:json": "tsx .scripts/token-calculator.ts --json",
@@ -68,7 +66,6 @@
     "vision",
     "agents",
     "tools",
-    "mcp",
     "ai-sdk",
     "openai",
     "anthropic",
@@ -79,7 +76,6 @@
     "@ai-sdk/anthropic": "^3.0.0",
     "@ai-sdk/google": "^3.0.0",
     "@ai-sdk/openai": "^3.0.0",
-    "@modelcontextprotocol/sdk": "^1.0.0",
     "ai": "^6.0.0",
     "zod": "^4.1.8"
   },

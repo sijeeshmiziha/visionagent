@@ -1,7 +1,7 @@
 /**
- * Example 06: Hello World Agent
+ * Example 05: Hello World Agent
  *
- * Run with: npm run example:06
+ * Run with: npm run example:05
  *
  * Demonstrates the hello world module agent with onStep callback
  * that reports progress across multiple tool-call iterations.

@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">VisionAgent</h1>
   <p align="center">
-    <strong>A powerful multi-provider AI agent framework with vision capabilities, tool calling, and MCP support.</strong>
+    <strong>A powerful multi-provider AI agent framework with vision capabilities and tool calling.</strong>
   </p>
   <p align="center">
     Build intelligent agents that can process images, execute tools, and integrate seamlessly with AI ecosystems.
@@ -40,7 +40,6 @@
   - [Tools](#tools)
   - [Agents](#agents)
   - [Figma Analysis](#figma-analysis)
-  - [MCP Integration](#mcp-integration)
 - [Module Exports](#module-exports)
 - [Examples](#examples)
 - [Comparison with Alternatives](#comparison-with-alternatives)
@@ -61,7 +60,7 @@ VisionAgent was built to solve a specific problem: **extracting actionable requi
 - **Lightweight & Focused**: ~15KB minified, no bloated dependencies
 - **Tree-Shakeable**: Import only what you need for optimal bundle sizes
 - **Type-Safe**: Full TypeScript support with Zod schema validation
-- **MCP Native**: First-class Model Context Protocol support for tool interoperability
+- **Provider Agnostic**: Unified API across OpenAI, Anthropic, and Google AI providers
 
 ```typescript
 // Turn Figma designs into requirements in 5 lines
@@ -82,7 +81,6 @@ console.log(analysis); // User stories, features, acceptance criteria
 | **Multi-Provider**  | Support for OpenAI (GPT-4o), Anthropic (Claude), and Google (Gemini)        |
 | **Tool System**     | Define custom tools with Zod schema validation and type inference           |
 | **Agent Framework** | Build autonomous agents with tool calling, reasoning, and iteration control |
-| **MCP Integration** | Create and consume Model Context Protocol servers for tool interoperability |
 | **Tree-Shakeable**  | Modular exports for optimized bundle sizes                                  |
 | **Type-Safe**       | Full TypeScript support with comprehensive type definitions                 |
 | **Zero Config**     | Works out of the box with environment variables                             |
@@ -129,8 +127,6 @@ npm install @langchain/anthropic
 # Google (Gemini 1.5 Pro, Gemini 1.5 Flash)
 npm install @langchain/google-genai
 
-# MCP Server Support (optional)
-npm install @modelcontextprotocol/sdk
 ```
 
 ### Environment Setup
@@ -274,23 +270,6 @@ console.log(result.output);
 console.log(`Completed in ${result.steps.length} steps`);
 ```
 
-### 5. Create an MCP Server
-
-Expose your tools via Model Context Protocol:
-
-```typescript
-import { createMCPServer, defineTool } from 'visionagent';
-
-const server = createMCPServer({
-  name: 'my-tools',
-  version: '1.0.0',
-  tools: [searchTool, analysisTool],
-});
-
-// Start with stdio transport (for Cursor, Claude Desktop, etc.)
-await server.start('stdio');
-```
-
 ---
 
 ## Architecture
@@ -306,7 +285,6 @@ graph TB
         Tools[Tools Layer]
         Agents[Agent Loop]
         Figma[Figma Analyzer]
-        MCP[MCP Server/Client]
     end
 
     subgraph Providers[AI Providers]
@@ -319,8 +297,6 @@ graph TB
     App --> Tools
     App --> Agents
     App --> Figma
-    App --> MCP
-
     Models --> OpenAI
     Models --> Anthropic
     Models --> Google
@@ -549,36 +525,6 @@ interface APIEndpoint {
 }
 ```
 
-### MCP Integration
-
-Create MCP servers and clients:
-
-```typescript
-import { createMCPServer, createMCPClient } from 'visionagent/mcp';
-
-// Create an MCP server
-const server = createMCPServer({
-  name: 'my-tools',
-  version: '1.0.0',
-  tools: [searchTool, analysisTool],
-});
-
-await server.start('stdio'); // For CLI tools, Cursor, Claude Desktop
-await server.stop();
-
-// Create an MCP client
-const client = createMCPClient({
-  transport: 'stdio',
-  command: 'npx',
-  args: ['-y', '@modelcontextprotocol/server-filesystem'],
-});
-
-await client.connect();
-const tools = await client.getTools(); // Get available tools
-const result = await client.callTool('read_file', { path: '/tmp/test.txt' });
-await client.disconnect();
-```
-
 ---
 
 ## Module Exports
@@ -594,7 +540,6 @@ import { analyzeFigmaDesigns, validateFigmaFolder } from 'visionagent/figma';
 import { createModel } from 'visionagent/models';
 import { defineTool, createToolSet } from 'visionagent/tools';
 import { runAgent } from 'visionagent/agents';
-import { createMCPServer, createMCPClient } from 'visionagent/mcp';
 ```
 
 ---
@@ -609,9 +554,7 @@ See the [examples directory](./examples/README.md) for runnable examples:
 | All Providers    | `npm run example:02` | Test OpenAI, Anthropic, Google   |
 | Tool Calling     | `npm run example:03` | Agent with calculator tool       |
 | Multi-Tool Agent | `npm run example:04` | Complex multi-tool orchestration |
-| MCP Server       | `npm run example:05` | Create an MCP server             |
-| Hello World      | `npm run example:06` | Basic agent with greeting tool   |
-| Hello World MCP  | `npm run example:07` | MCP server with hello-world tool |
+| Hello World      | `npm run example:05` | Basic agent with greeting tool   |
 
 ---
 
@@ -623,7 +566,6 @@ See the [examples directory](./examples/README.md) for runnable examples:
 | **Bundle Size**    | ~15KB           | ~500KB+                   | ~200KB+     | N/A (Python)      |
 | **Tree-Shaking**   | Yes             | Partial                   | Partial     | No                |
 | **Vision Native**  | Yes             | Via Plugins               | Via Plugins | Limited           |
-| **MCP Support**    | Native          | No                        | No          | No                |
 | **TypeScript**     | First-class     | Good                      | Good        | Python Only       |
 | **Learning Curve** | Low             | High                      | Medium      | High              |
 | **Figma Analysis** | Built-in        | Manual                    | Manual      | Manual            |
@@ -633,7 +575,6 @@ See the [examples directory](./examples/README.md) for runnable examples:
 - You need to analyze visual designs (Figma, screenshots)
 - You want a lightweight, tree-shakeable library
 - You're building TypeScript/Node.js applications
-- You need MCP server/client support
 - You want simple, focused APIs without complexity
 
 ### When to Consider Alternatives
@@ -682,26 +623,6 @@ const result = await pRetry(() => analyzeFigmaDesigns({ model, source: './design
 
 VisionAgent is designed for Node.js environments. For browser usage, you'll need to proxy API calls through your backend for security.
 
-### How do I deploy an MCP server?
-
-```bash
-# As a CLI tool
-npx visionagent-server
-
-# In a Docker container
-docker run -it visionagent-server
-
-# With Claude Desktop (add to config)
-{
-  "mcpServers": {
-    "visionagent": {
-      "command": "npx",
-      "args": ["-y", "visionagent-server"]
-    }
-  }
-}
-```
-
 ---
 
 ## Troubleshooting
@@ -744,18 +665,6 @@ const validModels = {
 };
 ```
 
-### MCP Connection Issues
-
-**Error**: `Connection refused` or `Timeout`
-
-```bash
-# Test MCP server manually
-echo '{"jsonrpc":"2.0","method":"initialize","id":1}' | npx your-mcp-server
-
-# Check stdio is available
-node -e "console.log(process.stdin.isTTY)"
-```
-
 ### Memory Issues with Large Images
 
 ```typescript
@@ -778,7 +687,6 @@ for (let i = 0; i < images.length; i += batchSize) {
 - [x] Tool definition with Zod schemas
 - [x] Agent loop with tool calling
 - [x] Figma design analysis
-- [x] MCP server and client support
 - [x] Tree-shakeable module exports
 
 ### Short Term (v0.1.x)
@@ -792,7 +700,6 @@ for (let i = 0; i < images.length; i += batchSize) {
 ### Medium Term (v0.2.x - v0.5.x)
 
 - [ ] Web UI for Figma analysis
-- [ ] Additional MCP transports (HTTP, WebSocket)
 - [ ] Agent workflows and chains
 - [ ] Built-in caching layer
 - [ ] Ollama/local model support

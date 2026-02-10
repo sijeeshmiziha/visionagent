@@ -72,13 +72,3 @@ export class AgentError extends LibraryError {
     this.name = 'AgentError';
   }
 }
-
-/**
- * Error thrown when MCP operations fail
- */
-export class MCPError extends LibraryError {
-  constructor(message: string, cause?: Error) {
-    super(message, cause);
-    this.name = 'MCPError';
-  }
-}
