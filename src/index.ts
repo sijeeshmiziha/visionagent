@@ -33,9 +33,14 @@ export { createGoogleModel } from './models/providers/google';
 
 // Tools (re-export AI SDK tool helpers for advanced use)
 export { tool, jsonSchema } from './types/tool';
-export { defineTool } from './tools/define-tool';
-export { executeTool, executeToolByName } from './tools/execute-tool';
-export { createToolSet, getTools, getTool } from './tools/tool-set';
+export {
+  defineTool,
+  executeTool,
+  executeToolByName,
+  createToolSet,
+  getTools,
+  getTool,
+} from './tools';
 
 // Hello World module
 export { helloWorldTool, runHelloWorldAgent, createHelloWorldMCPServer } from './hello-world';

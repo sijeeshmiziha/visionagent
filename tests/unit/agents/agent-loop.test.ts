@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runAgent } from '../../../src/agents';
-import { createToolSet } from '../../../src/tools/tool-set';
-import { defineTool } from '../../../src/tools/define-tool';
+import { createToolSet, defineTool } from '../../../src/tools';
 import { z } from 'zod';
 import type { Model, ModelResponse } from '../../../src/types/model';
 import type { LanguageModelUsage } from 'ai';
@@ -103,7 +102,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
 
     const result = await runAgent({
       model,
-      tools: createToolSet([mockTool]),
+      tools: createToolSet({ test_tool: mockTool }),
       systemPrompt: 'Use tools',
       input: 'Test',
       maxIterations: 5,
@@ -169,7 +168,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
 
     const result = await runAgent({
       model,
-      tools: createToolSet([mockTool]),
+      tools: createToolSet({ test_tool: mockTool }),
       systemPrompt: 'Test',
       input: 'Hello',
       maxIterations: 3,
@@ -231,7 +230,7 @@ describe('Agent Loop (Unit - Mocked)', () => {
 
     const result = await runAgent({
       model,
-      tools: createToolSet([errorTool]),
+      tools: createToolSet({ error_tool: errorTool }),
       systemPrompt: 'Test',
       input: 'Call tool',
       maxIterations: 5,

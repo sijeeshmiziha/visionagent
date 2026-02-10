@@ -5,7 +5,7 @@
 import type { MCPClient, MCPClientConfig, MCPTool } from '../types/mcp';
 import { MCPError } from '../core/errors';
 import { createLogger } from '../core/logger';
-import { defineTool } from '../tools/define-tool';
+import { defineTool } from '../tools';
 import { z } from 'zod';
 
 const logger = createLogger({ prefix: 'mcp-client' });
@@ -72,7 +72,7 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
    * Convert one MCP tool to AI SDK Tool (via defineTool -> .tool)
    */
   function convertMCPTool(mcpTool: MCPToolDefinition): { name: string; tool: MCPTool } {
-    const named = defineTool({
+    const tool = defineTool({
       name: mcpTool.name,
       description: mcpTool.description ?? '',
       input: z.record(z.string(), z.unknown()),
@@ -81,7 +81,7 @@ export function createMCPClient(config: MCPClientConfig): MCPClient {
         return callMCPTool(mcpTool.name, input);
       },
     });
-    return { name: named.name, tool: named.tool };
+    return { name: mcpTool.name, tool };
   }
 
   /**

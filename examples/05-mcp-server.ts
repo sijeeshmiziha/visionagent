@@ -54,7 +54,7 @@ async function main() {
   const server = createMCPServer({
     name: 'demo-tools',
     version: '1.0.0',
-    tools: createToolSet([weatherTool, calculatorTool]),
+    tools: createToolSet({ get_weather: weatherTool, calculate: calculatorTool }),
     description: 'Demo MCP server with weather and calculator tools',
   });
 

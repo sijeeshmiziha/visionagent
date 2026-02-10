@@ -7,7 +7,7 @@ import type { ModelMessage } from '../types/common';
 import type { ModelToolCall } from '../types/model';
 import { AgentError } from '../core/errors';
 import { sumTokenUsage } from '../core/utils';
-import { executeToolByName } from '../tools/execute-tool';
+import { executeToolByName } from '../tools';
 
 /**
  * Run an agent with the given configuration.
@@ -21,7 +21,7 @@ import { executeToolByName } from '../tools/execute-tool';
  * ```typescript
  * const result = await runAgent({
  *   model: createModel({ provider: 'openai', model: 'gpt-4o' }),
- *   tools: createToolSet([searchTool, calculatorTool]),
+ *   tools: createToolSet({ search: searchTool, calculator: calculatorTool }),
  *   systemPrompt: 'You are a helpful assistant.',
  *   input: 'What is 2 + 2?',
  *   maxIterations: 10

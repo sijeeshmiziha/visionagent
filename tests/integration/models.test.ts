@@ -39,7 +39,7 @@ describe('Model Integration Tests', () => {
 
       const response = await model.invoke(
         [{ role: 'user', content: 'What is the weather in Paris?' }],
-        { tools: createToolSet([getWeather]) }
+        { tools: createToolSet({ get_weather: getWeather }) }
       );
 
       expect(response.toolCalls).toBeDefined();

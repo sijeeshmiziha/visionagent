@@ -26,7 +26,7 @@ describe('Agent Integration Tests', () => {
 
       const result = await runAgent({
         model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-        tools: createToolSet([testTool]),
+        tools: createToolSet({ get_time: testTool }),
         systemPrompt: 'You are a helpful assistant. Use the get_time tool when asked about time.',
         input: 'What time is it right now?',
         maxIterations: 3,
@@ -59,7 +59,7 @@ describe('Agent Integration Tests', () => {
 
       const result = await runAgent({
         model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-        tools: createToolSet([addTool, multiplyTool]),
+        tools: createToolSet({ add: addTool, multiply: multiplyTool }),
         systemPrompt: 'You are a math assistant. Use tools to calculate.',
         input: 'What is 5 + 3?',
         maxIterations: 5,

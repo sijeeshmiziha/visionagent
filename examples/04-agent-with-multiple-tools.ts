@@ -57,7 +57,11 @@ async function main() {
 
   const result = await runAgent({
     model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-    tools: createToolSet([searchTool, writeFileTool, getCurrentTimeTool]),
+    tools: createToolSet({
+      web_search: searchTool,
+      write_file: writeFileTool,
+      get_current_time: getCurrentTimeTool,
+    }),
     systemPrompt:
       'You are a research assistant. When asked to research a topic, use the search tool to find information, then summarize what you found.',
     input: 'Search for React hooks best practices and tell me what you found.',

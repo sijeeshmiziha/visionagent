@@ -36,7 +36,7 @@ async function main() {
 
   const result = await runAgent({
     model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
-    tools: createToolSet([calculatorTool]),
+    tools: createToolSet({ calculator: calculatorTool }),
     systemPrompt: 'You are a helpful math assistant. Use the calculator tool to solve problems.',
     input: 'What is 25 multiplied by 4?',
     maxIterations: 5,

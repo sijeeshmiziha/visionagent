@@ -4,8 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
-import { defineTool } from '../../src/tools/define-tool';
-import { createToolSet, getTools, getTool } from '../../src/tools/tool-set';
+import { defineTool, createToolSet, getTools, getTool } from '../../src/tools';
 
 describe('tool-set', () => {
   const tool1 = defineTool({
@@ -23,28 +22,17 @@ describe('tool-set', () => {
   });
 
   describe('createToolSet', () => {
-    it('should create a tool set from an array', () => {
-      const tools = createToolSet([tool1, tool2]);
+    it('should return the tool record (key = name)', () => {
+      const tools = createToolSet({ tool1, tool2 });
       expect(Object.keys(tools)).toHaveLength(2);
-      expect(tools.tool1).toBeDefined();
-      expect(tools.tool2).toBeDefined();
-    });
-
-    it('should throw on duplicate names', () => {
-      const duplicate = defineTool({
-        name: 'tool1',
-        description: 'Duplicate',
-        input: z.object({}),
-        handler: async () => null,
-      });
-
-      expect(() => createToolSet([tool1, duplicate])).toThrow('Duplicate tool name');
+      expect(tools.tool1).toBe(tool1);
+      expect(tools.tool2).toBe(tool2);
     });
   });
 
   describe('getTools', () => {
     it('should return all tools', () => {
-      const toolSet = createToolSet([tool1, tool2]);
+      const toolSet = createToolSet({ tool1, tool2 });
       const tools = getTools(toolSet);
       expect(tools).toHaveLength(2);
     });
@@ -52,14 +40,13 @@ describe('tool-set', () => {
 
   describe('getTool', () => {
     it('should find a tool by name', () => {
-      const toolSet = createToolSet([tool1, tool2]);
+      const toolSet = createToolSet({ tool1, tool2 });
       const found = getTool(toolSet, 'tool1');
-      expect(found).toBeDefined();
-      expect(found).toBe(tool1.tool);
+      expect(found).toBe(tool1);
     });
 
     it('should return undefined for unknown tool', () => {
-      const toolSet = createToolSet([tool1]);
+      const toolSet = createToolSet({ tool1 });
       const found = getTool(toolSet, 'unknown');
       expect(found).toBeUndefined();
     });

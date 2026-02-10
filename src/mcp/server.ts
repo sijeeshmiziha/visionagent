@@ -13,7 +13,7 @@ import type {
 } from '../types/mcp';
 import { MCPError } from '../core/errors';
 import { createLogger } from '../core/logger';
-import { zodToJsonSchema } from '../tools/schema';
+import { zodToJsonSchema } from '../tools';
 
 const logger = createLogger({ prefix: 'mcp-server' });
 

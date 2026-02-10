@@ -412,7 +412,7 @@ const calculatorTool = defineTool({
 });
 
 // Create a tool set for the agent
-const tools = createToolSet([calculatorTool, searchTool]);
+const tools = createToolSet({ calculator: calculatorTool, search: searchTool });
 
 // Get schemas for LLM (OpenAI function calling format)
 const schemas = getToolSchemas(tools);
