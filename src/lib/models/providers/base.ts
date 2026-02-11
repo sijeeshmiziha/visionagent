@@ -10,6 +10,7 @@ import type {
   InvokeOptions,
   VisionOptions,
   ModelProvider,
+  ModelTool,
   ModelToolCall,
 } from '../../types/model';
 import type { ModelMessage, ImageInput } from '../../types/common';
@@ -35,10 +36,18 @@ export function createAIModel(params: CreateAIModelParams): Model {
     async invoke(messages: ModelMessage[], options?: InvokeOptions): Promise<ModelResponse> {
       try {
         const model = await getModel();
+        const schemaOnlyTools: Record<string, ModelTool> | undefined = options?.tools
+          ? (Object.fromEntries(
+              Object.entries(options.tools).map(([name, t]) => {
+                const { execute: _execute, ...rest } = t as Record<string, unknown>;
+                return [name, rest];
+              })
+            ) as Record<string, ModelTool>)
+          : undefined;
         const result = await generateText({
           model,
           messages,
-          tools: options?.tools,
+          tools: schemaOnlyTools,
           maxOutputTokens: options?.maxOutputTokens,
           temperature: options?.temperature,
           stopSequences: options?.stop,
