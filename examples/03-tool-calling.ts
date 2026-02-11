@@ -1,7 +1,7 @@
 /**
  * Example 03: Tool Calling with Agent
  *
- * Run with: npm run example:03
+ * Run with: npm run example -- examples/03-tool-calling.ts
  *
  * Demonstrates tool calling with a calculator tool.
  * Requires: OPENAI_API_KEY environment variable

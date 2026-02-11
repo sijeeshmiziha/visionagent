@@ -1,7 +1,7 @@
 /**
  * Example 04: Agent with Multiple Tools
  *
- * Run with: npm run example:04
+ * Run with: npm run example -- examples/04-agent-with-multiple-tools.ts
  *
  * Demonstrates a complex agent with multiple tools.
  * Requires: OPENAI_API_KEY environment variable

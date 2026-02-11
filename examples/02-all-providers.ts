@@ -1,7 +1,7 @@
 /**
  * Example 02: All AI Providers
  *
- * Run with: npm run example:02
+ * Run with: npm run example -- examples/02-all-providers.ts
  *
  * Tests all 3 AI providers: OpenAI, Anthropic, and Google.
  * Requires: OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY

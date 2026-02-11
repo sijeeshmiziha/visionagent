@@ -1,7 +1,7 @@
 /**
  * Example 01: Basic Model Invocation
  *
- * Run with: npm run example:01
+ * Run with: npm run example -- examples/01-basic-model.ts
  *
  * Tests basic model invocation with OpenAI.
  * Requires: OPENAI_API_KEY environment variable

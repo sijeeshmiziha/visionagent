@@ -76,4 +76,13 @@ export const handlers = [
       },
     });
   }),
+
+  // Figma API - GET /v1/me
+  http.get('https://api.figma.com/v1/me', () => {
+    return HttpResponse.json({
+      id: 'figma-user-123',
+      email: 'test@example.com',
+      handle: 'testuser',
+    });
+  }),
 ];
