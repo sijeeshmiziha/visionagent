@@ -1,13 +1,13 @@
 /**
  * Example 03: Tool Calling with Agent
  *
- * Run with: npm run example -- examples/03-tool-calling.ts
+ * Run with: npm run example -- examples/core/03-tool-calling.ts
  *
  * Demonstrates tool calling with a calculator tool.
  * Requires: OPENAI_API_KEY environment variable
  */
 
-import { createModel, createToolSet, defineTool, runAgent } from '../src/index';
+import { createModel, createToolSet, defineTool, runAgent } from '../../src/index';
 import { z } from 'zod';
 
 // Define a calculator tool

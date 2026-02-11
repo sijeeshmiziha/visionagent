@@ -1,13 +1,13 @@
 /**
  * Example 01: Basic Model Invocation
  *
- * Run with: npm run example -- examples/01-basic-model.ts
+ * Run with: npm run example -- examples/core/01-basic-model.ts
  *
  * Tests basic model invocation with OpenAI.
  * Requires: OPENAI_API_KEY environment variable
  */
 
-import { createModel } from '../src/index';
+import { createModel } from '../../src/index';
 
 async function main() {
   console.log('Testing OpenAI model...\n');

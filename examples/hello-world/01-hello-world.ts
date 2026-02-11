@@ -1,15 +1,15 @@
 /**
- * Example 05: Hello World Agent
+ * Example 01: Hello World Agent
  *
- * Run with: npm run example -- examples/05-hello-world.ts
+ * Run with: npm run example -- examples/hello-world/01-hello-world.ts
  *
  * Demonstrates the hello world module agent with onStep callback
  * that reports progress across multiple tool-call iterations.
  * Requires: OPENAI_API_KEY environment variable
  */
 
-import { runHelloWorldAgent } from '../src/modules/hello-world';
-import type { AgentStep } from '../src/lib/types/agent';
+import { runHelloWorldAgent } from '../../src/modules/hello-world';
+import type { AgentStep } from '../../src/lib/types/agent';
 
 async function main() {
   console.log('=== Hello World Agent (multiple greetings) ===\n');

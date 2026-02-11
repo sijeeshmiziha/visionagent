@@ -1,13 +1,13 @@
 /**
  * Example 04: Agent with Multiple Tools
  *
- * Run with: npm run example -- examples/04-agent-with-multiple-tools.ts
+ * Run with: npm run example -- examples/core/04-agent-with-multiple-tools.ts
  *
  * Demonstrates a complex agent with multiple tools.
  * Requires: OPENAI_API_KEY environment variable
  */
 
-import { createModel, createToolSet, defineTool, runAgent } from '../src/index';
+import { createModel, createToolSet, defineTool, runAgent } from '../../src/index';
 import { z } from 'zod';
 
 const searchTool = defineTool({

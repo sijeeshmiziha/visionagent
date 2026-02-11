@@ -1,13 +1,13 @@
 /**
  * Example 02: All AI Providers
  *
- * Run with: npm run example -- examples/02-all-providers.ts
+ * Run with: npm run example -- examples/core/02-all-providers.ts
  *
  * Tests all 3 AI providers: OpenAI, Anthropic, and Google.
  * Requires: OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY
  */
 
-import { createModel } from '../src/index';
+import { createModel } from '../../src/index';
 
 async function testProvider(provider: 'openai' | 'anthropic' | 'google') {
   console.log(`\nTesting ${provider.toUpperCase()}...`);
