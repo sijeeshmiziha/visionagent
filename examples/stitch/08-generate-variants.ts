@@ -1,17 +1,13 @@
 /**
  * Stitch Example: generate_variants
  *
- * Generates design variants of existing screens.
- *
- * Run:  npm run example -- examples/stitch/08-generate-variants.ts
- *
- * Requires: STITCH_MCP_URL or STITCH_MCP_COMMAND in .env
- * Optional: STITCH_PROJECT_ID, STITCH_SCREEN_ID (comma-separated)
- * See: https://stitch.withgoogle.com/docs/mcp/setup
+ * Run: npm run example -- examples/stitch/08-generate-variants.ts
+ * Inputs: STITCH_PROJECT_ID, STITCH_SCREEN_ID, STITCH_PROMPT (env or --key=value). Optional: STITCH_VARIANT_COUNT, STITCH_CREATIVE_RANGE
  */
 
 import { executeTool } from '../../src/index';
 import { stitchGenerateVariantsTool } from '../../src/modules/stitch';
+import { getInput, requireInput } from '../lib/input';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
@@ -24,11 +20,22 @@ async function main() {
     process.exit(1);
   }
 
-  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
-  const screenIdsEnv = process.env.STITCH_SCREEN_ID;
+  const projectId = requireInput(
+    'STITCH_PROJECT_ID',
+    'Set STITCH_PROJECT_ID or pass --stitch-project-id=...'
+  );
+  const screenIdsEnv = requireInput(
+    'STITCH_SCREEN_ID',
+    'Set STITCH_SCREEN_ID or pass --stitch-screen-id=... (comma-separated)'
+  );
   const selectedScreenIds = screenIdsEnv
-    ? screenIdsEnv.split(',').map(s => s.trim())
-    : ['98b50e2ddc9943efb387052637738f61'];
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+  const prompt = requireInput('STITCH_PROMPT', 'Set STITCH_PROMPT or pass --stitch-prompt=...');
+  const variantCountStr = getInput('STITCH_VARIANT_COUNT');
+  const variantCount = variantCountStr ? Number.parseInt(variantCountStr, 10) : 2;
+  const creativeRange = getInput('STITCH_CREATIVE_RANGE') ?? 'EXPLORE';
 
   console.log('=== stitch_generate_variants ===\n');
   console.log('Generating variants...\n');
@@ -36,9 +43,12 @@ async function main() {
   const result = await executeTool(stitchGenerateVariantsTool, {
     projectId,
     selectedScreenIds,
-    prompt: 'Create a darker, high-contrast version.',
-    variantCount: 2,
-    creativeRange: 'EXPLORE',
+    prompt,
+    variantCount,
+    creativeRange:
+      creativeRange === 'REFINE' || creativeRange === 'EXPLORE' || creativeRange === 'REIMAGINE'
+        ? creativeRange
+        : 'EXPLORE',
     aspects: ['COLOR_SCHEME'],
   });
 

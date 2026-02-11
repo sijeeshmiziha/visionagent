@@ -1,21 +1,13 @@
 /**
  * Figma Example: get_metadata
  *
- * Returns a sparse XML representation of a node or entire document:
- * IDs, names, types, positions, and sizes. Useful for exploring large files
- * before calling get_design_context on specific nodes.
- *
- * Run:  npm run example -- examples/figma/04-get-metadata.ts
- *
- * Requires: FIGMA_API_KEY in .env
+ * Run: npm run example -- examples/figma/04-get-metadata.ts
+ * Inputs: FIGMA_URL (env or --figma-url=)
  */
 
 import { executeTool } from '../../src/index';
 import { figmaGetMetadataTool, parseFigmaUrl } from '../../src/modules/figma';
-
-const FIGMA_URL =
-  process.env.FIGMA_URL ??
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
+import { requireInput } from '../lib/input';
 
 async function main() {
   console.log('=== figma_get_metadata ===\n');
@@ -25,7 +17,8 @@ async function main() {
     process.exit(1);
   }
 
-  const { fileKey, nodeId } = parseFigmaUrl(FIGMA_URL);
+  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
 
   console.log('File key:', fileKey);
   console.log('Node ID :', nodeId ?? '(full document)', '\n');
@@ -38,7 +31,6 @@ async function main() {
   if (result.success) {
     const out = result.output as { metadata?: string; error?: string };
     if (out.metadata) {
-      // Print first 2000 chars of XML to avoid flooding the terminal
       const preview = out.metadata.slice(0, 2000);
       console.log(preview);
       if (out.metadata.length > 2000) {

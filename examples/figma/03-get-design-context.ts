@@ -1,21 +1,14 @@
 /**
  * Figma Example: get_design_context
  *
- * Returns structured design context for a node: layout, styles, typography, bounds.
- * Use for code generation from Figma designs.
- *
- * Run:  npm run example -- examples/figma/03-get-design-context.ts
- *
- * Requires: FIGMA_API_KEY in .env
+ * Run: npm run example -- examples/figma/03-get-design-context.ts
+ * Inputs: FIGMA_URL (env or --figma-url=)
  */
 
 import { executeTool } from '../../src/index';
 import { figmaGetDesignContextTool, parseFigmaUrl } from '../../src/modules/figma';
 import type { DesignContext } from '../../src/modules/figma';
-
-const FIGMA_URL =
-  process.env.FIGMA_URL ??
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
+import { requireInput } from '../lib/input';
 
 function printContext(ctx: DesignContext, indent = 0) {
   const pad = '  '.repeat(indent);
@@ -57,9 +50,10 @@ async function main() {
     process.exit(1);
   }
 
-  const { fileKey, nodeId } = parseFigmaUrl(FIGMA_URL);
+  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
   if (!nodeId) {
-    console.error('URL must contain a node-id. Got:', FIGMA_URL);
+    console.error('URL must contain a node-id. Got:', figmaUrl);
     process.exit(1);
   }
 

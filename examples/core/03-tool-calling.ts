@@ -2,15 +2,13 @@
  * Example 03: Tool Calling with Agent
  *
  * Run with: npm run example -- examples/core/03-tool-calling.ts
- *
- * Demonstrates tool calling with a calculator tool.
- * Requires: OPENAI_API_KEY environment variable
+ * Inputs: PROVIDER, MODEL, AGENT_INPUT, MAX_ITERATIONS (env or --key=value)
  */
 
 import { createModel, createToolSet, defineTool, runAgent } from '../../src/index';
+import { requireInput } from '../lib/input';
 import { z } from 'zod';
 
-// Define a calculator tool
 const calculatorTool = defineTool({
   name: 'calculator',
   description: 'Perform basic math operations',
@@ -34,12 +32,18 @@ const calculatorTool = defineTool({
 async function main() {
   console.log('Testing agent with tools...\n');
 
+  const provider = requireInput('PROVIDER') as 'openai' | 'anthropic' | 'google';
+  const modelName = requireInput('MODEL');
+  const agentInput = requireInput('AGENT_INPUT');
+  const maxIterStr = requireInput('MAX_ITERATIONS');
+  const maxIterations = Number.parseInt(maxIterStr, 10) || 5;
+
   const result = await runAgent({
-    model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
+    model: createModel({ provider, model: modelName }),
     tools: createToolSet({ calculator: calculatorTool }),
     systemPrompt: 'You are a helpful math assistant. Use the calculator tool to solve problems.',
-    input: 'What is 25 multiplied by 4?',
-    maxIterations: 5,
+    input: agentInput,
+    maxIterations,
     onStep: step => {
       console.log(`Step ${step.iteration + 1}:`, step.toolCalls?.[0]?.toolName || 'thinking...');
     },

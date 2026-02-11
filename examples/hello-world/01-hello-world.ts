@@ -2,25 +2,28 @@
  * Example 01: Hello World Agent
  *
  * Run with: npm run example -- examples/hello-world/01-hello-world.ts
- *
- * Demonstrates the hello world module agent with onStep callback
- * that reports progress across multiple tool-call iterations.
- * Requires: OPENAI_API_KEY environment variable
+ * Inputs: PROVIDER, MODEL, AGENT_INPUT, SYSTEM_PROMPT, MAX_ITERATIONS (env or --key=value)
  */
 
 import { runHelloWorldAgent } from '../../src/modules/hello-world';
 import type { AgentStep } from '../../src/lib/types/agent';
+import { requireInput } from '../lib/input';
 
 async function main() {
-  console.log('=== Hello World Agent (multiple greetings) ===\n');
+  console.log('=== Hello World Agent ===\n');
+
+  const provider = requireInput('PROVIDER') as 'openai' | 'anthropic' | 'google';
+  const modelName = requireInput('MODEL');
+  const agentInput = requireInput('AGENT_INPUT');
+  const systemPrompt = requireInput('SYSTEM_PROMPT');
+  const maxIterStr = requireInput('MAX_ITERATIONS');
+  const maxIterations = Number.parseInt(maxIterStr, 10) || 5;
 
   const result = await runHelloWorldAgent({
-    input: 'Say hello to Alice, Bob, and Charlie — greet each of them individually using the tool.',
-    model: { provider: 'openai', model: 'gpt-4o-mini' },
-    systemPrompt:
-      'You are a friendly greeter. Use the hello_world tool to greet each person the user mentions. ' +
-      'Call the tool once per person. After greeting everyone, write a short summary.',
-    maxIterations: 5,
+    input: agentInput,
+    model: { provider, model: modelName },
+    systemPrompt,
+    maxIterations,
     onStep: (step: AgentStep) => {
       const stepNum = step.iteration + 1;
 

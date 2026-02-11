@@ -1,22 +1,14 @@
 /**
  * Figma Example: get_code_connect_suggestions
  *
- * Suggests code component mappings for a Figma node based on component names
- * and file structure. Useful when you want automated suggestions before
- * confirming with add_code_connect_map.
- *
- * Run:  npm run example -- examples/figma/08-get-code-connect-suggestions.ts
- *
- * Requires: FIGMA_API_KEY in .env
+ * Run: npm run example -- examples/figma/08-get-code-connect-suggestions.ts
+ * Inputs: FIGMA_URL (env or --figma-url=)
  */
 
 import { executeTool } from '../../src/index';
 import { figmaGetCodeConnectSuggestionsTool, parseFigmaUrl } from '../../src/modules/figma';
 import type { CodeConnectSuggestion } from '../../src/modules/figma';
-
-const FIGMA_URL =
-  process.env.FIGMA_URL ??
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
+import { requireInput } from '../lib/input';
 
 async function main() {
   console.log('=== figma_get_code_connect_suggestions ===\n');
@@ -26,9 +18,10 @@ async function main() {
     process.exit(1);
   }
 
-  const { fileKey, nodeId } = parseFigmaUrl(FIGMA_URL);
+  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
   if (!nodeId) {
-    console.error('URL must contain a node-id. Got:', FIGMA_URL);
+    console.error('URL must contain a node-id. Got:', figmaUrl);
     process.exit(1);
   }
 

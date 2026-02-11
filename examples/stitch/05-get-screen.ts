@@ -1,17 +1,13 @@
 /**
  * Stitch Example: get_screen
  *
- * Retrieves a screen by resource name (projects/{projectId}/screens/{screenId}).
- *
- * Run:  npm run example -- examples/stitch/05-get-screen.ts
- *
- * Requires: STITCH_MCP_URL or STITCH_MCP_COMMAND in .env
- * Optional: STITCH_PROJECT_ID, STITCH_SCREEN_ID
- * See: https://stitch.withgoogle.com/docs/mcp/setup
+ * Run: npm run example -- examples/stitch/05-get-screen.ts
+ * Inputs: STITCH_PROJECT_ID, STITCH_SCREEN_ID (env or --stitch-project-id=, --stitch-screen-id=)
  */
 
 import { executeTool } from '../../src/index';
 import { stitchGetScreenTool } from '../../src/modules/stitch';
+import { requireInput } from '../lib/input';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
@@ -24,8 +20,14 @@ async function main() {
     process.exit(1);
   }
 
-  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
-  const screenId = process.env.STITCH_SCREEN_ID ?? '98b50e2ddc9943efb387052637738f61';
+  const projectId = requireInput(
+    'STITCH_PROJECT_ID',
+    'Set STITCH_PROJECT_ID or pass --stitch-project-id=...'
+  );
+  const screenId = requireInput(
+    'STITCH_SCREEN_ID',
+    'Set STITCH_SCREEN_ID or pass --stitch-screen-id=...'
+  );
   const name = `projects/${projectId}/screens/${screenId}`;
 
   console.log('=== stitch_get_screen ===\n');

@@ -1,17 +1,13 @@
 /**
  * Stitch Example: edit_screens
  *
- * Edits existing screens with a text prompt (may take a few minutes).
- *
- * Run:  npm run example -- examples/stitch/07-edit-screens.ts
- *
- * Requires: STITCH_MCP_URL or STITCH_MCP_COMMAND in .env
- * Optional: STITCH_PROJECT_ID, STITCH_SCREEN_ID (comma-separated for multiple)
- * See: https://stitch.withgoogle.com/docs/mcp/setup
+ * Run: npm run example -- examples/stitch/07-edit-screens.ts
+ * Inputs: STITCH_PROJECT_ID, STITCH_SCREEN_ID (comma-separated), STITCH_PROMPT (env or --key=value)
  */
 
 import { executeTool } from '../../src/index';
 import { stitchEditScreensTool } from '../../src/modules/stitch';
+import { requireInput } from '../lib/input';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
@@ -24,11 +20,19 @@ async function main() {
     process.exit(1);
   }
 
-  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
-  const screenIdsEnv = process.env.STITCH_SCREEN_ID;
+  const projectId = requireInput(
+    'STITCH_PROJECT_ID',
+    'Set STITCH_PROJECT_ID or pass --stitch-project-id=...'
+  );
+  const screenIdsEnv = requireInput(
+    'STITCH_SCREEN_ID',
+    'Set STITCH_SCREEN_ID or pass --stitch-screen-id=... (comma-separated for multiple)'
+  );
   const selectedScreenIds = screenIdsEnv
-    ? screenIdsEnv.split(',').map(s => s.trim())
-    : ['98b50e2ddc9943efb387052637738f61'];
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+  const prompt = requireInput('STITCH_PROMPT', 'Set STITCH_PROMPT or pass --stitch-prompt=...');
 
   console.log('=== stitch_edit_screens ===\n');
   console.log('Editing screens (this may take a few minutes)...\n');
@@ -36,7 +40,7 @@ async function main() {
   const result = await executeTool(stitchEditScreensTool, {
     projectId,
     selectedScreenIds,
-    prompt: 'Change the primary button color to blue.',
+    prompt,
   });
 
   if (result.success) {

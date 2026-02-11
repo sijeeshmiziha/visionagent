@@ -1,12 +1,8 @@
 /**
  * Figma Example: send_code_connect_mappings
  *
- * Batch-stores multiple Code Connect mappings at once.
- * This is a local-only operation (no Figma API call).
- *
- * Run:  npm run example -- examples/figma/09-send-code-connect-mappings.ts
- *
- * Does NOT require FIGMA_API_KEY (local-only operation).
+ * Run: npm run example -- examples/figma/09-send-code-connect-mappings.ts
+ * Inputs: FIGMA_URL (env or --figma-url=). Mappings via FIGMA_MAPPINGS_JSON (JSON array of { nodeId, componentName, source, label })
  */
 
 import { executeTool } from '../../src/index';
@@ -15,37 +11,31 @@ import {
   getStoredMappings,
   parseFigmaUrl,
 } from '../../src/modules/figma';
-
-const FIGMA_URL =
-  process.env.FIGMA_URL ??
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
+import { getInput, requireInput } from '../lib/input';
 
 async function main() {
   console.log('=== figma_send_code_connect_mappings ===\n');
 
-  const { fileKey } = parseFigmaUrl(FIGMA_URL);
+  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const { fileKey } = parseFigmaUrl(figmaUrl);
   console.log('File key:', fileKey, '\n');
 
-  const mappings = [
-    {
-      nodeId: '11301:18833',
-      componentName: 'HeroSection',
-      source: 'src/components/HeroSection.tsx',
-      label: 'React',
-    },
-    {
-      nodeId: '11301:18900',
-      componentName: 'NavBar',
-      source: 'src/components/NavBar.tsx',
-      label: 'React',
-    },
-    {
-      nodeId: '11301:19000',
-      componentName: 'Footer',
-      source: 'src/components/Footer.tsx',
-      label: 'React',
-    },
-  ];
+  const mappingsJson = getInput('FIGMA_MAPPINGS_JSON');
+  const mappings = mappingsJson
+    ? (JSON.parse(mappingsJson) as {
+        nodeId: string;
+        componentName: string;
+        source: string;
+        label: string;
+      }[])
+    : [];
+
+  if (mappings.length === 0) {
+    console.error(
+      'Set FIGMA_MAPPINGS_JSON (JSON array of { nodeId, componentName, source, label }) or pass --figma-mappings-json=...'
+    );
+    process.exit(1);
+  }
 
   console.log('Sending batch of', mappings.length, 'mappings:\n');
   for (const m of mappings) {
@@ -58,8 +48,6 @@ async function main() {
   if (result.success) {
     const out = result.output as { success: boolean; count: number; stored: unknown[] };
     console.log(`Stored ${out.count} mapping(s) successfully.`);
-
-    // Verify
     const stored = getStoredMappings(fileKey);
     console.log(`\nVerification — getStoredMappings() returns ${stored.length} entries:`);
     for (const m of stored) {

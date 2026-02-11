@@ -1,23 +1,13 @@
 /**
  * Figma Example: get_figjam
  *
- * Returns metadata (XML) and a screenshot URL for a FigJam node.
- * Use this with FigJam boards/diagrams only (not regular Figma design files).
- *
- * Run:  npm run example -- examples/figma/11-get-figjam.ts
- *
- * Requires: FIGMA_API_KEY in .env
- *
- * Note: This tool works with FigJam files. If you point it at a regular design
- * file, it will still return data but the results are most meaningful for FigJam.
+ * Run: npm run example -- examples/figma/11-get-figjam.ts
+ * Inputs: FIGMA_URL (env or --figma-url=)
  */
 
 import { executeTool } from '../../src/index';
 import { figmaGetFigjamTool, parseFigmaUrl } from '../../src/modules/figma';
-
-const FIGMA_URL =
-  process.env.FIGMA_URL ??
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
+import { requireInput } from '../lib/input';
 
 async function main() {
   console.log('=== figma_get_figjam ===\n');
@@ -27,9 +17,10 @@ async function main() {
     process.exit(1);
   }
 
-  const { fileKey, nodeId } = parseFigmaUrl(FIGMA_URL);
+  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
   if (!nodeId) {
-    console.error('URL must contain a node-id. Got:', FIGMA_URL);
+    console.error('URL must contain a node-id. Got:', figmaUrl);
     process.exit(1);
   }
 

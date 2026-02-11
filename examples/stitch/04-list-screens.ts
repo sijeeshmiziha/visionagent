@@ -1,17 +1,13 @@
 /**
  * Stitch Example: list_screens
  *
- * Lists screens within a Stitch project.
- *
- * Run:  npm run example -- examples/stitch/04-list-screens.ts
- *
- * Requires: STITCH_MCP_URL or STITCH_MCP_COMMAND in .env
- * Optional: STITCH_PROJECT_ID for project to list
- * See: https://stitch.withgoogle.com/docs/mcp/setup
+ * Run: npm run example -- examples/stitch/04-list-screens.ts
+ * Inputs: STITCH_PROJECT_ID (env or --stitch-project-id=)
  */
 
 import { executeTool } from '../../src/index';
 import { stitchListScreensTool } from '../../src/modules/stitch';
+import { requireInput } from '../lib/input';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
@@ -24,7 +20,10 @@ async function main() {
     process.exit(1);
   }
 
-  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
+  const projectId = requireInput(
+    'STITCH_PROJECT_ID',
+    'Set STITCH_PROJECT_ID or pass --stitch-project-id=...'
+  );
 
   console.log('=== stitch_list_screens ===\n');
 

@@ -2,12 +2,11 @@
  * Example 04: Agent with Multiple Tools
  *
  * Run with: npm run example -- examples/core/04-agent-with-multiple-tools.ts
- *
- * Demonstrates a complex agent with multiple tools.
- * Requires: OPENAI_API_KEY environment variable
+ * Inputs: PROVIDER, MODEL, AGENT_INPUT, MAX_ITERATIONS (env or --key=value)
  */
 
 import { createModel, createToolSet, defineTool, runAgent } from '../../src/index';
+import { requireInput } from '../lib/input';
 import { z } from 'zod';
 
 const searchTool = defineTool({
@@ -16,7 +15,6 @@ const searchTool = defineTool({
   input: z.object({ query: z.string() }),
   handler: async ({ query }) => {
     console.log(`  [Search] Searching for: "${query}"`);
-    // Mock search results
     return {
       results: [
         `Result 1: Best practices for ${query}`,
@@ -36,7 +34,6 @@ const writeFileTool = defineTool({
   }),
   handler: async ({ filename, content }) => {
     console.log(`  [WriteFile] Would write ${content.length} chars to ${filename}`);
-    // Don't actually write, just simulate
     return { success: true, bytes: content.length, filename };
   },
 });
@@ -55,8 +52,14 @@ const getCurrentTimeTool = defineTool({
 async function main() {
   console.log('Testing multi-tool agent...\n');
 
+  const provider = requireInput('PROVIDER') as 'openai' | 'anthropic' | 'google';
+  const modelName = requireInput('MODEL');
+  const agentInput = requireInput('AGENT_INPUT');
+  const maxIterStr = requireInput('MAX_ITERATIONS');
+  const maxIterations = Number.parseInt(maxIterStr, 10) || 10;
+
   const result = await runAgent({
-    model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
+    model: createModel({ provider, model: modelName }),
     tools: createToolSet({
       web_search: searchTool,
       write_file: writeFileTool,
@@ -64,8 +67,8 @@ async function main() {
     }),
     systemPrompt:
       'You are a research assistant. Use the web_search tool at most once or twice to find information. After you have the search results, respond with your final summary in plain text and do not call any more tools.',
-    input: 'Search for React hooks best practices and tell me what you found.',
-    maxIterations: 10,
+    input: agentInput,
+    maxIterations,
     onStep: step => {
       if (step.toolCalls?.length) {
         step.toolCalls.forEach(tc => {

@@ -1,20 +1,13 @@
 /**
  * Figma Example: get_variable_defs
  *
- * Returns design tokens (variables) from a Figma file: colors, spacing, typography values.
- *
- * Run:  npm run example -- examples/figma/05-get-variable-defs.ts
- *
- * Requires: FIGMA_API_KEY in .env
- * Note: Your token must have the `file_variables:read` scope enabled.
+ * Run: npm run example -- examples/figma/05-get-variable-defs.ts
+ * Inputs: FIGMA_URL (env or --figma-url=)
  */
 
 import { executeTool } from '../../src/index';
 import { figmaGetVariableDefsTool, parseFigmaUrl } from '../../src/modules/figma';
-
-const FIGMA_URL =
-  process.env.FIGMA_URL ??
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
+import { requireInput } from '../lib/input';
 
 async function main() {
   console.log('=== figma_get_variable_defs ===\n');
@@ -24,7 +17,8 @@ async function main() {
     process.exit(1);
   }
 
-  const { fileKey } = parseFigmaUrl(FIGMA_URL);
+  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const { fileKey } = parseFigmaUrl(figmaUrl);
   console.log('File key:', fileKey, '\n');
 
   const result = await executeTool(figmaGetVariableDefsTool, { fileKey });

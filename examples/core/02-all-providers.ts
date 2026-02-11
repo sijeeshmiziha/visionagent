@@ -2,27 +2,26 @@
  * Example 02: All AI Providers
  *
  * Run with: npm run example -- examples/core/02-all-providers.ts
- *
- * Tests all 3 AI providers: OpenAI, Anthropic, and Google.
- * Requires: OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY
+ * Inputs: PROMPT (env or --key=value)
  */
 
 import { createModel } from '../../src/index';
+import { requireInput } from '../lib/input';
 
-async function testProvider(provider: 'openai' | 'anthropic' | 'google') {
+const MODEL_MAP: Record<string, string> = {
+  openai: 'gpt-4o-mini',
+  anthropic: 'claude-3-haiku-20240307',
+  google: 'gemini-1.5-flash',
+};
+
+async function testProvider(provider: 'openai' | 'anthropic' | 'google', prompt: string) {
   console.log(`\nTesting ${provider.toUpperCase()}...`);
 
-  const modelMap = {
-    openai: 'gpt-4o-mini',
-    anthropic: 'claude-3-haiku-20240307',
-    google: 'gemini-1.5-flash',
-  };
-
   try {
-    const model = createModel({ provider, model: modelMap[provider] });
-    const response = await model.invoke([
-      { role: 'user', content: 'Say "Hello from ' + provider + '"' },
-    ]);
+    const modelName = MODEL_MAP[provider];
+    if (!modelName) throw new Error(`Unknown provider: ${provider}`);
+    const model = createModel({ provider, model: modelName });
+    const response = await model.invoke([{ role: 'user', content: prompt }]);
 
     console.log('✓', response.text);
     console.log('  Tokens:', response.usage);
@@ -34,9 +33,10 @@ async function testProvider(provider: 'openai' | 'anthropic' | 'google') {
 async function main() {
   console.log('Testing all AI providers...');
 
-  await testProvider('openai');
-  await testProvider('anthropic');
-  await testProvider('google');
+  const prompt = requireInput('PROMPT');
+  await testProvider('openai', prompt);
+  await testProvider('anthropic', prompt);
+  await testProvider('google', prompt);
 
   console.log('\nDone!');
 }

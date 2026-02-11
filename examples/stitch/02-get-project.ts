@@ -1,16 +1,13 @@
 /**
  * Stitch Example: get_project
  *
- * Retrieves a project by resource name (projects/{projectId}).
- *
- * Run:  npm run example -- examples/stitch/02-get-project.ts
- *
- * Requires: STITCH_MCP_URL or STITCH_MCP_COMMAND in .env
- * See: https://stitch.withgoogle.com/docs/mcp/setup
+ * Run: npm run example -- examples/stitch/02-get-project.ts
+ * Inputs: STITCH_PROJECT_ID (env or --stitch-project-id=)
  */
 
 import { executeTool } from '../../src/index';
 import { stitchGetProjectTool } from '../../src/modules/stitch';
+import { requireInput } from '../lib/input';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
@@ -23,7 +20,10 @@ async function main() {
     process.exit(1);
   }
 
-  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
+  const projectId = requireInput(
+    'STITCH_PROJECT_ID',
+    'Set STITCH_PROJECT_ID or pass --stitch-project-id=...'
+  );
   const name = `projects/${projectId}`;
 
   console.log('=== stitch_get_project ===\n');

@@ -1,20 +1,13 @@
 /**
  * Figma Example: get_code_connect_map
  *
- * Retrieves the mapping between a Figma node and its corresponding code component.
- * Code Connect must be set up in Figma for this to return results.
- *
- * Run:  npm run example -- examples/figma/06-get-code-connect-map.ts
- *
- * Requires: FIGMA_API_KEY in .env
+ * Run: npm run example -- examples/figma/06-get-code-connect-map.ts
+ * Inputs: FIGMA_URL (env or --figma-url=)
  */
 
 import { executeTool } from '../../src/index';
 import { figmaGetCodeConnectMapTool, parseFigmaUrl } from '../../src/modules/figma';
-
-const FIGMA_URL =
-  process.env.FIGMA_URL ??
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
+import { requireInput } from '../lib/input';
 
 async function main() {
   console.log('=== figma_get_code_connect_map ===\n');
@@ -24,9 +17,10 @@ async function main() {
     process.exit(1);
   }
 
-  const { fileKey, nodeId } = parseFigmaUrl(FIGMA_URL);
+  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
   if (!nodeId) {
-    console.error('URL must contain a node-id. Got:', FIGMA_URL);
+    console.error('URL must contain a node-id. Got:', figmaUrl);
     process.exit(1);
   }
 

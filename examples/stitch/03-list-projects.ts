@@ -1,16 +1,13 @@
 /**
  * Stitch Example: list_projects
  *
- * Lists Stitch projects (optional filter: view=owned or view=shared).
- *
- * Run:  npm run example -- examples/stitch/03-list-projects.ts
- *
- * Requires: STITCH_MCP_URL or STITCH_MCP_COMMAND in .env
- * See: https://stitch.withgoogle.com/docs/mcp/setup
+ * Run: npm run example -- examples/stitch/03-list-projects.ts
+ * Inputs: STITCH_FILTER (env or --stitch-filter=). Optional: view=owned | view=shared
  */
 
 import { executeTool } from '../../src/index';
 import { stitchListProjectsTool } from '../../src/modules/stitch';
+import { getInput } from '../lib/input';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
@@ -25,7 +22,9 @@ async function main() {
 
   console.log('=== stitch_list_projects ===\n');
 
-  const result = await executeTool(stitchListProjectsTool, { filter: 'view=owned' });
+  const filter = getInput('STITCH_FILTER') ?? 'view=owned';
+
+  const result = await executeTool(stitchListProjectsTool, { filter });
 
   if (result.success) {
     const out = result.output as { projects?: { name: string; title?: string }[] };

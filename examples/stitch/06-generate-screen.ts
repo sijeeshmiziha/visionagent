@@ -1,17 +1,13 @@
 /**
  * Stitch Example: generate_screen_from_text
  *
- * Generates a new screen from a text prompt (may take a few minutes).
- *
- * Run:  npm run example -- examples/stitch/06-generate-screen.ts
- *
- * Requires: STITCH_MCP_URL or STITCH_MCP_COMMAND in .env
- * Optional: STITCH_PROJECT_ID
- * See: https://stitch.withgoogle.com/docs/mcp/setup
+ * Run: npm run example -- examples/stitch/06-generate-screen.ts
+ * Inputs: STITCH_PROJECT_ID, STITCH_PROMPT (env or --key=). Optional: STITCH_DEVICE_TYPE
  */
 
 import { executeTool } from '../../src/index';
 import { stitchGenerateScreenTool } from '../../src/modules/stitch';
+import { getInput, requireInput } from '../lib/input';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
@@ -24,15 +20,27 @@ async function main() {
     process.exit(1);
   }
 
-  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
+  const projectId = requireInput(
+    'STITCH_PROJECT_ID',
+    'Set STITCH_PROJECT_ID or pass --stitch-project-id=...'
+  );
+  const prompt = requireInput('STITCH_PROMPT', 'Set STITCH_PROMPT or pass --stitch-prompt=...');
+  const deviceTypeRaw = getInput('STITCH_DEVICE_TYPE') ?? 'MOBILE';
+  const deviceType =
+    deviceTypeRaw === 'MOBILE' ||
+    deviceTypeRaw === 'DESKTOP' ||
+    deviceTypeRaw === 'TABLET' ||
+    deviceTypeRaw === 'AGNOSTIC'
+      ? deviceTypeRaw
+      : 'DEVICE_TYPE_UNSPECIFIED';
 
   console.log('=== stitch_generate_screen ===\n');
   console.log('Generating screen (this may take a few minutes)...\n');
 
   const result = await executeTool(stitchGenerateScreenTool, {
     projectId,
-    prompt: 'A simple login screen with email and password fields and a sign-in button.',
-    deviceType: 'MOBILE',
+    prompt,
+    deviceType: deviceType === 'DEVICE_TYPE_UNSPECIFIED' ? 'DEVICE_TYPE_UNSPECIFIED' : deviceType,
   });
 
   if (result.success) {

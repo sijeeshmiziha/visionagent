@@ -1,21 +1,13 @@
 /**
  * Figma Example: create_design_system_rules
  *
- * Generates a markdown design system rule file from a Figma file's
- * variables, styles, and structure. Useful for feeding into AI agents.
- *
- * Run:  npm run example -- examples/figma/10-create-design-system-rules.ts
- *
- * Requires: FIGMA_API_KEY in .env
- * Note: Your token must have the `file_variables:read` scope enabled.
+ * Run: npm run example -- examples/figma/10-create-design-system-rules.ts
+ * Inputs: FIGMA_URL (env or --figma-url=). Optional: FIGMA_OUTPUT_PATH
  */
 
 import { executeTool } from '../../src/index';
 import { figmaCreateDesignSystemRulesTool, parseFigmaUrl } from '../../src/modules/figma';
-
-const FIGMA_URL =
-  process.env.FIGMA_URL ??
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
+import { getInput, requireInput } from '../lib/input';
 
 async function main() {
   console.log('=== figma_create_design_system_rules ===\n');
@@ -25,12 +17,15 @@ async function main() {
     process.exit(1);
   }
 
-  const { fileKey } = parseFigmaUrl(FIGMA_URL);
-  console.log('File key:', fileKey, '\n');
+  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const { fileKey } = parseFigmaUrl(figmaUrl);
+  const outputPath = getInput('FIGMA_OUTPUT_PATH') ?? '.cursor/rules/figma-design-system.md';
+  console.log('File key:', fileKey);
+  console.log('Output  :', outputPath, '\n');
 
   const result = await executeTool(figmaCreateDesignSystemRulesTool, {
     fileKey,
-    outputPath: '.cursor/rules/figma-design-system.md',
+    outputPath,
   });
 
   if (result.success) {

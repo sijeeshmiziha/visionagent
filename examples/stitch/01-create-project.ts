@@ -1,16 +1,13 @@
 /**
  * Stitch Example: create_project
  *
- * Creates a new Stitch project (optional title).
- *
- * Run:  npm run example -- examples/stitch/01-create-project.ts
- *
- * Requires: STITCH_MCP_URL or STITCH_MCP_COMMAND (and optionally STITCH_MCP_ARGS) in .env
- * See: https://stitch.withgoogle.com/docs/mcp/setup
+ * Run: npm run example -- examples/stitch/01-create-project.ts
+ * Inputs: STITCH_TITLE (env or --stitch-title=). Optional.
  */
 
 import { executeTool } from '../../src/index';
 import { stitchCreateProjectTool } from '../../src/modules/stitch';
+import { getInput } from '../lib/input';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
@@ -25,7 +22,9 @@ async function main() {
 
   console.log('=== stitch_create_project ===\n');
 
-  const result = await executeTool(stitchCreateProjectTool, { title: 'VisionAgent Test Project' });
+  const title = getInput('STITCH_TITLE') ?? '';
+
+  const result = await executeTool(stitchCreateProjectTool, { title });
 
   if (result.success) {
     const out = result.output as { name?: string; title?: string };
