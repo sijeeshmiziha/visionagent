@@ -39,7 +39,8 @@
   - [Models](#models)
   - [Tools](#tools)
   - [Agents](#agents)
-  - [Figma Analysis](#figma-analysis)
+  - [Figma Module](#figma-module)
+  - [Stitch Module](#stitch-module)
 - [Module Exports](#module-exports)
 - [Examples](#examples)
 - [Comparison with Alternatives](#comparison-with-alternatives)
@@ -56,34 +57,47 @@
 
 VisionAgent was built to solve a specific problem: **extracting actionable requirements from visual designs using AI**. While other frameworks focus on general-purpose AI orchestration, VisionAgent is optimized for:
 
-- **Vision-First Design**: Native support for image analysis across all major AI providers
-- **Lightweight & Focused**: ~15KB minified, no bloated dependencies
-- **Tree-Shakeable**: Import only what you need for optimal bundle sizes
+- **Multi-Provider**: Unified API across OpenAI, Anthropic, and Google
+- **Agent-First**: Tool calling, agents, and iteration control out of the box
+- **Figma & Stitch**: Built-in Figma tools and Google Stitch integration
 - **Type-Safe**: Full TypeScript support with Zod schema validation
-- **Provider Agnostic**: Unified API across OpenAI, Anthropic, and Google AI providers
+- **Zero Extra Deps**: AI provider SDKs included; set API keys and go
 
 ```typescript
-// Turn Figma designs into requirements in 5 lines
-import { createModel, analyzeFigmaDesigns } from 'visionagent';
+// Run an agent with tools in a few lines
+import { createModel, runAgent, defineTool } from 'visionagent';
+import { z } from 'zod';
 
-const model = createModel({ provider: 'openai', model: 'gpt-4o' });
-const { analysis } = await analyzeFigmaDesigns({ model, source: './designs' });
-console.log(analysis); // User stories, features, acceptance criteria
+const model = createModel({ provider: 'openai', model: 'gpt-4o-mini' });
+const greetTool = defineTool({
+  name: 'greet',
+  description: 'Greet someone',
+  input: z.object({ name: z.string() }),
+  handler: async ({ name }) => ({ message: `Hello, ${name}!` }),
+});
+
+const result = await runAgent({
+  model,
+  tools: [greetTool],
+  systemPrompt: 'You are a helpful assistant.',
+  input: 'Greet Alice',
+});
+console.log(result.output);
 ```
 
 ---
 
 ## Features
 
-| Feature             | Description                                                                 |
-| ------------------- | --------------------------------------------------------------------------- |
-| **Vision Analysis** | Process images with AI vision models (Figma designs, screenshots, diagrams) |
-| **Multi-Provider**  | Support for OpenAI (GPT-4o), Anthropic (Claude), and Google (Gemini)        |
-| **Tool System**     | Define custom tools with Zod schema validation and type inference           |
-| **Agent Framework** | Build autonomous agents with tool calling, reasoning, and iteration control |
-| **Tree-Shakeable**  | Modular exports for optimized bundle sizes                                  |
-| **Type-Safe**       | Full TypeScript support with comprehensive type definitions                 |
-| **Zero Config**     | Works out of the box with environment variables                             |
+| Feature             | Description                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| **Multi-Provider**  | Support for OpenAI (GPT-4o), Anthropic (Claude), and Google (Gemini)                        |
+| **Tool System**     | Define custom tools with Zod schema validation and type inference                           |
+| **Agent Framework** | Build autonomous agents with tool calling, reasoning, and iteration control                 |
+| **Figma Module**    | 12 tools for Figma (screenshots, design context, variables, Code Connect, FigJam, diagrams) |
+| **Stitch Module**   | 8 tools for Google Stitch (projects, screens, generate/edit/variants)                       |
+| **Type-Safe**       | Full TypeScript support with comprehensive type definitions                                 |
+| **Zero Config**     | Works out of the box with environment variables                                             |
 
 ---
 
@@ -113,161 +127,128 @@ pnpm add visionagent
 bun add visionagent
 ```
 
-### Provider Dependencies
-
-Install the AI provider(s) you want to use:
-
-```bash
-# OpenAI (GPT-4o, GPT-4 Turbo) - Recommended for vision
-npm install @langchain/openai
-
-# Anthropic (Claude 3.5 Sonnet, Claude 3 Opus)
-npm install @langchain/anthropic
-
-# Google (Gemini 1.5 Pro, Gemini 1.5 Flash)
-npm install @langchain/google-genai
-
-```
+All AI provider SDKs (OpenAI, Anthropic, Google) are included as dependencies; no extra packages are required.
 
 ### Environment Setup
 
 Create a `.env` file in your project root:
 
 ```bash
-# Required: At least one provider API key
+# Required: At least one AI provider API key
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 GOOGLE_GENERATIVE_AI_API_KEY=...
+
+# Optional: For Figma examples and tools
+FIGMA_API_KEY=figd_...
 ```
 
 ---
 
 ## Quick Start
 
-### 1. Analyze Figma Designs
-
-Extract user stories and requirements from design screenshots:
+### 1. Create a Model and Invoke
 
 ```typescript
-import { createModel, analyzeFigmaDesigns } from 'visionagent';
+import { createModel } from 'visionagent';
 
-// Create a vision-capable model
 const model = createModel({
   provider: 'openai',
-  model: 'gpt-4o',
-  temperature: 0.3,
+  model: 'gpt-4o-mini',
+  temperature: 0.7,
 });
 
-// Analyze designs from a folder
-const result = await analyzeFigmaDesigns({
-  model,
-  source: '/path/to/figma/exports',
-  detail: 'high',
-});
-
-console.log(result.analysis);
-// Output: Markdown with User Types, User Stories, Features, Acceptance Criteria
+const response = await model.invoke([
+  { role: 'user', content: 'Explain TypeScript in one sentence.' },
+]);
+console.log(response.content);
 ```
 
-### 2. Analyze Figma Designs for Code Generation (NEW)
-
-Get structured JSON output perfect for code generation tools:
-
-```typescript
-import { analyzeFigmaForCode } from 'visionagent';
-
-// Comprehensive analysis with structured output
-const result = await analyzeFigmaForCode({
-  apiKey: process.env.OPENAI_API_KEY,
-  provider: 'openai',
-  images: ['./screens/login.png', './screens/dashboard.png'],
-});
-
-// Screens identified
-console.log(result.screens);
-// [{ screenName: 'Login Screen', screenType: 'Authentication', ... }]
-
-// UI components extracted
-console.log(result.components);
-// [{ screenName: 'Login Screen', components: [{ name: 'LoginButton', type: 'Button', props: [...] }] }]
-
-// API endpoints generated
-console.log(result.apiEndpoints);
-// { endpoints: [{ method: 'POST', path: '/api/auth/login', ... }] }
-
-// Requirements (markdown)
-console.log(result.requirements);
-```
-
-Or use individual functions for more control:
-
-```typescript
-import { identifyScreens, extractComponents, generateAPIEndpoints } from 'visionagent';
-
-// Just get screens
-const screens = await identifyScreens({
-  apiKey: process.env.OPENAI_API_KEY,
-  provider: 'openai',
-  images: './screens',
-});
-
-// Just get components
-const components = await extractComponents({
-  apiKey: process.env.OPENAI_API_KEY,
-  provider: 'openai',
-  model: 'gpt-4o-mini', // Optional: use specific model
-  images: './screens',
-});
-
-// Just get API endpoints
-const endpoints = await generateAPIEndpoints({
-  apiKey: process.env.OPENAI_API_KEY,
-  provider: 'anthropic', // Supports all providers
-  images: './screens',
-});
-```
-
-### 3. Define Custom Tools
+### 2. Define Custom Tools
 
 Create type-safe tools with Zod validation:
 
 ```typescript
-import { defineTool } from 'visionagent/tools';
+import { defineTool } from 'visionagent';
 import { z } from 'zod';
 
-const searchTool = defineTool({
-  name: 'web_search',
-  description: 'Search the web for information',
+const calculatorTool = defineTool({
+  name: 'calculator',
+  description: 'Perform math calculations',
   input: z.object({
-    query: z.string().describe('The search query'),
-    limit: z.number().optional().default(10),
+    expression: z.string().describe('Math expression to evaluate'),
   }),
-  handler: async ({ query, limit }) => {
-    // Your implementation
-    const results = await performSearch(query, limit);
-    return { results };
+  handler: async ({ expression }) => {
+    const result = eval(expression); // Use a safe math parser in production
+    return { result };
   },
 });
 ```
 
-### 4. Run an Agent
+### 3. Run an Agent
 
-Build autonomous agents that can use tools:
+Build autonomous agents that use tools:
 
 ```typescript
 import { runAgent, createModel, defineTool } from 'visionagent';
+import { z } from 'zod';
+
+const calculatorTool = defineTool({
+  name: 'calculator',
+  description: 'Perform math calculations',
+  input: z.object({ expression: z.string() }),
+  handler: async ({ expression }) => ({ result: String(eval(expression)) }),
+});
 
 const result = await runAgent({
-  model: createModel({ provider: 'openai', model: 'gpt-4o' }),
-  tools: [searchTool, writeFileTool],
-  systemPrompt: 'You are a helpful research assistant.',
-  input: 'Search for React best practices and summarize the top 5',
+  model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
+  tools: [calculatorTool],
+  systemPrompt: 'You are a helpful assistant. Use the calculator when needed.',
+  input: 'What is 25 multiplied by 4?',
   maxIterations: 10,
   onStep: step => console.log(`Step ${step.iteration}:`, step.action),
 });
 
 console.log(result.output);
-console.log(`Completed in ${result.steps.length} steps`);
+```
+
+### 4. Use the Figma Module
+
+Run the Figma agent or use individual tools (screenshots, design context, variables, Code Connect, etc.):
+
+```typescript
+import { runFigmaAgent, createFigmaToolSet, createModel } from 'visionagent';
+
+const model = createModel({ provider: 'openai', model: 'gpt-4o-mini' });
+const figmaTools = createFigmaToolSet();
+
+const result = await runFigmaAgent({
+  model,
+  tools: figmaTools,
+  systemPrompt: 'You help with Figma design tasks.',
+  input: 'Get a screenshot of the node at https://figma.com/design/...',
+  maxIterations: 5,
+});
+console.log(result.output);
+```
+
+### 5. Use the Stitch Module
+
+Create projects and generate or edit screens with Google Stitch:
+
+```typescript
+import { runStitchAgent, createStitchToolSet, createModel } from 'visionagent';
+
+const model = createModel({ provider: 'openai', model: 'gpt-4o-mini' });
+const stitchTools = createStitchToolSet();
+
+const result = await runStitchAgent({
+  model,
+  tools: stitchTools,
+  systemPrompt: 'You help with Stitch UI generation.',
+  input: 'Create a project called "My App" and generate a login screen.',
+  maxIterations: 10,
+});
 ```
 
 ---
@@ -280,31 +261,34 @@ graph TB
         App[Your App]
     end
 
-    subgraph VisionAgent[VisionAgent Core]
-        Models[Models Layer]
-        Tools[Tools Layer]
+    subgraph VisionAgent[VisionAgent]
+        Models[Models]
+        Tools[Tools]
         Agents[Agent Loop]
-        Figma[Figma Analyzer]
+        FigmaModule[Figma Module]
+        StitchModule[Stitch Module]
+        HelloWorld[Hello World]
     end
 
     subgraph Providers[AI Providers]
-        OpenAI[OpenAI GPT-4o]
-        Anthropic[Anthropic Claude]
-        Google[Google Gemini]
+        OpenAI[OpenAI]
+        Anthropic[Anthropic]
+        Google[Google]
     end
 
     App --> Models
     App --> Tools
     App --> Agents
-    App --> Figma
+    App --> FigmaModule
+    App --> StitchModule
+    App --> HelloWorld
     Models --> OpenAI
     Models --> Anthropic
     Models --> Google
-
     Agents --> Models
     Agents --> Tools
-
-    Figma --> Models
+    FigmaModule --> Models
+    StitchModule --> Models
 ```
 
 ### Agent Execution Flow
@@ -336,26 +320,21 @@ sequenceDiagram
 
 ### Models
 
-Create and configure AI models:
+Create and configure AI models. All imports are from the main package:
 
 ```typescript
-import { createModel } from 'visionagent/models';
+import { createModel } from 'visionagent';
 
 const model = createModel({
   provider: 'openai' | 'anthropic' | 'google',
-  model: string,           // e.g., 'gpt-4o', 'claude-3-5-sonnet-20241022'
+  model: string,           // e.g., 'gpt-4o', 'gpt-4o-mini', 'claude-3-5-sonnet-20241022'
   apiKey?: string,         // Uses env var by default (OPENAI_API_KEY, etc.)
   temperature?: number,    // 0-2, default varies by provider
   maxTokens?: number,      // Max tokens in response
 });
 
-// Standard invocation
+// Invoke with messages (and optional tools for agent use)
 const response = await model.invoke(messages, { tools });
-
-// Vision-specific invocation
-const visionResponse = await model.generateVision(prompt, images, {
-  detail: 'high' | 'low' | 'auto',
-});
 ```
 
 #### Supported Models
@@ -368,13 +347,12 @@ const visionResponse = await model.generateVision(prompt, images, {
 
 ### Tools
 
-Define type-safe tools with automatic schema generation:
+Define type-safe tools with Zod; the agent uses them via `createToolSet`:
 
 ```typescript
-import { defineTool, createToolSet, getToolSchemas, getTool } from 'visionagent/tools';
+import { defineTool, createToolSet, getTool } from 'visionagent';
 import { z } from 'zod';
 
-// Define a tool
 const calculatorTool = defineTool({
   name: 'calculator',
   description: 'Perform mathematical calculations',
@@ -390,10 +368,7 @@ const calculatorTool = defineTool({
 // Create a tool set for the agent
 const tools = createToolSet({ calculator: calculatorTool, search: searchTool });
 
-// Get schemas for LLM (OpenAI function calling format)
-const schemas = getToolSchemas(tools);
-
-// Retrieve a specific tool
+// Retrieve a specific tool by name
 const tool = getTool(tools, 'calculator');
 ```
 
@@ -402,7 +377,7 @@ const tool = getTool(tools, 'calculator');
 Run autonomous agents with tool calling:
 
 ```typescript
-import { runAgent } from 'visionagent/agents';
+import { runAgent } from 'visionagent';
 
 const result = await runAgent({
   model,                    // Created with createModel()
@@ -422,160 +397,137 @@ interface AgentResult {
 }
 ```
 
-### Figma Analysis
+### Figma Module
 
-#### Traditional Analysis (Markdown Output)
-
-Extract requirements in markdown format:
-
-```typescript
-import { analyzeFigmaDesigns, validateFigmaFolder } from 'visionagent/figma';
-
-// Analyze from a folder
-const result = await analyzeFigmaDesigns({
-  model,
-  source: '/path/to/designs',  // Folder path
-  maxImages?: 20,              // Limit number of images
-  detail?: 'high' | 'low',     // Vision detail level
-});
-
-// Result structure
-interface FigmaAnalysisResult {
-  analysis: string;         // Markdown with requirements
-  imageCount: number;       // Number of images processed
-  imagePaths: string[];     // Paths to analyzed images
-}
-```
-
-#### Code-Oriented Analysis (Structured JSON Output)
-
-Get structured data for code generation:
+The Figma module provides an agent and 12 tools for Figma integration (screenshots, design context, metadata, variables, Code Connect, FigJam, diagrams). Use with `FIGMA_API_KEY` set.
 
 ```typescript
 import {
-  analyzeFigmaForCode,
-  identifyScreens,
-  extractComponents,
-  generateAPIEndpoints,
+  runFigmaAgent,
+  createFigmaToolSet,
+  figmaGetScreenshotTool,
+  figmaGetDesignContextTool,
+  FigmaClient,
+  parseFigmaUrl,
 } from 'visionagent';
 
-// All-in-one analysis
-const result = await analyzeFigmaForCode({
-  apiKey: string,                          // Required: API key
-  provider: 'openai' | 'anthropic' | 'google',  // Required: Provider
-  model?: string,                          // Optional: Defaults to best model per provider
-  images: string | string[],               // Folder path or array of file paths
-  maxImages?: number,                      // Default: 20
-  detail?: 'low' | 'high' | 'auto',       // Default: 'high'
+// Run the Figma agent with all tools
+const figmaTools = createFigmaToolSet();
+const result = await runFigmaAgent({
+  model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
+  tools: figmaTools,
+  systemPrompt: 'You help with Figma design tasks.',
+  input: 'Get a screenshot of the design at <url>',
+  maxIterations: 5,
 });
 
-// Result structure
-interface CodeAnalysisResult {
-  screens: ScreenIdentification[];       // Identified screens
-  components: ComponentExtraction[];     // UI components
-  apiEndpoints: APIEndpointList;        // API specifications
-  requirements: string;                  // Markdown requirements
-}
+// Or use individual tools in your own agent
+const tools = createToolSet({
+  screenshot: figmaGetScreenshotTool,
+  designContext: figmaGetDesignContextTool,
+});
 
-// Individual functions for more control
-const screens = await identifyScreens({ apiKey, provider, images });
-const components = await extractComponents({ apiKey, provider, images });
-const endpoints = await generateAPIEndpoints({ apiKey, provider, images });
+// Low-level: FigmaClient for direct API access
+const client = new FigmaClient({ apiKey: process.env.FIGMA_API_KEY });
+const image = await client.getScreenshot(fileKey, nodeId, { format: 'png' });
 ```
 
-**Default Models per Provider:**
+**Figma tools:** `figmaWhoamiTool`, `figmaGetScreenshotTool`, `figmaGetDesignContextTool`, `figmaGetMetadataTool`, `figmaGetVariableDefsTool`, `figmaGetCodeConnectMapTool`, `figmaAddCodeConnectMapTool`, `figmaGetCodeConnectSuggestionsTool`, `figmaSendCodeConnectMappingsTool`, `figmaCreateDesignSystemRulesTool`, `figmaGetFigjamTool`, `figmaGenerateDiagramTool`.
 
-- `openai`: `gpt-4o`
-- `anthropic`: `claude-3-5-sonnet-20241022`
-- `google`: `gemini-1.5-pro`
+### Stitch Module
 
-**Output Types:**
+The Stitch module provides an agent and 8 tools for [Google Stitch](https://stitch.withgoogle.com/docs/mcp/setup) (projects, screens, generate/edit/variants).
 
 ```typescript
-interface ScreenIdentification {
-  screenName: string; // e.g., "Login Screen"
-  screenType: string; // e.g., "Authentication"
-  description: string;
-  purpose: string;
-  userType: string; // e.g., "Guest", "Admin"
-  imagePath: string;
-}
+import {
+  runStitchAgent,
+  createStitchToolSet,
+  stitchCreateProjectTool,
+  stitchGenerateScreenTool,
+  StitchClient,
+} from 'visionagent';
 
-interface ComponentExtraction {
-  screenName: string;
-  components: Component[];
-  imagePath: string;
-}
+// Run the Stitch agent with all tools
+const stitchTools = createStitchToolSet();
+const result = await runStitchAgent({
+  model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
+  tools: stitchTools,
+  systemPrompt: 'You help with UI generation using Stitch.',
+  input: 'Create a project "My App" and generate a login screen.',
+  maxIterations: 10,
+});
 
-interface Component {
-  name: string; // e.g., "LoginButton"
-  type: string; // e.g., "Button", "TextInput"
-  props: string[]; // e.g., ["label", "onClick"]
-  description: string;
-}
-
-interface APIEndpoint {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  path: string; // e.g., "/api/auth/login"
-  description: string;
-  requestBody?: object;
-  responseBody?: object;
-  authentication: boolean;
-  relatedScreen: string;
-}
+// Or use individual tools
+const tools = createToolSet({
+  createProject: stitchCreateProjectTool,
+  generateScreen: stitchGenerateScreenTool,
+});
 ```
+
+**Stitch tools:** `stitchCreateProjectTool`, `stitchGetProjectTool`, `stitchListProjectsTool`, `stitchListScreensTool`, `stitchGetScreenTool`, `stitchGenerateScreenTool`, `stitchEditScreensTool`, `stitchGenerateVariantsTool`.
 
 ---
 
 ## Module Exports
 
-VisionAgent provides multiple entry points for optimal tree-shaking:
+VisionAgent uses a single entry point. Import everything from `visionagent`:
 
 ```typescript
-// Main entry - exports everything
-import { createModel, analyzeFigmaDesigns, runAgent } from 'visionagent';
-
-// Specific modules - smaller bundle size
-import { analyzeFigmaDesigns, validateFigmaFolder } from 'visionagent/figma';
-import { createModel } from 'visionagent/models';
-import { defineTool, createToolSet } from 'visionagent/tools';
-import { runAgent } from 'visionagent/agents';
+import {
+  createModel,
+  runAgent,
+  defineTool,
+  createToolSet,
+  runFigmaAgent,
+  createFigmaToolSet,
+  runStitchAgent,
+  createStitchToolSet,
+  runHelloWorldAgent,
+  helloWorldTool,
+} from 'visionagent';
 ```
 
 ---
 
 ## Examples
 
-See the [examples directory](./examples/README.md) for runnable examples:
+See the [examples directory](./examples/README.md) for runnable examples. Use the interactive launcher or run a specific file:
 
-| Example          | Command              | Description                      |
-| ---------------- | -------------------- | -------------------------------- |
-| Basic Model      | `npm run example:01` | Simple model invocation          |
-| All Providers    | `npm run example:02` | Test OpenAI, Anthropic, Google   |
-| Tool Calling     | `npm run example:03` | Agent with calculator tool       |
-| Multi-Tool Agent | `npm run example:04` | Complex multi-tool orchestration |
-| Hello World      | `npm run example:05` | Basic agent with greeting tool   |
+```bash
+# Interactive launcher (pick example and provide inputs)
+npm run example:interactive
+
+# Run a specific example
+npm run example -- examples/core/01-basic-model.ts
+npm run example -- examples/figma/02-get-screenshot.ts
+npm run example -- examples/stitch/06-generate-screen.ts
+```
+
+| Group           | Examples                                                               | Description                                                           |
+| --------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Core**        | 01 Basic Model, 02 All Providers, 03 Tool Calling, 04 Multi-Tool Agent | Models, agents, tools                                                 |
+| **Figma**       | 01 Whoami through 12 Generate Diagram                                  | Figma tools (screenshots, design context, Code Connect, FigJam, etc.) |
+| **Hello World** | 01 Hello World                                                         | Minimal agent with greeting tool                                      |
+| **Stitch**      | 01 Create Project through 08 Generate Variants                         | Google Stitch (projects, screens, generate/edit/variants)             |
 
 ---
 
 ## Comparison with Alternatives
 
-| Feature            | VisionAgent     | LangChain                 | LlamaIndex  | AutoGPT           |
-| ------------------ | --------------- | ------------------------- | ----------- | ----------------- |
-| **Focus**          | Vision + Agents | General LLM Orchestration | Data/RAG    | Autonomous Agents |
-| **Bundle Size**    | ~15KB           | ~500KB+                   | ~200KB+     | N/A (Python)      |
-| **Tree-Shaking**   | Yes             | Partial                   | Partial     | No                |
-| **Vision Native**  | Yes             | Via Plugins               | Via Plugins | Limited           |
-| **TypeScript**     | First-class     | Good                      | Good        | Python Only       |
-| **Learning Curve** | Low             | High                      | Medium      | High              |
-| **Figma Analysis** | Built-in        | Manual                    | Manual      | Manual            |
+| Feature               | VisionAgent             | LangChain                 | LlamaIndex | AutoGPT           |
+| --------------------- | ----------------------- | ------------------------- | ---------- | ----------------- |
+| **Focus**             | Agents + Figma + Stitch | General LLM Orchestration | Data/RAG   | Autonomous Agents |
+| **TypeScript**        | First-class             | Good                      | Good       | Python Only       |
+| **Learning Curve**    | Low                     | High                      | Medium     | High              |
+| **Figma Integration** | Built-in (12 tools)     | Manual                    | Manual     | Manual            |
+| **Google Stitch**     | Built-in (8 tools)      | Manual                    | Manual     | Manual            |
 
 ### When to Use VisionAgent
 
-- You need to analyze visual designs (Figma, screenshots)
-- You want a lightweight, tree-shakeable library
-- You're building TypeScript/Node.js applications
-- You want simple, focused APIs without complexity
+- You want agents with tool calling (OpenAI, Anthropic, Google)
+- You need Figma integration (screenshots, design context, Code Connect, FigJam)
+- You use Google Stitch for UI generation
+- You're building TypeScript/Node.js applications with a simple, focused API
 
 ### When to Consider Alternatives
 
@@ -595,16 +547,7 @@ See the [examples directory](./examples/README.md) for runnable examples:
 
 ### How do I handle rate limits?
 
-VisionAgent doesn't include built-in rate limiting. We recommend:
-
-```typescript
-import pRetry from 'p-retry';
-
-const result = await pRetry(() => analyzeFigmaDesigns({ model, source: './designs' }), {
-  retries: 3,
-  minTimeout: 1000,
-});
-```
+VisionAgent doesn't include built-in rate limiting. Use a retry library (e.g. `p-retry`) around model or agent calls if your provider rate-limits requests.
 
 ### What image formats are supported?
 
@@ -635,9 +578,11 @@ VisionAgent is designed for Node.js environments. For browser usage, you'll need
 # Verify your API key is set
 echo $OPENAI_API_KEY
 
-# Check .env file is being loaded
+# Check .env file is being loaded (use --env-file with tsx/node)
 node -e "require('dotenv').config(); console.log(process.env.OPENAI_API_KEY)"
 ```
+
+For Figma examples, ensure `FIGMA_API_KEY` is set (personal access token from Figma).
 
 ### Image Loading Errors
 
@@ -665,16 +610,9 @@ const validModels = {
 };
 ```
 
-### Memory Issues with Large Images
+### Memory Issues with Large Payloads
 
-```typescript
-// Process images in batches
-const batchSize = 5;
-for (let i = 0; i < images.length; i += batchSize) {
-  const batch = images.slice(i, i + batchSize);
-  await analyzeFigmaDesigns({ model, source: batch });
-}
-```
+For long agent runs or many tools, process in smaller batches or limit `maxIterations`. For Figma screenshots, request one node at a time if memory is constrained.
 
 ---
 
@@ -686,8 +624,8 @@ for (let i = 0; i < images.length; i += batchSize) {
 - [x] Vision analysis capabilities
 - [x] Tool definition with Zod schemas
 - [x] Agent loop with tool calling
-- [x] Figma design analysis
-- [x] Tree-shakeable module exports
+- [x] Figma module (12 tools, agent)
+- [x] Stitch module (8 tools, agent)
 
 ### Short Term (v0.1.x)
 

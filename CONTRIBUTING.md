@@ -81,8 +81,9 @@ npm install
 # Copy environment template
 cp .env.example .env
 
-# Add your API keys for testing
-# (Only needed for integration tests)
+# Add your API keys for testing and examples
+# OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY - for integration tests and Core/Stitch examples
+# FIGMA_API_KEY - for Figma examples and figma tool tests
 ```
 
 ### Verify Setup
@@ -239,10 +240,10 @@ import type { ModelConfig } from '../types';
 ```
 tests/
 ├── unit/           # Unit tests (fast, isolated)
-│   ├── agents/
-│   └── models/
-├── tools/          # Tool-specific tests
-├── core/           # Core utility tests
+│   ├── agents/     # Agent loop tests
+│   └── models/     # Model provider tests
+├── tools/          # Tool tests (define-tool, tool-set, figma, hello-world)
+├── core/           # Core utility tests (e.g. errors)
 ├── integration/    # Integration tests (require API keys)
 └── mocks/          # Mock handlers and fixtures
 ```

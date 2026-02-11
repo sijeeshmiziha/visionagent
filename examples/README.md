@@ -6,19 +6,17 @@ This directory contains runnable examples demonstrating VisionAgent's capabiliti
 
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [How to Run](#how-to-run)
 - [Available Examples](#available-examples)
-  - [01 - Basic Model](#01---basic-model)
-  - [02 - All Providers](#02---all-providers)
-  - [03 - Tool Calling](#03---tool-calling)
-  - [04 - Multi-Tool Agent](#04---multi-tool-agent)
-  - [05 - Hello World](#05---hello-world)
+  - [Core](#core)
+  - [Figma](#figma)
+  - [Hello World](#hello-world)
+  - [Stitch](#stitch)
 - [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Prerequisites
-
-Before running any examples, ensure you have:
 
 ### System Requirements
 
@@ -29,184 +27,110 @@ Before running any examples, ensure you have:
 
 ### API Keys
 
-You need at least one AI provider API key:
+Set these in a `.env` file at the project root (copy from `.env.example`).
 
-| Provider  | Environment Variable           | Get Key                                                       |
-| --------- | ------------------------------ | ------------------------------------------------------------- |
-| OpenAI    | `OPENAI_API_KEY`               | [platform.openai.com](https://platform.openai.com/api-keys)   |
-| Anthropic | `ANTHROPIC_API_KEY`            | [console.anthropic.com](https://console.anthropic.com/)       |
-| Google    | `GOOGLE_GENERATIVE_AI_API_KEY` | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
+| Purpose   | Environment Variable           | Required For                   |
+| --------- | ------------------------------ | ------------------------------ |
+| OpenAI    | `OPENAI_API_KEY`               | Core, Hello World, most agents |
+| Anthropic | `ANTHROPIC_API_KEY`            | Core (02 All Providers)        |
+| Google    | `GOOGLE_GENERATIVE_AI_API_KEY` | Core (02 All Providers)        |
+| Figma     | `FIGMA_API_KEY`                | All Figma examples (01–12)     |
 
 ---
 
 ## Quick Start
 
-### 1. Install Dependencies
-
 ```bash
 # From the project root
 npm install
-```
-
-### 2. Configure Environment
-
-```bash
-# Copy the example environment file
 cp .env.example .env
-
-# Edit .env and add your API keys
+# Edit .env and add at least OPENAI_API_KEY (and FIGMA_API_KEY for Figma examples)
 ```
 
-Example `.env` file:
+---
+
+## How to Run
+
+### Interactive launcher (recommended)
+
+Pick a folder (Core, Figma, Hello World, Stitch), then an example. You’ll be prompted for any inputs (prompt, Figma URL, Stitch project ID, etc.):
 
 ```bash
-OPENAI_API_KEY=sk-proj-...
-ANTHROPIC_API_KEY=sk-ant-api03-...
-GOOGLE_GENERATIVE_AI_API_KEY=AIza...
+npm run example:interactive
 ```
 
-### 3. Run an Example
+### Run a specific example
 
 ```bash
-# Run the basic model example
-npm run example:01
-
-# Or run any other example
-npm run example:03
+npm run example -- examples/core/01-basic-model.ts
+npm run example -- examples/figma/02-get-screenshot.ts
+npm run example -- examples/stitch/06-generate-screen.ts
 ```
+
+Always run from the **project root** so that `--env-file=.env` and module resolution work.
 
 ---
 
 ## Available Examples
 
-### 01 - Basic Model
+### Core
 
-**Command**: `npm run example:01`
+| Example                        | Path                                            | Description                                          |
+| ------------------------------ | ----------------------------------------------- | ---------------------------------------------------- |
+| 01 - Basic Model               | `examples/core/01-basic-model.ts`               | Simple model invocation (OpenAI).                    |
+| 02 - All Providers             | `examples/core/02-all-providers.ts`             | Same prompt with OpenAI, Anthropic, and Google.      |
+| 03 - Tool Calling              | `examples/core/03-tool-calling.ts`              | Agent with a calculator tool.                        |
+| 04 - Agent with Multiple Tools | `examples/core/04-agent-with-multiple-tools.ts` | Agent with search, file write, and calculator tools. |
 
-**What it does**: Simple model invocation with OpenAI GPT-4o-mini.
-
-**Use case**: Verify your setup works and understand the basic model API.
-
-**Required API key**: `OPENAI_API_KEY`
-
-<details>
-<summary><strong>Expected Output</strong></summary>
-
-```
-Testing OpenAI model...
-
-Response: TypeScript is a strongly-typed superset of JavaScript that compiles to plain JavaScript, adding optional static typing and class-based object-oriented programming.
-Tokens: { promptTokens: 15, completionTokens: 32, totalTokens: 47 }
-```
-
-</details>
+**Required**: `OPENAI_API_KEY`. For 02, also `ANTHROPIC_API_KEY` and `GOOGLE_GENERATIVE_AI_API_KEY`.
 
 ---
 
-### 02 - All Providers
+### Figma
 
-**Command**: `npm run example:02`
+| Example                           | Path                                                | Description                       |
+| --------------------------------- | --------------------------------------------------- | --------------------------------- |
+| 01 - Whoami                       | `examples/figma/01-whoami.ts`                       | Verify Figma auth (current user). |
+| 02 - Get Screenshot               | `examples/figma/02-get-screenshot.ts`               | Export a node as PNG/PDF/etc.     |
+| 03 - Get Design Context           | `examples/figma/03-get-design-context.ts`           | Get UI code context for a node.   |
+| 04 - Get Metadata                 | `examples/figma/04-get-metadata.ts`                 | Get metadata for a node.          |
+| 05 - Get Variable Defs            | `examples/figma/05-get-variable-defs.ts`            | Get variable definitions.         |
+| 06 - Get Code Connect Map         | `examples/figma/06-get-code-connect-map.ts`         | Get Code Connect mappings.        |
+| 07 - Add Code Connect Map         | `examples/figma/07-add-code-connect-map.ts`         | Add a Code Connect mapping.       |
+| 08 - Get Code Connect Suggestions | `examples/figma/08-get-code-connect-suggestions.ts` | Get linking suggestions.          |
+| 09 - Send Code Connect Mappings   | `examples/figma/09-send-code-connect-mappings.ts`   | Send multiple mappings.           |
+| 10 - Create Design System Rules   | `examples/figma/10-create-design-system-rules.ts`   | Generate design system rules.     |
+| 11 - Get FigJam                   | `examples/figma/11-get-figjam.ts`                   | Get FigJam board content.         |
+| 12 - Generate Diagram             | `examples/figma/12-generate-diagram.ts`             | Generate a diagram from a prompt. |
 
-**What it does**: Tests all three AI providers (OpenAI, Anthropic, Google) with the same prompt.
-
-**Use case**: Compare responses across providers, verify multi-provider setup.
-
-**Required API keys**: All three (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`)
-
-<details>
-<summary><strong>Expected Output</strong></summary>
-
-```
-Testing all providers...
-
-[OpenAI] Response: TypeScript adds static typing to JavaScript...
-[OpenAI] Tokens: { promptTokens: 15, completionTokens: 28 }
-
-[Anthropic] Response: TypeScript is a typed superset of JavaScript...
-[Anthropic] Tokens: { promptTokens: 15, completionTokens: 35 }
-
-[Google] Response: TypeScript extends JavaScript with type annotations...
-[Google] Tokens: { promptTokens: 15, completionTokens: 30 }
-```
-
-</details>
+**Required**: `FIGMA_API_KEY` (Figma personal access token). Some examples also use `OPENAI_API_KEY` (e.g. design context, diagrams).
 
 ---
 
-### 03 - Tool Calling
+### Hello World
 
-**Command**: `npm run example:03`
+| Example          | Path                                     | Description                         |
+| ---------------- | ---------------------------------------- | ----------------------------------- |
+| 01 - Hello World | `examples/hello-world/01-hello-world.ts` | Minimal agent with a greeting tool. |
 
-**What it does**: Demonstrates an agent using a calculator tool to solve math problems.
-
-**Use case**: Learn how to define tools and run agents with tool calling.
-
-**Required API key**: `OPENAI_API_KEY`
-
-<details>
-<summary><strong>Expected Output</strong></summary>
-
-```
-Testing agent with tools...
-
-Step 1: calculator
-  [Calculator] 25 multiply 4 = 100
-Step 2: thinking...
-
-Final answer: 25 multiplied by 4 equals 100.
-Steps taken: 2
-Total tokens: { promptTokens: 245, completionTokens: 67, totalTokens: 312 }
-```
-
-</details>
-
-**Key concepts demonstrated**:
-
-- `defineTool()` - Creating type-safe tools with Zod schemas
-- `runAgent()` - Running an autonomous agent
-- `onStep` callback - Monitoring agent progress
+**Required**: `OPENAI_API_KEY`.
 
 ---
 
-### 04 - Multi-Tool Agent
+### Stitch
 
-**Command**: `npm run example:04`
+| Example                | Path                                      | Description                            |
+| ---------------------- | ----------------------------------------- | -------------------------------------- |
+| 01 - Create Project    | `examples/stitch/01-create-project.ts`    | Create a Stitch project.               |
+| 02 - Get Project       | `examples/stitch/02-get-project.ts`       | Get project details.                   |
+| 03 - List Projects     | `examples/stitch/03-list-projects.ts`     | List projects (owned/shared).          |
+| 04 - List Screens      | `examples/stitch/04-list-screens.ts`      | List screens in a project.             |
+| 05 - Get Screen        | `examples/stitch/05-get-screen.ts`        | Get screen details.                    |
+| 06 - Generate Screen   | `examples/stitch/06-generate-screen.ts`   | Generate a screen from a text prompt.  |
+| 07 - Edit Screens      | `examples/stitch/07-edit-screens.ts`      | Edit existing screen(s) with a prompt. |
+| 08 - Generate Variants | `examples/stitch/08-generate-variants.ts` | Generate design variants.              |
 
-**What it does**: Complex agent with multiple tools (search, file operations, calculations).
-
-**Use case**: Build sophisticated agents that can orchestrate multiple capabilities.
-
-**Required API key**: `OPENAI_API_KEY`
-
-<details>
-<summary><strong>Expected Output</strong></summary>
-
-```
-Running multi-tool agent...
-
-Step 1: web_search
-  [Search] Searching for: "React best practices 2024"
-Step 2: write_file
-  [File] Writing to: ./output/react-best-practices.md
-Step 3: thinking...
-
-Final answer: I've researched React best practices and saved a summary to...
-Steps taken: 3
-```
-
-</details>
-
----
-
-### 05 - Hello World
-
-**Command**: `npm run example:05`
-
-**What it does**: Runs a simple hello-world agent that demonstrates the basic agent loop with a greeting tool.
-
-**Use case**: Minimal starting point for understanding how agents and tools work together.
-
-**Required API key**: `OPENAI_API_KEY`
+**Required**: Stitch uses the same AI provider keys as the rest of VisionAgent (e.g. `OPENAI_API_KEY`). No separate Stitch API key.
 
 ---
 
@@ -214,86 +138,40 @@ Steps taken: 3
 
 ### "Missing API key" Error
 
-```
-Error: OPENAI_API_KEY environment variable is not set
-```
-
-**Solution**: Ensure your `.env` file exists and contains the required key:
-
-```bash
-# Check if .env exists
-ls -la .env
-
-# Verify the key is set (should show masked value)
-grep OPENAI_API_KEY .env
-```
+Ensure `.env` exists in the project root and contains the needed keys (e.g. `OPENAI_API_KEY`, `FIGMA_API_KEY` for Figma). Run from the project root so `npm run example` / `example:interactive` load `.env`.
 
 ### "Module not found" Error
 
-```
-Error: Cannot find module '../src/index'
-```
-
-**Solution**: Run examples from the project root:
+Run from the **project root**, not from inside `examples/`:
 
 ```bash
-# Wrong - from examples directory
-cd examples && npx tsx 01-basic-model.ts
+# Wrong
+cd examples && npx tsx core/01-basic-model.ts
 
-# Correct - from project root
-npm run example:01
+# Correct
+npm run example -- examples/core/01-basic-model.ts
 ```
 
 ### "Model not available" Error
 
-```
-Error: The model 'gpt-4o' does not exist
-```
+Confirm your API key has access to the model (e.g. `gpt-4o-mini`). Some models require a paid or higher tier.
 
-**Solution**: Verify your API key has access to the model. Some models require specific API tiers.
+### Figma examples fail
 
-### Vision Example Shows No Output
+- Set `FIGMA_API_KEY` in `.env` (Figma → Settings → Personal access tokens).
+- Use a valid Figma file URL; for node-specific examples (e.g. screenshot), include `node-id=...` in the URL or provide the node when prompted.
 
-**Cause**: Missing test images.
+### Timeout errors
 
-**Solution**: Add test images to `examples/test-data/`:
-
-```bash
-# Create the directory if it doesn't exist
-mkdir -p examples/test-data/figma-screens
-
-# Add your images
-cp ~/Downloads/my-design.png examples/test-data/figma-screens/
-```
-
-### Timeout Errors
-
-```
-Error: Request timed out after 30000ms
-```
-
-**Solution**: Large images or complex analysis may take longer:
-
-```typescript
-// Increase timeout in your code
-const model = createModel({
-  provider: 'openai',
-  model: 'gpt-4o',
-  timeout: 60000, // 60 seconds
-});
-```
+For long-running agent or Stitch/Figma calls, the default timeout may be too low. Increase timeouts in your code or environment if your provider allows.
 
 ---
 
 ## Next Steps
 
-After running the examples, check out:
-
-- [Main README](../README.md) - Full API documentation
-- [API Reference](../README.md#api-reference) - Detailed API docs
-- [Contributing Guide](../CONTRIBUTING.md) - How to contribute
-
----
+- [Main README](../README.md) – Full API documentation
+- [API Reference](../README.md#api-reference) – Models, tools, agents, Figma, Stitch
+- [Contributing Guide](../CONTRIBUTING.md) – How to contribute
 
 <p align="center">
   <a href="../README.md">Back to Main README</a>
