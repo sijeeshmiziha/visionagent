@@ -3,20 +3,15 @@
  * See: https://stitch.withgoogle.com/docs/mcp
  */
 
+import type { McpClientConfig } from '../../lib/mcp';
+
 /**
- * Module config for Stitch tools (MCP only; no apiKey/baseUrl).
+ * Module config for Stitch tools (MCP only).
+ * Alias of {@link McpClientConfig} for backward compatibility.
+ *
  * Use STITCH_MCP_URL or STITCH_MCP_COMMAND + STITCH_MCP_ARGS in env if not passed.
  */
-export interface StitchConfig {
-  /** Streamable HTTP URL for the Stitch MCP server. */
-  url?: string;
-  /** When using url: sent as Authorization Bearer (set STITCH_MCP_API_KEY in .env). */
-  apiKey?: string;
-  /** For stdio: command to run (e.g. "npx"). */
-  command?: string;
-  /** For stdio: args (e.g. ["-y", "@google/stitch-mcp"]). */
-  args?: string[];
-}
+export type StitchConfig = McpClientConfig;
 
 /** Device type for screen generation. */
 export type DeviceType = 'DEVICE_TYPE_UNSPECIFIED' | 'MOBILE' | 'DESKTOP' | 'TABLET' | 'AGNOSTIC';

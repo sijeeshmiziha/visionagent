@@ -17,7 +17,6 @@ export {
   createStitchToolSet,
 } from './tools';
 export { StitchClient } from './client';
-export type { StitchMcpConfig } from './client';
 export type {
   StitchConfig,
   DeviceType,

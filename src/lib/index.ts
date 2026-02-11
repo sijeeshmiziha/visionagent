@@ -37,3 +37,13 @@ export {
   getTool,
 } from './tools';
 export type { ToolSet, Tool, ToolConfig, ToolContext, ToolExecutionResult } from './tools';
+
+// MCP
+export { BaseMcpClient } from './mcp';
+export type {
+  McpClientConfig,
+  McpClientInfo,
+  McpToolContent,
+  McpTransport,
+  McpResolveOptions,
+} from './mcp';
