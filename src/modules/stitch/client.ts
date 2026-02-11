@@ -1,9 +1,5 @@
 /**
- * Stitch MCP client - domain-specific wrapper around BaseMcpClient.
- *
- * Configure via env vars (STITCH_MCP_URL or STITCH_MCP_COMMAND + STITCH_MCP_ARGS)
- * or pass config explicitly.
- *
+ * Stitch MCP client. Configure via STITCH_MCP_URL or STITCH_MCP_COMMAND + STITCH_MCP_ARGS.
  * @see https://stitch.withgoogle.com/docs/mcp/setup
  */
 
@@ -24,38 +20,23 @@ import type {
 } from './types';
 
 const CLIENT_INFO = { name: 'visionagent-stitch', version: '1.0.0' } as const;
-const ENV_PREFIX = 'STITCH_MCP';
-const SERVER_LABEL = 'Stitch';
+const RESOLVE_OPTS = {
+  envPrefix: 'STITCH_MCP',
+  serverLabel: 'Stitch',
+  apiKeyHeader: 'X-Goog-Api-Key',
+} as const;
 
-/**
- * Client for Google Stitch via MCP.
- *
- * Inherits lazy connection, transport management, and `callTool` from
- * {@link BaseMcpClient}. This class only adds Stitch-specific API methods.
- *
- * @example
- * ```ts
- * const client = new StitchClient();
- * const project = await client.createProject('My App');
- * const screens = await client.listScreens(project.name.split('/')[1]);
- * await client.close();
- * ```
- */
+const DEFAULT_GEN = {
+  deviceType: 'DEVICE_TYPE_UNSPECIFIED' as DeviceType,
+  modelId: 'MODEL_ID_UNSPECIFIED' as ModelId,
+};
+
+/** Google Stitch via MCP. Extends BaseMcpClient with project/screen/generation methods. */
 export class StitchClient extends BaseMcpClient {
   constructor(options?: McpClientConfig) {
-    const config = BaseMcpClient.resolveConfig(options, {
-      envPrefix: ENV_PREFIX,
-      serverLabel: SERVER_LABEL,
-      apiKeyHeader: 'X-Goog-Api-Key',
-    });
-    super(CLIENT_INFO, config);
+    super(CLIENT_INFO, BaseMcpClient.resolveConfig(options, RESOLVE_OPTS));
   }
 
-  // -----------------------------------------------------------------------
-  // Projects
-  // -----------------------------------------------------------------------
-
-  /** Create a new Stitch project (optional title). */
   async createProject(title?: string): Promise<CreateProjectResponse & StitchProject> {
     const out = await this.callTool<CreateProjectResponse & StitchProject>('create_project', {
       title: title ?? undefined,
@@ -63,13 +44,11 @@ export class StitchClient extends BaseMcpClient {
     return out ?? ({} as CreateProjectResponse & StitchProject);
   }
 
-  /** Get a project by its resource name (`projects/{id}`). */
   async getProject(name: string): Promise<StitchProject> {
     const out = await this.callTool<StitchProject>('get_project', { name });
     return out ?? ({} as StitchProject);
   }
 
-  /** List projects. Pass `"view=owned"` or `"view=shared"` as filter. */
   async listProjects(filter?: string): Promise<ListProjectsResponse> {
     const out = await this.callTool<ListProjectsResponse>('list_projects', {
       filter: filter ?? undefined,
@@ -77,27 +56,16 @@ export class StitchClient extends BaseMcpClient {
     return out ?? { projects: [] };
   }
 
-  // -----------------------------------------------------------------------
-  // Screens
-  // -----------------------------------------------------------------------
-
-  /** List screens in a project (pass the bare project ID, not the resource name). */
   async listScreens(projectId: string): Promise<ListScreensResponse> {
     const out = await this.callTool<ListScreensResponse>('list_screens', { projectId });
     return out ?? { screens: [] };
   }
 
-  /** Get a screen by its resource name (`projects/{p}/screens/{s}`). */
   async getScreen(name: string): Promise<StitchScreen> {
     const out = await this.callTool<StitchScreen>('get_screen', { name });
     return out ?? ({} as StitchScreen);
   }
 
-  // -----------------------------------------------------------------------
-  // Generation
-  // -----------------------------------------------------------------------
-
-  /** Generate a new screen from a text prompt. May take several minutes. */
   async generateScreenFromText(
     projectId: string,
     prompt: string,
@@ -106,13 +74,12 @@ export class StitchClient extends BaseMcpClient {
     const out = await this.callTool<GenerateScreenResponse>('generate_screen_from_text', {
       projectId,
       prompt,
-      deviceType: opts?.deviceType ?? 'DEVICE_TYPE_UNSPECIFIED',
-      modelId: opts?.modelId ?? 'MODEL_ID_UNSPECIFIED',
+      deviceType: opts?.deviceType ?? DEFAULT_GEN.deviceType,
+      modelId: opts?.modelId ?? DEFAULT_GEN.modelId,
     });
     return out ?? {};
   }
 
-  /** Edit existing screens with a text prompt. */
   async editScreens(
     projectId: string,
     selectedScreenIds: string[],
@@ -123,13 +90,12 @@ export class StitchClient extends BaseMcpClient {
       projectId,
       selectedScreenIds,
       prompt,
-      deviceType: opts?.deviceType ?? 'DEVICE_TYPE_UNSPECIFIED',
-      modelId: opts?.modelId ?? 'MODEL_ID_UNSPECIFIED',
+      deviceType: opts?.deviceType ?? DEFAULT_GEN.deviceType,
+      modelId: opts?.modelId ?? DEFAULT_GEN.modelId,
     });
     return out ?? { screens: [] };
   }
 
-  /** Generate design variants for existing screens. */
   async generateVariants(
     projectId: string,
     selectedScreenIds: string[],
@@ -146,8 +112,8 @@ export class StitchClient extends BaseMcpClient {
         creativeRange: variantOptions.creativeRange ?? 'EXPLORE',
         aspects: variantOptions.aspects ?? [],
       },
-      deviceType: opts?.deviceType ?? 'DEVICE_TYPE_UNSPECIFIED',
-      modelId: opts?.modelId ?? 'MODEL_ID_UNSPECIFIED',
+      deviceType: opts?.deviceType ?? DEFAULT_GEN.deviceType,
+      modelId: opts?.modelId ?? DEFAULT_GEN.modelId,
     });
     return out ?? { screens: [] };
   }
