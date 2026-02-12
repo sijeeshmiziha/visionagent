@@ -128,4 +128,96 @@ describe('OpenAI Model (Unit - Mocked)', () => {
     expect(response.text).toBeTruthy();
     expect(model.generateVision).toHaveBeenCalled();
   });
+
+  it('should receive invoke options (maxOutputTokens, temperature, stop)', async () => {
+    const model = createMockModel();
+    const messages = [{ role: 'user' as const, content: 'Hi' }];
+    const options = {
+      maxOutputTokens: 100,
+      temperature: 0.5,
+      stop: ['END'],
+    };
+
+    await model.invoke(messages, options);
+
+    expect(model.invoke).toHaveBeenCalledWith(messages, expect.objectContaining(options));
+  });
+
+  it('should return correct finishReason values', async () => {
+    const modelStop = createMockModel({ mockResponse: { finishReason: 'stop' } });
+    const resStop = await modelStop.invoke([{ role: 'user', content: 'x' }]);
+    expect(resStop.finishReason).toBe('stop');
+
+    const modelCalls = createMockModel({
+      toolCallResponse: {
+        text: '',
+        toolCalls: [{ toolCallId: 'c1', toolName: 't', input: {} }],
+        usage: mockUsage({ inputTokens: 1, outputTokens: 1, totalTokens: 2 }),
+        finishReason: 'tool-calls',
+      },
+    });
+    const tools = {
+      t: { description: 'T', inputSchema: {}, execute: async () => ({}) } as unknown as Tool,
+    };
+    const resCalls = await modelCalls.invoke([{ role: 'user', content: 'x' }], { tools });
+    expect(resCalls.finishReason).toBe('tool-calls');
+  });
+
+  it('should handle generateVision with multiple images', async () => {
+    const model = createMockModel();
+    const images = [
+      { base64: 'img1', mimeType: 'image/png' },
+      { base64: 'img2', mimeType: 'image/jpeg' },
+    ];
+
+    await model.generateVision('Compare these', images);
+
+    expect(model.generateVision).toHaveBeenCalledWith('Compare these', images);
+  });
+
+  it('should handle generateVision with system prompt option', async () => {
+    const model = createMockModel();
+    const images = [{ base64: 'x', mimeType: 'image/png' }];
+
+    await model.generateVision('Describe', images, { systemPrompt: 'You are an expert.' });
+
+    expect(model.generateVision).toHaveBeenCalledWith('Describe', images, {
+      systemPrompt: 'You are an expert.',
+    });
+  });
+
+  it('should handle empty tool calls array', async () => {
+    const model = createMockModel({
+      mockResponse: { text: 'Reply', toolCalls: [], finishReason: 'stop' as const },
+    });
+
+    const response = await model.invoke([{ role: 'user', content: 'Hi' }]);
+
+    expect(response.toolCalls).toEqual([]);
+    expect(response.text).toBe('Reply');
+  });
+
+  it('should handle response with both text and tool calls', async () => {
+    const model = createMockModel({
+      toolCallResponse: {
+        text: 'Let me call a tool.',
+        toolCalls: [{ toolCallId: 'c1', toolName: 'my_tool', input: { x: 1 } }],
+        usage: mockUsage({ inputTokens: 20, outputTokens: 10, totalTokens: 30 }),
+        finishReason: 'tool-calls',
+      },
+    });
+    const tools = {
+      my_tool: {
+        description: 'Tool',
+        inputSchema: {},
+        execute: async () => ({}),
+      } as unknown as Tool,
+    };
+
+    const response = await model.invoke([{ role: 'user', content: 'Go' }], { tools });
+
+    expect(response.text).toBe('Let me call a tool.');
+    expect(response.toolCalls).toHaveLength(1);
+    expect(response.toolCalls?.[0]?.toolName).toBe('my_tool');
+  });
 });

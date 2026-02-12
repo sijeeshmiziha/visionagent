@@ -13,7 +13,7 @@ import {
   createFigmaToolSet,
   figmaWhoamiTool,
 } from '../../src/modules/figma';
-import type { FigmaNode } from '../../src/modules/figma/types';
+import type { FigmaNode, FigmaVariablesResponse } from '../../src/modules/figma/types';
 
 describe('parseFigmaUrl', () => {
   it('extracts fileKey and nodeId from design URL', () => {
@@ -40,6 +40,22 @@ describe('parseFigmaUrl', () => {
       nodeId: '1:2',
     });
   });
+
+  it('handles proto URL', () => {
+    expect(parseFigmaUrl('https://figma.com/proto/xyz99/Prototype?node-id=5-10')).toEqual({
+      fileKey: 'xyz99',
+      nodeId: '5:10',
+    });
+  });
+
+  it('returns fileKey as trimmed URL for invalid or malformed URL', () => {
+    expect(parseFigmaUrl('https://example.com/not-figma')).toEqual({
+      fileKey: 'https://example.com/not-figma',
+    });
+    expect(parseFigmaUrl('  https://other.com  ')).toEqual({
+      fileKey: 'https://other.com',
+    });
+  });
 });
 
 describe('formatNodeId', () => {
@@ -48,6 +64,12 @@ describe('formatNodeId', () => {
   });
   it('converts API form to URL form', () => {
     expect(formatNodeId('1:2')).toBe('1-2');
+  });
+  it('returns unchanged when no separator', () => {
+    expect(formatNodeId('single')).toBe('single');
+  });
+  it('trims whitespace', () => {
+    expect(formatNodeId('  1-2  ')).toBe('1:2');
   });
 });
 
@@ -63,6 +85,9 @@ describe('formatNodeIdForApi', () => {
 describe('formatNodeIdForUrl', () => {
   it('converts 1:2 to 1-2', () => {
     expect(formatNodeIdForUrl('1:2')).toBe('1-2');
+  });
+  it('trims whitespace', () => {
+    expect(formatNodeIdForUrl('  1:2  ')).toBe('1-2');
   });
 });
 
@@ -93,6 +118,63 @@ describe('buildNodeTree', () => {
     const out = buildNodeTree(node);
     expect(out).toContain('Parent');
     expect(out).toContain('Child');
+  });
+
+  it('handles deeply nested children (3+ levels)', () => {
+    const node: FigmaNode = {
+      id: '1',
+      name: 'Root',
+      type: 'FRAME',
+      children: [
+        {
+          id: '2',
+          name: 'Level2',
+          type: 'FRAME',
+          children: [
+            {
+              id: '3',
+              name: 'Level3',
+              type: 'FRAME',
+              children: [{ id: '4', name: 'Leaf', type: 'RECTANGLE' }],
+            },
+          ],
+        },
+      ],
+    };
+    const out = buildNodeTree(node);
+    expect(out).toContain('Root');
+    expect(out).toContain('Level2');
+    expect(out).toContain('Level3');
+    expect(out).toContain('Leaf');
+    expect(out).toContain('id="4"');
+  });
+
+  it('escapes special XML characters in names', () => {
+    const node: FigmaNode = {
+      id: '1',
+      name: 'Test <tag> & "quoted"',
+      type: 'FRAME',
+    };
+    const out = buildNodeTree(node);
+    expect(out).toContain('&lt;');
+    expect(out).toContain('&gt;');
+    expect(out).toContain('&amp;');
+    expect(out).toContain('&quot;');
+    expect(out).not.toContain('<tag>');
+  });
+
+  it('handles node without bounding box', () => {
+    const node: FigmaNode = {
+      id: '1',
+      name: 'NoBounds',
+      type: 'GROUP',
+    };
+    const out = buildNodeTree(node);
+    expect(out).toContain('id="1"');
+    expect(out).toContain('name="NoBounds"');
+    expect(out).toContain('type="GROUP"');
+    expect(out).not.toContain('width=');
+    expect(out).not.toContain('height=');
   });
 });
 
@@ -128,6 +210,67 @@ describe('extractDesignTokens', () => {
     expect(tokens.fontSize).toBe(16);
     expect(tokens.fontWeight).toBe(600);
     expect(tokens.lineHeight).toBe(24);
+  });
+
+  it('extracts cornerRadius, padding, itemSpacing', () => {
+    const node: FigmaNode = {
+      id: '1',
+      name: 'Card',
+      type: 'FRAME',
+      absoluteBoundingBox: { x: 0, y: 0, width: 100, height: 100 },
+      cornerRadius: 8,
+      paddingLeft: 16,
+      paddingRight: 16,
+      paddingTop: 12,
+      paddingBottom: 12,
+      itemSpacing: 10,
+    };
+    const tokens = extractDesignTokens(node);
+    expect(tokens.cornerRadius).toBe(8);
+    expect(tokens.paddingLeft).toBe(16);
+    expect(tokens.paddingRight).toBe(16);
+    expect(tokens.paddingTop).toBe(12);
+    expect(tokens.paddingBottom).toBe(12);
+    expect(tokens.itemSpacing).toBe(10);
+  });
+
+  it('extracts variables from variables response (color and non-color)', () => {
+    const node: FigmaNode = { id: '1', name: 'N', type: 'FRAME' };
+    const variablesResponse = {
+      meta: {
+        variables: {
+          v1: {
+            id: 'v1',
+            name: 'primary',
+            key: 'k1',
+            variableCollectionId: 'c1',
+            valueType: 'COLOR',
+            valuesByMode: { default: { r: 0, g: 0.5, b: 1, a: 1 } },
+          },
+          v2: {
+            id: 'v2',
+            name: 'spacing',
+            key: 'k2',
+            variableCollectionId: 'c1',
+            valueType: 'FLOAT',
+            valuesByMode: { default: 16 },
+          },
+        },
+      },
+    } as FigmaVariablesResponse;
+    const tokens = extractDesignTokens(node, variablesResponse);
+    expect(tokens.primary).toContain('rgba(0, 128, 255');
+    expect(tokens.spacing).toBe(16);
+  });
+
+  it('returns empty object for node with no fills, bounds, or style', () => {
+    const node: FigmaNode = {
+      id: '1',
+      name: 'Empty',
+      type: 'GROUP',
+    };
+    const tokens = extractDesignTokens(node);
+    expect(tokens).toEqual({});
   });
 });
 

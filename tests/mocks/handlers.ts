@@ -12,6 +12,7 @@ export const handlers = [
       return HttpResponse.json({
         choices: [
           {
+            index: 0,
             message: {
               role: 'assistant',
               content: '',
@@ -36,6 +37,7 @@ export const handlers = [
     return HttpResponse.json({
       choices: [
         {
+          index: 0,
           message: { role: 'assistant', content: 'Mocked OpenAI response' },
           finish_reason: 'stop',
         },
