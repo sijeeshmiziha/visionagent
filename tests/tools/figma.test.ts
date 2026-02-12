@@ -236,8 +236,19 @@ describe('extractDesignTokens', () => {
 
   it('extracts variables from variables response (color and non-color)', () => {
     const node: FigmaNode = { id: '1', name: 'N', type: 'FRAME' };
-    const variablesResponse = {
+    const variablesResponse: FigmaVariablesResponse = {
       meta: {
+        variableCollections: {
+          c1: {
+            id: 'c1',
+            name: 'Collection 1',
+            key: 'collection-key',
+            modes: [{ modeId: 'default', name: 'Default' }],
+            defaultModeId: 'default',
+            hiddenFromPublishing: false,
+            variableIds: ['v1', 'v2'],
+          },
+        },
         variables: {
           v1: {
             id: 'v1',
@@ -257,7 +268,7 @@ describe('extractDesignTokens', () => {
           },
         },
       },
-    } as FigmaVariablesResponse;
+    };
     const tokens = extractDesignTokens(node, variablesResponse);
     expect(tokens.primary).toContain('rgba(0, 128, 255');
     expect(tokens.spacing).toBe(16);

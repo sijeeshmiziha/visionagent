@@ -47,7 +47,10 @@ describe('parseToolResult', () => {
 
   it('should return raw result for non-text content type', () => {
     const result = parseToolResult({
-      content: [{ type: 'image', image: 'base64data' }] as { type: string; text?: string }[],
+      content: [{ type: 'image', image: 'base64data' }] as unknown as {
+        type: string;
+        text?: string;
+      }[],
     });
     expect(result).toEqual({
       content: [{ type: 'image', image: 'base64data' }],

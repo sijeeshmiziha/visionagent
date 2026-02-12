@@ -166,8 +166,8 @@ describe('OpenAI Model (Unit - Mocked)', () => {
   it('should handle generateVision with multiple images', async () => {
     const model = createMockModel();
     const images = [
-      { base64: 'img1', mimeType: 'image/png' },
-      { base64: 'img2', mimeType: 'image/jpeg' },
+      { base64: 'img1', mimeType: 'image/png' as const },
+      { base64: 'img2', mimeType: 'image/jpeg' as const },
     ];
 
     await model.generateVision('Compare these', images);
@@ -177,7 +177,7 @@ describe('OpenAI Model (Unit - Mocked)', () => {
 
   it('should handle generateVision with system prompt option', async () => {
     const model = createMockModel();
-    const images = [{ base64: 'x', mimeType: 'image/png' }];
+    const images = [{ base64: 'x', mimeType: 'image/png' as const }];
 
     await model.generateVision('Describe', images, { systemPrompt: 'You are an expert.' });
 

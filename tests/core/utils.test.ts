@@ -5,15 +5,22 @@
 import { describe, it, expect } from 'vitest';
 import { sumTokenUsage } from '../../src/lib/utils/utils';
 
-function usage(
-  input: number,
-  output: number,
-  total?: number
-): { inputTokens: number; outputTokens: number; totalTokens: number } {
+import type { LanguageModelUsage } from 'ai';
+
+function usage(input: number, output: number, total?: number): LanguageModelUsage {
   return {
     inputTokens: input,
     outputTokens: output,
     totalTokens: total ?? input + output,
+    inputTokenDetails: {
+      noCacheTokens: undefined,
+      cacheReadTokens: undefined,
+      cacheWriteTokens: undefined,
+    },
+    outputTokenDetails: {
+      textTokens: undefined,
+      reasoningTokens: undefined,
+    },
   };
 }
 
@@ -69,9 +76,7 @@ describe('sumTokenUsage', () => {
   });
 
   it('should use usage.totalTokens when provided', () => {
-    const result = sumTokenUsage([
-      { inputTokens: 5, outputTokens: 5, totalTokens: 12 } as ReturnType<typeof usage>,
-    ]);
+    const result = sumTokenUsage([usage(5, 5, 12)]);
     expect(result.totalTokens).toBe(12);
   });
 });

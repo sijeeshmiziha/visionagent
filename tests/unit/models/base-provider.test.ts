@@ -4,6 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAIModel } from '../../../src/lib/models/providers/base';
+import type { ModelTool } from '../../../src/lib/types/model';
 
 const mockUsage = {
   inputTokens: 10,
@@ -70,10 +71,10 @@ describe('createAIModel', () => {
     const tools = {
       my_tool: {
         description: 'A tool',
-        inputSchema: {},
+        inputSchema: { type: 'object', properties: {} },
         execute: async () => ({}),
       },
-    };
+    } as unknown as Record<string, ModelTool>;
     await model.invoke([{ role: 'user', content: 'Hi' }], { tools });
     const call = mockGenerateText.mock.calls[0]![0];
     expect(call.tools).toBeDefined();
