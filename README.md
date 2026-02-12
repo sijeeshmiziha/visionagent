@@ -10,7 +10,6 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/visionagent"><img src="https://img.shields.io/npm/v/visionagent.svg?style=flat-square" alt="npm version"></a>
-  <a href="https://www.npmjs.com/package/visionagent"><img src="https://img.shields.io/npm/dm/visionagent.svg?style=flat-square" alt="npm downloads"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Ready-blue?style=flat-square&logo=typescript" alt="TypeScript"></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/node/v/visionagent?style=flat-square&logo=node.js" alt="Node.js"></a>
   <a href="https://github.com/sijeeshmiziha/visionagent/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/visionagent.svg?style=flat-square" alt="License"></a>
