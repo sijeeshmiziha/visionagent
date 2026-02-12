@@ -1,23 +1,29 @@
 /**
  * Figma Example: get_metadata
  *
- * Run: npm run example -- examples/figma/04-get-metadata.ts
- * Inputs: FIGMA_URL (env or --figma-url=)
+ * Get metadata (IDs, names, types, positions, sizes) for a node or document.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export FIGMA_API_KEY="figd_..."
+ *
+ * Run:
+ *   npx tsx 04-get-metadata.ts
  */
+import { executeTool, figmaGetMetadataTool, parseFigmaUrl } from 'visionagent';
 
-import { executeTool } from '../../src/index';
-import { figmaGetMetadataTool, parseFigmaUrl } from '../../src/modules/figma';
-import { requireInput } from '../lib/input';
+const DEFAULT_FIGMA_URL =
+  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
 
 async function main() {
   console.log('=== figma_get_metadata ===\n');
 
   if (!process.env.FIGMA_API_KEY) {
-    console.error('FIGMA_API_KEY is not set. Add it to .env and run again.');
+    console.error('FIGMA_API_KEY is not set. Set it in your environment and run again.');
     process.exit(1);
   }
 
-  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
   const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
 
   console.log('File key:', fileKey);

@@ -1,12 +1,16 @@
 /**
- * Example 03: Tool Calling with Agent
+ * Example: Tool Calling with Agent
  *
- * Run with: npm run example -- examples/core/03-tool-calling.ts
- * Inputs: PROVIDER, MODEL, AGENT_INPUT, MAX_ITERATIONS (env or --key=value)
+ * Agent with a calculator tool.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export OPENAI_API_KEY="sk-..."
+ *
+ * Run:
+ *   npx tsx 03-tool-calling.ts
  */
-
-import { createModel, createToolSet, defineTool, runAgent } from '../../src/index';
-import { requireInput } from '../lib/input';
+import { createModel, createToolSet, defineTool, runAgent } from 'visionagent';
 import { z } from 'zod';
 
 const calculatorTool = defineTool({
@@ -32,14 +36,17 @@ const calculatorTool = defineTool({
 async function main() {
   console.log('Testing agent with tools...\n');
 
-  const provider = requireInput('PROVIDER') as 'openai' | 'anthropic' | 'google';
-  const modelName = requireInput('MODEL');
-  const agentInput = requireInput('AGENT_INPUT');
-  const maxIterStr = requireInput('MAX_ITERATIONS');
-  const maxIterations = Number.parseInt(maxIterStr, 10) || 5;
+  const provider = (process.env.PROVIDER ?? 'openai') as 'openai' | 'anthropic' | 'google';
+  const modelName = process.env.MODEL ?? 'gpt-4o-mini';
+  const agentInput = process.env.AGENT_INPUT ?? 'What is 25 multiplied by 4?';
+  const maxIterations = Number(process.env.MAX_ITERATIONS ?? '5') || 5;
 
   const result = await runAgent({
-    model: createModel({ provider, model: modelName }),
+    model: createModel({
+      provider,
+      model: modelName,
+      apiKey: process.env.OPENAI_API_KEY,
+    }),
     tools: createToolSet({ calculator: calculatorTool }),
     systemPrompt: 'You are a helpful math assistant. Use the calculator tool to solve problems.',
     input: agentInput,

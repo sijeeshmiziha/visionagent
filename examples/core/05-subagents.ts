@@ -1,13 +1,16 @@
 /**
- * Example 05: Subagents (researcher + summarizer)
+ * Example: Subagents (researcher + summarizer)
  *
  * A parent agent delegates to two subagents: a researcher (read-only search tool)
  * and a summarizer (no tools). The parent coordinates by calling subagent tools.
  *
- * Run: npm run example -- examples/core/05-subagents.ts
- * Inputs: PROVIDER, MODEL, AGENT_INPUT, MAX_ITERATIONS (env or --key=value)
+ * Setup:
+ *   npm install visionagent
+ *   export OPENAI_API_KEY="sk-..."
+ *
+ * Run:
+ *   npx tsx 05-subagents.ts
  */
-
 import {
   createModel,
   createToolSet,
@@ -15,9 +18,8 @@ import {
   defineSubagent,
   createSubagentToolSet,
   runAgent,
-} from '../../src/index';
-import type { AgentStep } from '../../src/lib/types/agent';
-import { requireInput, getInput } from '../lib/input';
+} from 'visionagent';
+import type { AgentStep } from 'visionagent';
 import { z } from 'zod';
 
 // --- Read-only tool for the researcher subagent ---
@@ -63,13 +65,17 @@ const PARENT_SYSTEM_PROMPT = `You are a coordinator. When the user asks a questi
 async function main() {
   console.log('=== Subagents Example (researcher + summarizer) ===\n');
 
-  const provider = requireInput('PROVIDER') as 'openai' | 'anthropic' | 'google';
-  const modelName = requireInput('MODEL');
-  const agentInput = requireInput('AGENT_INPUT');
-  const maxIterStr = getInput('MAX_ITERATIONS') ?? '10';
-  const maxIterations = Number.parseInt(maxIterStr, 10) || 10;
+  const provider = (process.env.PROVIDER ?? 'openai') as 'openai' | 'anthropic' | 'google';
+  const modelName = process.env.MODEL ?? 'gpt-4o-mini';
+  const agentInput =
+    process.env.AGENT_INPUT ?? 'Research "TypeScript 5 features" and give me a short summary.';
+  const maxIterations = Number(process.env.MAX_ITERATIONS ?? '10') || 10;
 
-  const parentModel = createModel({ provider, model: modelName });
+  const parentModel = createModel({
+    provider,
+    model: modelName,
+    apiKey: process.env.OPENAI_API_KEY,
+  });
   const subagentTools = createSubagentToolSet([researcherDef, summarizerDef], {
     parentModel,
   });
@@ -112,9 +118,7 @@ async function main() {
   }
 }
 
-try {
-  await main();
-} catch (err) {
+main().catch((err: unknown) => {
   console.error(err);
   process.exit(1);
-}
+});

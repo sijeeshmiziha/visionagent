@@ -1,36 +1,43 @@
 /**
  * Figma Example: add_code_connect_map
  *
- * Run: npm run example -- examples/figma/07-add-code-connect-map.ts
- * Inputs: FIGMA_URL, FIGMA_NODE_ID (optional), FIGMA_COMPONENT_NAME, FIGMA_SOURCE, FIGMA_LABEL (env or --key=value)
+ * Add a Code Connect mapping (Figma node → code component).
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export FIGMA_API_KEY="figd_..."
+ *
+ * Run:
+ *   npx tsx 07-add-code-connect-map.ts
  */
-
-import { executeTool } from '../../src/index';
 import {
+  executeTool,
   figmaAddCodeConnectMapTool,
   getStoredMappings,
   parseFigmaUrl,
-} from '../../src/modules/figma';
-import { getInput, requireInput } from '../lib/input';
+} from 'visionagent';
+
+const DEFAULT_FIGMA_URL =
+  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
 
 async function main() {
   console.log('=== figma_add_code_connect_map ===\n');
 
-  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
-  const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
-  const id = getInput('FIGMA_NODE_ID') ?? nodeId;
-  if (!id) {
-    console.error(
-      'Set FIGMA_NODE_ID in env or pass --figma-node-id=... (or use a FIGMA_URL with node-id)'
-    );
+  if (!process.env.FIGMA_API_KEY) {
+    console.error('FIGMA_API_KEY is not set. Set it in your environment and run again.');
     process.exit(1);
   }
-  const componentName = requireInput(
-    'FIGMA_COMPONENT_NAME',
-    'Set FIGMA_COMPONENT_NAME or pass --figma-component-name=...'
-  );
-  const source = requireInput('FIGMA_SOURCE', 'Set FIGMA_SOURCE or pass --figma-source=...');
-  const label = getInput('FIGMA_LABEL') ?? 'React';
+
+  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
+  const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
+  const id = process.env.FIGMA_NODE_ID ?? nodeId;
+  if (!id) {
+    console.error('Set FIGMA_NODE_ID in env or use a FIGMA_URL with node-id.');
+    process.exit(1);
+  }
+  const componentName = process.env.FIGMA_COMPONENT_NAME ?? 'HeroSection';
+  const source = process.env.FIGMA_SOURCE ?? 'src/components/HeroSection.tsx';
+  const label = process.env.FIGMA_LABEL ?? 'React';
 
   console.log('File key      :', fileKey);
   console.log('Node ID       :', id);

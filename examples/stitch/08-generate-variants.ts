@@ -1,41 +1,45 @@
 /**
- * Stitch Example: generate_variants
+ * Stitch Example: Generate Variants
  *
- * Run: npm run example -- examples/stitch/08-generate-variants.ts
- * Inputs: STITCH_PROJECT_ID, STITCH_SCREEN_ID, STITCH_PROMPT (env or --key=value). Optional: STITCH_VARIANT_COUNT, STITCH_CREATIVE_RANGE
+ * Generate design variants of screen(s) with a prompt.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export STITCH_MCP_URL="https://..."   # or STITCH_MCP_COMMAND
+ *
+ * Run:
+ *   npx tsx 08-generate-variants.ts
  */
-
-import { executeTool } from '../../src/index';
-import { stitchGenerateVariantsTool } from '../../src/modules/stitch';
-import { getInput, requireInput } from '../lib/input';
+import { executeTool, stitchGenerateVariantsTool } from 'visionagent';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
 async function main() {
   if (!process.env.STITCH_MCP_URL && !process.env.STITCH_MCP_COMMAND) {
     console.error(
-      'Stitch MCP is not configured. Set STITCH_MCP_URL or STITCH_MCP_COMMAND in .env.\nSee:',
-      STITCH_SETUP
+      'Stitch MCP is not configured.\n' +
+        'Set STITCH_MCP_URL or STITCH_MCP_COMMAND in your environment.\n' +
+        'See: ' +
+        STITCH_SETUP
     );
     process.exit(1);
   }
 
-  const projectId = requireInput(
-    'STITCH_PROJECT_ID',
-    'Set STITCH_PROJECT_ID or pass --stitch-project-id=...'
-  );
-  const screenIdsEnv = requireInput(
-    'STITCH_SCREEN_ID',
-    'Set STITCH_SCREEN_ID or pass --stitch-screen-id=... (comma-separated)'
-  );
+  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
+  const screenIdsEnv = process.env.STITCH_SCREEN_ID ?? '98b50e2ddc9943efb387052637738f61';
   const selectedScreenIds = screenIdsEnv
     .split(',')
     .map(s => s.trim())
     .filter(Boolean);
-  const prompt = requireInput('STITCH_PROMPT', 'Set STITCH_PROMPT or pass --stitch-prompt=...');
-  const variantCountStr = getInput('STITCH_VARIANT_COUNT');
-  const variantCount = variantCountStr ? Number.parseInt(variantCountStr, 10) : 2;
-  const creativeRange = getInput('STITCH_CREATIVE_RANGE') ?? 'EXPLORE';
+  const prompt = process.env.STITCH_PROMPT ?? 'Try a dark theme with accent color variations.';
+  const variantCount = Number(process.env.STITCH_VARIANT_COUNT ?? '2') || 2;
+  const creativeRangeRaw = process.env.STITCH_CREATIVE_RANGE ?? 'EXPLORE';
+  const creativeRange =
+    creativeRangeRaw === 'REFINE' ||
+    creativeRangeRaw === 'EXPLORE' ||
+    creativeRangeRaw === 'REIMAGINE'
+      ? creativeRangeRaw
+      : 'EXPLORE';
 
   console.log('=== stitch_generate_variants ===\n');
   console.log('Generating variants...\n');
@@ -45,10 +49,7 @@ async function main() {
     selectedScreenIds,
     prompt,
     variantCount,
-    creativeRange:
-      creativeRange === 'REFINE' || creativeRange === 'EXPLORE' || creativeRange === 'REIMAGINE'
-        ? creativeRange
-        : 'EXPLORE',
+    creativeRange,
     aspects: ['COLOR_SCHEME'],
   });
 

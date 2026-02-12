@@ -1,33 +1,32 @@
 /**
- * Stitch Example: get_screen
+ * Stitch Example: Get Screen
  *
- * Run: npm run example -- examples/stitch/05-get-screen.ts
- * Inputs: STITCH_PROJECT_ID, STITCH_SCREEN_ID (env or --stitch-project-id=, --stitch-screen-id=)
+ * Get screen details by project and screen ID.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export STITCH_MCP_URL="https://..."   # or STITCH_MCP_COMMAND
+ *
+ * Run:
+ *   npx tsx 05-get-screen.ts
  */
-
-import { executeTool } from '../../src/index';
-import { stitchGetScreenTool } from '../../src/modules/stitch';
-import { requireInput } from '../lib/input';
+import { executeTool, stitchGetScreenTool } from 'visionagent';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
 async function main() {
   if (!process.env.STITCH_MCP_URL && !process.env.STITCH_MCP_COMMAND) {
     console.error(
-      'Stitch MCP is not configured. Set STITCH_MCP_URL or STITCH_MCP_COMMAND in .env.\nSee:',
-      STITCH_SETUP
+      'Stitch MCP is not configured.\n' +
+        'Set STITCH_MCP_URL or STITCH_MCP_COMMAND in your environment.\n' +
+        'See: ' +
+        STITCH_SETUP
     );
     process.exit(1);
   }
 
-  const projectId = requireInput(
-    'STITCH_PROJECT_ID',
-    'Set STITCH_PROJECT_ID or pass --stitch-project-id=...'
-  );
-  const screenId = requireInput(
-    'STITCH_SCREEN_ID',
-    'Set STITCH_SCREEN_ID or pass --stitch-screen-id=...'
-  );
+  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
+  const screenId = process.env.STITCH_SCREEN_ID ?? '98b50e2ddc9943efb387052637738f61';
   const name = `projects/${projectId}/screens/${screenId}`;
 
   console.log('=== stitch_get_screen ===\n');
@@ -35,7 +34,9 @@ async function main() {
   const result = await executeTool(stitchGetScreenTool, { name });
 
   if (result.success) {
-    const out = result.output as { screen?: { name: string; design?: unknown } };
+    const out = result.output as {
+      screen?: { name: string; design?: unknown };
+    };
     console.log('Screen:', out.screen?.name ?? '—');
     if (out.screen?.design) console.log('  (design payload present)');
   } else {

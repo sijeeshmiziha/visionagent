@@ -1,24 +1,30 @@
 /**
  * Figma Example: get_code_connect_suggestions
  *
- * Run: npm run example -- examples/figma/08-get-code-connect-suggestions.ts
- * Inputs: FIGMA_URL (env or --figma-url=)
+ * Get suggested Code Connect mappings for a node.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export FIGMA_API_KEY="figd_..."
+ *
+ * Run:
+ *   npx tsx 08-get-code-connect-suggestions.ts
  */
+import { executeTool, figmaGetCodeConnectSuggestionsTool, parseFigmaUrl } from 'visionagent';
+import type { CodeConnectSuggestion } from 'visionagent';
 
-import { executeTool } from '../../src/index';
-import { figmaGetCodeConnectSuggestionsTool, parseFigmaUrl } from '../../src/modules/figma';
-import type { CodeConnectSuggestion } from '../../src/modules/figma';
-import { requireInput } from '../lib/input';
+const DEFAULT_FIGMA_URL =
+  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
 
 async function main() {
   console.log('=== figma_get_code_connect_suggestions ===\n');
 
   if (!process.env.FIGMA_API_KEY) {
-    console.error('FIGMA_API_KEY is not set. Add it to .env and run again.');
+    console.error('FIGMA_API_KEY is not set. Set it in your environment and run again.');
     process.exit(1);
   }
 
-  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
   const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
   if (!nodeId) {
     console.error('URL must contain a node-id. Got:', figmaUrl);
@@ -28,7 +34,10 @@ async function main() {
   console.log('File key:', fileKey);
   console.log('Node ID :', nodeId, '\n');
 
-  const result = await executeTool(figmaGetCodeConnectSuggestionsTool, { fileKey, nodeId });
+  const result = await executeTool(figmaGetCodeConnectSuggestionsTool, {
+    fileKey,
+    nodeId,
+  });
 
   if (result.success) {
     const out = result.output as { suggestions: CodeConnectSuggestion[] };

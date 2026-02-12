@@ -3,19 +3,20 @@
  *
  * Returns the authenticated Figma user's identity (email, handle, teams).
  *
- * Run:  npm run example -- examples/figma/01-whoami.ts
+ * Setup:
+ *   npm install visionagent
+ *   export FIGMA_API_KEY="figd_..."
  *
- * Requires: FIGMA_API_KEY in .env
+ * Run:
+ *   npx tsx 01-whoami.ts
  */
-
-import { executeTool } from '../../src/index';
-import { figmaWhoamiTool } from '../../src/modules/figma';
+import { executeTool, figmaWhoamiTool } from 'visionagent';
 
 async function main() {
   console.log('=== figma_whoami ===\n');
 
   if (!process.env.FIGMA_API_KEY) {
-    console.error('FIGMA_API_KEY is not set. Add it to .env and run again.');
+    console.error('FIGMA_API_KEY is not set. Set it in your environment and run again.');
     process.exit(1);
   }
 

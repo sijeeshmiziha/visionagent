@@ -1,24 +1,38 @@
 /**
  * Figma Example: generate_diagram
  *
- * Run: npm run example -- examples/figma/12-generate-diagram.ts
- * Inputs: FIGMA_DIAGRAM_NAME, FIGMA_MERMAID_SYNTAX (env or --key=value). Optional: run with no params to use built-in demo.
+ * Generate a flowchart, sequence diagram, or Gantt chart in FigJam from Mermaid syntax.
+ *
+ * Setup:
+ *   npm install visionagent
+ *
+ * Run (with custom name/syntax via env):
+ *   export FIGMA_DIAGRAM_NAME="My Flow"
+ *   export FIGMA_MERMAID_SYNTAX="graph LR ..."
+ *   npx tsx 12-generate-diagram.ts
+ *
+ * Run (demo with built-in examples):
+ *   npx tsx 12-generate-diagram.ts
  */
-
-import { executeTool } from '../../src/index';
-import { figmaGenerateDiagramTool } from '../../src/modules/figma';
-import { getInput } from '../lib/input';
+import { executeTool, figmaGenerateDiagramTool } from 'visionagent';
 
 async function main() {
   console.log('=== figma_generate_diagram ===\n');
 
-  const name = getInput('FIGMA_DIAGRAM_NAME');
-  const mermaidSyntax = getInput('FIGMA_MERMAID_SYNTAX');
+  const name = process.env.FIGMA_DIAGRAM_NAME;
+  const mermaidSyntax = process.env.FIGMA_MERMAID_SYNTAX;
 
   if (name && mermaidSyntax) {
-    const result = await executeTool(figmaGenerateDiagramTool, { name, mermaidSyntax });
+    const result = await executeTool(figmaGenerateDiagramTool, {
+      name,
+      mermaidSyntax,
+    });
     if (result.success) {
-      const out = result.output as { name: string; diagram: string; message?: string };
+      const out = result.output as {
+        name: string;
+        diagram: string;
+        message?: string;
+      };
       console.log(`Name   : ${out.name}`);
       console.log(`Diagram:\n${out.diagram}`);
       if (out.message) console.log(`Note   : ${out.message}`);
@@ -40,7 +54,11 @@ async function main() {
   E --> B`,
   });
   if (flowchart.success) {
-    const out = flowchart.output as { name: string; diagram: string; message: string };
+    const out = flowchart.output as {
+      name: string;
+      diagram: string;
+      message: string;
+    };
     console.log(`  Name   : ${out.name}`);
     console.log(`  Diagram:\n${out.diagram}`);
     console.log(`  Note   : ${out.message}\n`);

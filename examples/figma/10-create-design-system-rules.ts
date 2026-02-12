@@ -1,25 +1,30 @@
 /**
  * Figma Example: create_design_system_rules
  *
- * Run: npm run example -- examples/figma/10-create-design-system-rules.ts
- * Inputs: FIGMA_URL (env or --figma-url=). Optional: FIGMA_OUTPUT_PATH
+ * Generate design system rules (Markdown) from a Figma file's variables and styles.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export FIGMA_API_KEY="figd_..."
+ *
+ * Run:
+ *   npx tsx 10-create-design-system-rules.ts
  */
+import { executeTool, figmaCreateDesignSystemRulesTool, parseFigmaUrl } from 'visionagent';
 
-import { executeTool } from '../../src/index';
-import { figmaCreateDesignSystemRulesTool, parseFigmaUrl } from '../../src/modules/figma';
-import { getInput, requireInput } from '../lib/input';
+const DEFAULT_FIGMA_URL = 'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1';
 
 async function main() {
   console.log('=== figma_create_design_system_rules ===\n');
 
   if (!process.env.FIGMA_API_KEY) {
-    console.error('FIGMA_API_KEY is not set. Add it to .env and run again.');
+    console.error('FIGMA_API_KEY is not set. Set it in your environment and run again.');
     process.exit(1);
   }
 
-  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
   const { fileKey } = parseFigmaUrl(figmaUrl);
-  const outputPath = getInput('FIGMA_OUTPUT_PATH') ?? '.cursor/rules/figma-design-system.md';
+  const outputPath = process.env.FIGMA_OUTPUT_PATH ?? '.cursor/rules/figma-design-system.md';
   console.log('File key:', fileKey);
   console.log('Output  :', outputPath, '\n');
 

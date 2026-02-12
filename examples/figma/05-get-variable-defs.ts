@@ -1,23 +1,28 @@
 /**
  * Figma Example: get_variable_defs
  *
- * Run: npm run example -- examples/figma/05-get-variable-defs.ts
- * Inputs: FIGMA_URL (env or --figma-url=)
+ * Get variable definitions (local and published) for a file.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export FIGMA_API_KEY="figd_..."
+ *
+ * Run:
+ *   npx tsx 05-get-variable-defs.ts
  */
+import { executeTool, figmaGetVariableDefsTool, parseFigmaUrl } from 'visionagent';
 
-import { executeTool } from '../../src/index';
-import { figmaGetVariableDefsTool, parseFigmaUrl } from '../../src/modules/figma';
-import { requireInput } from '../lib/input';
+const DEFAULT_FIGMA_URL = 'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1';
 
 async function main() {
   console.log('=== figma_get_variable_defs ===\n');
 
   if (!process.env.FIGMA_API_KEY) {
-    console.error('FIGMA_API_KEY is not set. Add it to .env and run again.');
+    console.error('FIGMA_API_KEY is not set. Set it in your environment and run again.');
     process.exit(1);
   }
 
-  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
   const { fileKey } = parseFigmaUrl(figmaUrl);
   console.log('File key:', fileKey, '\n');
 

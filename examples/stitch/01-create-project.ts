@@ -1,29 +1,33 @@
 /**
- * Stitch Example: create_project
+ * Stitch Example: Create Project
  *
- * Run: npm run example -- examples/stitch/01-create-project.ts
- * Inputs: STITCH_TITLE (env or --stitch-title=). Optional.
+ * Creates a new Stitch project using the stitch_create_project tool.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export STITCH_MCP_URL="https://..."   # or STITCH_MCP_COMMAND
+ *
+ * Run:
+ *   npx tsx 01-create-project.ts
  */
-
-import { executeTool } from '../../src/index';
-import { stitchCreateProjectTool } from '../../src/modules/stitch';
-import { getInput } from '../lib/input';
+import { executeTool, stitchCreateProjectTool } from 'visionagent';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
 async function main() {
   if (!process.env.STITCH_MCP_URL && !process.env.STITCH_MCP_COMMAND) {
     console.error(
-      'Stitch MCP is not configured. Set STITCH_MCP_URL or STITCH_MCP_COMMAND (and optionally STITCH_MCP_ARGS) in .env.\nSee:',
-      STITCH_SETUP
+      'Stitch MCP is not configured.\n' +
+        'Set STITCH_MCP_URL or STITCH_MCP_COMMAND in your environment.\n' +
+        'See: ' +
+        STITCH_SETUP
     );
     process.exit(1);
   }
 
   console.log('=== stitch_create_project ===\n');
 
-  const title = getInput('STITCH_TITLE') ?? '';
-
+  const title = process.env.STITCH_TITLE ?? 'My New Project';
   const result = await executeTool(stitchCreateProjectTool, { title });
 
   if (result.success) {

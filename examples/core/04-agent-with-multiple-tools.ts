@@ -1,12 +1,16 @@
 /**
- * Example 04: Agent with Multiple Tools
+ * Example: Agent with Multiple Tools
  *
- * Run with: npm run example -- examples/core/04-agent-with-multiple-tools.ts
- * Inputs: PROVIDER, MODEL, AGENT_INPUT, MAX_ITERATIONS (env or --key=value)
+ * Agent with web_search, write_file, and get_current_time tools.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export OPENAI_API_KEY="sk-..."
+ *
+ * Run:
+ *   npx tsx 04-agent-with-multiple-tools.ts
  */
-
-import { createModel, createToolSet, defineTool, runAgent } from '../../src/index';
-import { requireInput } from '../lib/input';
+import { createModel, createToolSet, defineTool, runAgent } from 'visionagent';
 import { z } from 'zod';
 
 const searchTool = defineTool({
@@ -52,14 +56,19 @@ const getCurrentTimeTool = defineTool({
 async function main() {
   console.log('Testing multi-tool agent...\n');
 
-  const provider = requireInput('PROVIDER') as 'openai' | 'anthropic' | 'google';
-  const modelName = requireInput('MODEL');
-  const agentInput = requireInput('AGENT_INPUT');
-  const maxIterStr = requireInput('MAX_ITERATIONS');
-  const maxIterations = Number.parseInt(maxIterStr, 10) || 10;
+  const provider = (process.env.PROVIDER ?? 'openai') as 'openai' | 'anthropic' | 'google';
+  const modelName = process.env.MODEL ?? 'gpt-4o-mini';
+  const agentInput =
+    process.env.AGENT_INPUT ??
+    'What time is it now? Then search for "TypeScript best practices" and summarize one tip.';
+  const maxIterations = Number(process.env.MAX_ITERATIONS ?? '10') || 10;
 
   const result = await runAgent({
-    model: createModel({ provider, model: modelName }),
+    model: createModel({
+      provider,
+      model: modelName,
+      apiKey: process.env.OPENAI_API_KEY,
+    }),
     tools: createToolSet({
       web_search: searchTool,
       write_file: writeFileTool,

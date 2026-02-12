@@ -1,31 +1,35 @@
 /**
- * Stitch Example: generate_screen_from_text
+ * Stitch Example: Generate Screen from Text
  *
- * Run: npm run example -- examples/stitch/06-generate-screen.ts
- * Inputs: STITCH_PROJECT_ID, STITCH_PROMPT (env or --key=). Optional: STITCH_DEVICE_TYPE
+ * Generate a new screen in a project from a text prompt.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export STITCH_MCP_URL="https://..."   # or STITCH_MCP_COMMAND
+ *
+ * Run:
+ *   npx tsx 06-generate-screen.ts
  */
-
-import { executeTool } from '../../src/index';
-import { stitchGenerateScreenTool } from '../../src/modules/stitch';
-import { getInput, requireInput } from '../lib/input';
+import { executeTool, stitchGenerateScreenTool } from 'visionagent';
 
 const STITCH_SETUP = 'https://stitch.withgoogle.com/docs/mcp/setup';
 
 async function main() {
   if (!process.env.STITCH_MCP_URL && !process.env.STITCH_MCP_COMMAND) {
     console.error(
-      'Stitch MCP is not configured. Set STITCH_MCP_URL or STITCH_MCP_COMMAND in .env.\nSee:',
-      STITCH_SETUP
+      'Stitch MCP is not configured.\n' +
+        'Set STITCH_MCP_URL or STITCH_MCP_COMMAND in your environment.\n' +
+        'See: ' +
+        STITCH_SETUP
     );
     process.exit(1);
   }
 
-  const projectId = requireInput(
-    'STITCH_PROJECT_ID',
-    'Set STITCH_PROJECT_ID or pass --stitch-project-id=...'
-  );
-  const prompt = requireInput('STITCH_PROMPT', 'Set STITCH_PROMPT or pass --stitch-prompt=...');
-  const deviceTypeRaw = getInput('STITCH_DEVICE_TYPE') ?? 'MOBILE';
+  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
+  const prompt =
+    process.env.STITCH_PROMPT ??
+    'A simple login screen with email and password fields and a sign-in button.';
+  const deviceTypeRaw = process.env.STITCH_DEVICE_TYPE ?? 'MOBILE';
   const deviceType =
     deviceTypeRaw === 'MOBILE' ||
     deviceTypeRaw === 'DESKTOP' ||
@@ -44,7 +48,10 @@ async function main() {
   });
 
   if (result.success) {
-    const out = result.output as { screen?: { name: string }; outputComponents?: string[] };
+    const out = result.output as {
+      screen?: { name: string };
+      outputComponents?: string[];
+    };
     console.log('Screen:', out.screen?.name ?? '—');
     if (out.outputComponents?.length) console.log('Output:', out.outputComponents);
   } else {

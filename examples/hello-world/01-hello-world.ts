@@ -1,23 +1,28 @@
 /**
- * Example 01: Hello World Agent
+ * Example: Hello World Agent
  *
- * Run with: npm run example -- examples/hello-world/01-hello-world.ts
- * Inputs: PROVIDER, MODEL, AGENT_INPUT, SYSTEM_PROMPT, MAX_ITERATIONS (env or --key=value)
+ * Minimal agent with a greeting tool.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export OPENAI_API_KEY="sk-..."
+ *
+ * Run:
+ *   npx tsx 01-hello-world.ts
  */
-
-import { runHelloWorldAgent } from '../../src/modules/hello-world';
-import type { AgentStep } from '../../src/lib/types/agent';
-import { requireInput } from '../lib/input';
+import { runHelloWorldAgent } from 'visionagent';
+import type { AgentStep } from 'visionagent';
 
 async function main() {
   console.log('=== Hello World Agent ===\n');
 
-  const provider = requireInput('PROVIDER') as 'openai' | 'anthropic' | 'google';
-  const modelName = requireInput('MODEL');
-  const agentInput = requireInput('AGENT_INPUT');
-  const systemPrompt = requireInput('SYSTEM_PROMPT');
-  const maxIterStr = requireInput('MAX_ITERATIONS');
-  const maxIterations = Number.parseInt(maxIterStr, 10) || 5;
+  const provider = (process.env.PROVIDER ?? 'openai') as 'openai' | 'anthropic' | 'google';
+  const modelName = process.env.MODEL ?? 'gpt-4o-mini';
+  const agentInput = process.env.AGENT_INPUT ?? 'Greet Alice and Bob.';
+  const systemPrompt =
+    process.env.SYSTEM_PROMPT ??
+    'You are a friendly greeter. Use the hello_world tool to greet each person the user mentions.';
+  const maxIterations = Number(process.env.MAX_ITERATIONS ?? '5') || 5;
 
   const result = await runHelloWorldAgent({
     input: agentInput,

@@ -1,23 +1,29 @@
 /**
  * Figma Example: get_figjam
  *
- * Run: npm run example -- examples/figma/11-get-figjam.ts
- * Inputs: FIGMA_URL (env or --figma-url=)
+ * Get FigJam board content (metadata and screenshot URL).
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export FIGMA_API_KEY="figd_..."
+ *
+ * Run:
+ *   npx tsx 11-get-figjam.ts
  */
+import { executeTool, figmaGetFigjamTool, parseFigmaUrl } from 'visionagent';
 
-import { executeTool } from '../../src/index';
-import { figmaGetFigjamTool, parseFigmaUrl } from '../../src/modules/figma';
-import { requireInput } from '../lib/input';
+const DEFAULT_FIGMA_URL =
+  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
 
 async function main() {
   console.log('=== figma_get_figjam ===\n');
 
   if (!process.env.FIGMA_API_KEY) {
-    console.error('FIGMA_API_KEY is not set. Add it to .env and run again.');
+    console.error('FIGMA_API_KEY is not set. Set it in your environment and run again.');
     process.exit(1);
   }
 
-  const figmaUrl = requireInput('FIGMA_URL', 'Set FIGMA_URL in env or pass --figma-url=...');
+  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
   const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
   if (!nodeId) {
     console.error('URL must contain a node-id. Got:', figmaUrl);
@@ -30,7 +36,10 @@ async function main() {
   const result = await executeTool(figmaGetFigjamTool, { fileKey, nodeId });
 
   if (result.success) {
-    const out = result.output as { metadata?: string | null; screenshotUrl?: string | null };
+    const out = result.output as {
+      metadata?: string | null;
+      screenshotUrl?: string | null;
+    };
 
     if (out.screenshotUrl) {
       console.log('Screenshot URL:', out.screenshotUrl, '\n');

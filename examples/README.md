@@ -6,6 +6,7 @@ This directory contains runnable examples demonstrating VisionAgent's capabiliti
 
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [Usage in Your Project](#usage-in-your-project)
 - [How to Run](#how-to-run)
 - [Available Examples](#available-examples)
   - [Core](#core)
@@ -40,12 +41,62 @@ Set these in a `.env` file at the project root (copy from `.env.example`).
 
 ## Quick Start
 
+**In this repo (development):**
+
 ```bash
 # From the project root
 npm install
 cp .env.example .env
 # Edit .env and add at least OPENAI_API_KEY (and FIGMA_API_KEY for Figma examples)
 ```
+
+**In your own project (using the published package):**
+
+```bash
+npm install visionagent
+# Set API keys in .env or export them (see Usage in Your Project below)
+```
+
+---
+
+## Usage in Your Project
+
+All examples are written so you can copy them into an external project. They import from the package name and use environment variables for configuration.
+
+### Install and import
+
+```bash
+npm install visionagent
+```
+
+```typescript
+import { createModel, runAgent, executeTool, figmaWhoamiTool } from 'visionagent';
+```
+
+### API keys
+
+Pass keys via **environment variables** (recommended) or explicitly in config:
+
+| Service   | Env variable                             | Example in code                                                                                 |
+| --------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| OpenAI    | `OPENAI_API_KEY`                         | `createModel({ provider: 'openai', model: 'gpt-4o-mini', apiKey: process.env.OPENAI_API_KEY })` |
+| Anthropic | `ANTHROPIC_API_KEY`                      | Same pattern with `provider: 'anthropic'`                                                       |
+| Google    | `GOOGLE_GENERATIVE_AI_API_KEY`           | Same pattern with `provider: 'google'`                                                          |
+| Figma     | `FIGMA_API_KEY`                          | Tools read from env automatically                                                               |
+| Stitch    | `STITCH_MCP_URL` or `STITCH_MCP_COMMAND` | MCP client reads from env                                                                       |
+
+### Model selection
+
+```typescript
+const model = createModel({
+  provider: 'openai', // 'openai' | 'anthropic' | 'google'
+  model: 'gpt-4o-mini', // e.g. gpt-4o, claude-3-haiku-20240307, gemini-1.5-flash
+  apiKey: process.env.OPENAI_API_KEY,
+  temperature: 0.7, // optional
+});
+```
+
+Each example file includes a **Setup** and **Run** block in its header showing the exact env vars and how to run it with `npx tsx`.
 
 ---
 

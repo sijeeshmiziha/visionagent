@@ -1,29 +1,37 @@
 /**
- * Example 01: Basic Model Invocation
+ * Example: Basic Model Invocation
  *
- * Run with: npm run example -- examples/core/01-basic-model.ts
- * Inputs: PROVIDER, MODEL, PROMPT (env or --key=value). Optional: TEMPERATURE
+ * Creates a model and makes a simple API call.
+ *
+ * Setup:
+ *   npm install visionagent
+ *   export OPENAI_API_KEY="sk-..."
+ *
+ * Run:
+ *   npx tsx 01-basic-model.ts
  */
-
-import { createModel } from '../../src/index';
-import { getInput, requireInput } from '../lib/input';
+import { createModel } from 'visionagent';
 
 async function main() {
   console.log('Testing model...\n');
 
-  const provider = requireInput('PROVIDER') as 'openai' | 'anthropic' | 'google';
-  const modelName = requireInput('MODEL');
-  const userPrompt = requireInput('PROMPT');
-  const temp = getInput('TEMPERATURE');
-  const temperature = temp ? Number.parseFloat(temp) : 0.7;
+  // --- Configuration --------------------------------------------------------
+  // Provider: 'openai' | 'anthropic' | 'google'
+  const provider = (process.env.PROVIDER ?? 'openai') as 'openai' | 'anthropic' | 'google';
+
+  // Model name (e.g. 'gpt-4o-mini', 'claude-3-haiku-20240307', 'gemini-1.5-flash')
+  const modelName = process.env.MODEL ?? 'gpt-4o-mini';
 
   const model = createModel({
     provider,
     model: modelName,
-    temperature,
+    apiKey: process.env.OPENAI_API_KEY, // Optional: auto-reads from env if not set
+    temperature: 0.7,
   });
 
-  const response = await model.invoke([{ role: 'user', content: userPrompt }]);
+  // --- Invoke ---------------------------------------------------------------
+  const prompt = process.env.PROMPT ?? 'Explain what TypeScript is in one sentence.';
+  const response = await model.invoke([{ role: 'user', content: prompt }]);
 
   console.log('Response:', response.text);
   console.log('Tokens:', response.usage);
