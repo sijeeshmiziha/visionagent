@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/visionagent"><img src="https://img.shields.io/npm/v/visionagent.svg?style=flat-square" alt="npm version"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Ready-blue?style=flat-square&logo=typescript" alt="TypeScript"></a>
-  <a href="https://github.com/sijeeshmiziha/visionagent/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/visionagent.svg?style=flat-square" alt="License"></a>
-  <a href="https://github.com/sijeeshmiziha/visionagent/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-brightgreen?style=flat-square" alt="PRs Welcome"></a>
+  <a href="https://www.npmjs.com/package/visionagent"><img src="https://img.shields.io/npm/v/visionagent.svg?style=flat-square&color=0ea5e9&labelColor=0c4a6e" alt="npm version"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.7-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://github.com/sijeeshmiziha/visionagent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-8b5cf6?style=flat-square" alt="License"></a>
+  <a href="https://github.com/sijeeshmiziha/visionagent/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-10b981?style=flat-square&labelColor=064e3b" alt="PRs Welcome"></a>
 </p>
 
 <p align="center">
