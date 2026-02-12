@@ -2,6 +2,30 @@
  * Types for Design-to-Requirements agent output
  */
 
+/** Structured summary of one screen from the screen-summarizer agent (HTML analysis) */
+export interface ScreenSummary {
+  /** Short label for the screen (e.g. "Job Listings", "Job Detail") */
+  screenName?: string;
+  /** Screen purpose or description */
+  purpose?: string;
+  /** Heading text (h1, h2, …) */
+  headings?: string[];
+  /** Key interactive elements: buttons, links, form labels */
+  keyElements?: ({ type?: string; label?: string } | string)[];
+  /** Form fields and submit action if present */
+  forms?: { fields?: string[]; submitAction?: string };
+  /** Region/section labels */
+  sections?: string[];
+  /** Flattened readable text (truncated) */
+  rawTextSummary?: string;
+}
+
+/** Output of the screen-summarizer agent: screenId + structured screenSummary */
+export interface ScreenSummarizerOutput {
+  screenId: string;
+  screenSummary: ScreenSummary;
+}
+
 /** User persona identified from design analysis */
 export interface UserPersona {
   id: string;
