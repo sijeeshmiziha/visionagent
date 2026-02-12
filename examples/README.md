@@ -75,12 +75,13 @@ Always run from the **project root** so that `--env-file=.env` and module resolu
 
 ### Core
 
-| Example                        | Path                                            | Description                                          |
-| ------------------------------ | ----------------------------------------------- | ---------------------------------------------------- |
-| 01 - Basic Model               | `examples/core/01-basic-model.ts`               | Simple model invocation (OpenAI).                    |
-| 02 - All Providers             | `examples/core/02-all-providers.ts`             | Same prompt with OpenAI, Anthropic, and Google.      |
-| 03 - Tool Calling              | `examples/core/03-tool-calling.ts`              | Agent with a calculator tool.                        |
-| 04 - Agent with Multiple Tools | `examples/core/04-agent-with-multiple-tools.ts` | Agent with search, file write, and calculator tools. |
+| Example                        | Path                                            | Description                                                     |
+| ------------------------------ | ----------------------------------------------- | --------------------------------------------------------------- |
+| 01 - Basic Model               | `examples/core/01-basic-model.ts`               | Simple model invocation (OpenAI).                               |
+| 02 - All Providers             | `examples/core/02-all-providers.ts`             | Same prompt with OpenAI, Anthropic, and Google.                 |
+| 03 - Tool Calling              | `examples/core/03-tool-calling.ts`              | Agent with a calculator tool.                                   |
+| 04 - Agent with Multiple Tools | `examples/core/04-agent-with-multiple-tools.ts` | Agent with search, file write, and calculator tools.            |
+| 05 - Subagents                 | `examples/core/05-subagents.ts`                 | Parent agent delegating to researcher and summarizer subagents. |
 
 **Required**: `OPENAI_API_KEY`. For 02, also `ANTHROPIC_API_KEY` and `GOOGLE_GENERATIVE_AI_API_KEY`.
 

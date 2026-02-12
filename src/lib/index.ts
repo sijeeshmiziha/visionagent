@@ -38,6 +38,21 @@ export {
 } from './tools';
 export type { ToolSet, Tool, ToolConfig, ToolContext, ToolExecutionResult } from './tools';
 
+// Subagents
+export {
+  defineSubagent,
+  runSubagent,
+  createSubagentTool,
+  createSubagentToolSet,
+} from './subagents';
+export type {
+  SubagentConfig,
+  SubagentDefinition,
+  SubagentResult,
+  RunSubagentOptions,
+  CreateSubagentToolOptions,
+} from './subagents';
+
 // MCP
 export { BaseMcpClient } from './mcp';
 export type {

@@ -47,6 +47,12 @@ const EXAMPLES: ExampleEntry[] = [
     envVars: ['PROVIDER', 'MODEL', 'AGENT_INPUT', 'MAX_ITERATIONS'],
   },
   {
+    value: 'examples/core/05-subagents.ts',
+    name: '05 - Subagents',
+    group: 'Core',
+    envVars: ['PROVIDER', 'MODEL', 'AGENT_INPUT', 'MAX_ITERATIONS'],
+  },
+  {
     value: 'examples/hello-world/01-hello-world.ts',
     name: '01 - Hello World',
     group: 'Hello World',

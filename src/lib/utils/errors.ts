@@ -72,3 +72,17 @@ export class AgentError extends LibraryError {
     this.name = 'AgentError';
   }
 }
+
+/**
+ * Error thrown when subagent execution fails
+ */
+export class SubagentError extends LibraryError {
+  constructor(
+    message: string,
+    public readonly subagentName?: string,
+    cause?: Error
+  ) {
+    super(message, cause);
+    this.name = 'SubagentError';
+  }
+}
