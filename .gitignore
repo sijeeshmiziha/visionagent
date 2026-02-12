@@ -34,10 +34,4 @@ coverage/
 # TypeScript cache
 *.tsbuildinfo
 
-# Changeset
-.changeset/*.md
-!.changeset/README.md
-
-# Examples
-examples/figma-screens
 
