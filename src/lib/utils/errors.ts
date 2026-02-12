@@ -6,11 +6,8 @@
  * Base error class for all library errors
  */
 export class LibraryError extends Error {
-  constructor(
-    message: string,
-    public readonly cause?: Error
-  ) {
-    super(message);
+  constructor(message: string, cause?: Error) {
+    super(message, cause === undefined ? undefined : { cause });
     this.name = 'LibraryError';
     if (cause?.stack) {
       this.stack = `${this.stack}\nCaused by: ${cause.stack}`;

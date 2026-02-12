@@ -73,7 +73,7 @@ export async function runSubagent(
   const { parentTools, parentModel } = options ?? {};
   const tools = resolveTools(definition, parentTools);
 
-  const model = definition.model != null ? createModel(definition.model) : parentModel;
+  const model = definition.model == null ? parentModel : createModel(definition.model);
   if (!model) {
     throw new SubagentError(
       'Subagent has no model: set definition.model or pass parentModel in options',
