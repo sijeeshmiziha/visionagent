@@ -173,6 +173,12 @@ const EXAMPLES: ExampleEntry[] = [
       'STITCH_CREATIVE_RANGE',
     ],
   },
+  {
+    value: 'examples/stitch/09-run-agent.ts',
+    name: '09 - Run Agent',
+    group: 'Stitch',
+    envVars: ['STITCH_PROMPT', 'STITCH_MODEL', 'STITCH_MAX_ITERATIONS'],
+  },
 ];
 
 const ENV_VAR_LABELS: Record<string, string> = {
@@ -200,6 +206,8 @@ const ENV_VAR_LABELS: Record<string, string> = {
   STITCH_DEVICE_TYPE: 'Device type (MOBILE | DESKTOP | TABLET | AGNOSTIC)',
   STITCH_VARIANT_COUNT: 'Number of variants',
   STITCH_CREATIVE_RANGE: 'Creative range (REFINE | EXPLORE | REIMAGINE)',
+  STITCH_MODEL: 'Model name (e.g. gpt-4o-mini)',
+  STITCH_MAX_ITERATIONS: 'Max agent iterations',
 };
 
 const ENV_VAR_DEFAULTS: Record<string, string> = {
@@ -229,6 +237,8 @@ const ENV_VAR_DEFAULTS: Record<string, string> = {
   STITCH_DEVICE_TYPE: 'MOBILE',
   STITCH_VARIANT_COUNT: '2',
   STITCH_CREATIVE_RANGE: 'EXPLORE',
+  STITCH_MODEL: 'gpt-4o-mini',
+  STITCH_MAX_ITERATIONS: '10',
 };
 
 async function promptForEnvVars(envVars: string[]): Promise<Record<string, string>> {

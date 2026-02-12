@@ -119,16 +119,17 @@ Always run from the **project root** so that `--env-file=.env` and module resolu
 
 ### Stitch
 
-| Example                | Path                                      | Description                            |
-| ---------------------- | ----------------------------------------- | -------------------------------------- |
-| 01 - Create Project    | `examples/stitch/01-create-project.ts`    | Create a Stitch project.               |
-| 02 - Get Project       | `examples/stitch/02-get-project.ts`       | Get project details.                   |
-| 03 - List Projects     | `examples/stitch/03-list-projects.ts`     | List projects (owned/shared).          |
-| 04 - List Screens      | `examples/stitch/04-list-screens.ts`      | List screens in a project.             |
-| 05 - Get Screen        | `examples/stitch/05-get-screen.ts`        | Get screen details.                    |
-| 06 - Generate Screen   | `examples/stitch/06-generate-screen.ts`   | Generate a screen from a text prompt.  |
-| 07 - Edit Screens      | `examples/stitch/07-edit-screens.ts`      | Edit existing screen(s) with a prompt. |
-| 08 - Generate Variants | `examples/stitch/08-generate-variants.ts` | Generate design variants.              |
+| Example                | Path                                      | Description                             |
+| ---------------------- | ----------------------------------------- | --------------------------------------- |
+| 01 - Create Project    | `examples/stitch/01-create-project.ts`    | Create a Stitch project.                |
+| 02 - Get Project       | `examples/stitch/02-get-project.ts`       | Get project details.                    |
+| 03 - List Projects     | `examples/stitch/03-list-projects.ts`     | List projects (owned/shared).           |
+| 04 - List Screens      | `examples/stitch/04-list-screens.ts`      | List screens in a project.              |
+| 05 - Get Screen        | `examples/stitch/05-get-screen.ts`        | Get screen details.                     |
+| 06 - Generate Screen   | `examples/stitch/06-generate-screen.ts`   | Generate a screen from a text prompt.   |
+| 07 - Edit Screens      | `examples/stitch/07-edit-screens.ts`      | Edit existing screen(s) with a prompt.  |
+| 08 - Generate Variants | `examples/stitch/08-generate-variants.ts` | Generate design variants.               |
+| 09 - Run Agent         | `examples/stitch/09-run-agent.ts`         | Run the Stitch agent (autonomous loop). |
 
 **Required**: Stitch uses the same AI provider keys as the rest of VisionAgent (e.g. `OPENAI_API_KEY`). No separate Stitch API key.
 
