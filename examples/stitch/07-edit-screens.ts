@@ -25,8 +25,20 @@ async function main() {
     process.exit(1);
   }
 
-  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
-  const screenIdsEnv = process.env.STITCH_SCREEN_ID ?? '98b50e2ddc9943efb387052637738f61';
+  if (!process.env.STITCH_PROJECT_ID) {
+    console.error('STITCH_PROJECT_ID is not set. Set it in your environment and run again.');
+    console.error('Example: 4044680601076201931');
+    process.exit(1);
+  }
+
+  if (!process.env.STITCH_SCREEN_ID) {
+    console.error('STITCH_SCREEN_ID is not set. Set it in your environment and run again.');
+    console.error('Example: 98b50e2ddc9943efb387052637738f61 (comma-separated for multiple)');
+    process.exit(1);
+  }
+
+  const projectId = process.env.STITCH_PROJECT_ID;
+  const screenIdsEnv = process.env.STITCH_SCREEN_ID;
   const selectedScreenIds = screenIdsEnv
     .split(',')
     .map(s => s.trim())

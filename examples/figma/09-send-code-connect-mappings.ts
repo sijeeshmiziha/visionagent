@@ -17,10 +17,6 @@ import {
   parseFigmaUrl,
 } from 'visionagent';
 
-const DEFAULT_FIGMA_URL = 'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1';
-const DEFAULT_MAPPINGS_JSON =
-  '[{"nodeId":"11301:18833","componentName":"HeroSection","source":"src/components/HeroSection.tsx","label":"React"}]';
-
 async function main() {
   console.log('=== figma_send_code_connect_mappings ===\n');
 
@@ -29,11 +25,25 @@ async function main() {
     process.exit(1);
   }
 
-  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
+  if (!process.env.FIGMA_URL) {
+    console.error('FIGMA_URL is not set. Set it in your environment and run again.');
+    console.error('Example: https://www.figma.com/design/<fileKey>/<fileName>');
+    process.exit(1);
+  }
+
+  if (!process.env.FIGMA_MAPPINGS_JSON) {
+    console.error('FIGMA_MAPPINGS_JSON is not set. Set it in your environment and run again.');
+    console.error(
+      'Example: [{"nodeId":"123:456","componentName":"Button","source":"src/Button.tsx","label":"React"}]'
+    );
+    process.exit(1);
+  }
+
+  const figmaUrl = process.env.FIGMA_URL;
   const { fileKey } = parseFigmaUrl(figmaUrl);
   console.log('File key:', fileKey, '\n');
 
-  const mappingsJson = process.env.FIGMA_MAPPINGS_JSON ?? DEFAULT_MAPPINGS_JSON;
+  const mappingsJson = process.env.FIGMA_MAPPINGS_JSON;
   const mappings = JSON.parse(mappingsJson) as {
     nodeId: string;
     componentName: string;
@@ -42,9 +52,7 @@ async function main() {
   }[];
 
   if (mappings.length === 0) {
-    console.error(
-      'Set FIGMA_MAPPINGS_JSON (JSON array of { nodeId, componentName, source, label }).'
-    );
+    console.error('FIGMA_MAPPINGS_JSON array is empty. Provide at least one mapping.');
     process.exit(1);
   }
 

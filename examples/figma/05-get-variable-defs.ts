@@ -12,8 +12,6 @@
  */
 import { executeTool, figmaGetVariableDefsTool, parseFigmaUrl } from 'visionagent';
 
-const DEFAULT_FIGMA_URL = 'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1';
-
 async function main() {
   console.log('=== figma_get_variable_defs ===\n');
 
@@ -22,7 +20,13 @@ async function main() {
     process.exit(1);
   }
 
-  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
+  if (!process.env.FIGMA_URL) {
+    console.error('FIGMA_URL is not set. Set it in your environment and run again.');
+    console.error('Example: https://www.figma.com/design/<fileKey>/<fileName>');
+    process.exit(1);
+  }
+
+  const figmaUrl = process.env.FIGMA_URL;
   const { fileKey } = parseFigmaUrl(figmaUrl);
   console.log('File key:', fileKey, '\n');
 

@@ -25,7 +25,13 @@ async function main() {
     process.exit(1);
   }
 
-  const projectId = process.env.STITCH_PROJECT_ID ?? '4044680601076201931';
+  if (!process.env.STITCH_PROJECT_ID) {
+    console.error('STITCH_PROJECT_ID is not set. Set it in your environment and run again.');
+    console.error('Example: 4044680601076201931');
+    process.exit(1);
+  }
+
+  const projectId = process.env.STITCH_PROJECT_ID;
   const prompt =
     process.env.STITCH_PROMPT ??
     'A simple login screen with email and password fields and a sign-in button.';

@@ -17,9 +17,6 @@ import {
   parseFigmaUrl,
 } from 'visionagent';
 
-const DEFAULT_FIGMA_URL =
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
-
 async function main() {
   console.log('=== figma_add_code_connect_map ===\n');
 
@@ -28,15 +25,34 @@ async function main() {
     process.exit(1);
   }
 
-  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
+  if (!process.env.FIGMA_URL) {
+    console.error('FIGMA_URL is not set. Set it in your environment and run again.');
+    console.error('Example: https://www.figma.com/design/<fileKey>/<fileName>?node-id=<nodeId>');
+    process.exit(1);
+  }
+
+  const figmaUrl = process.env.FIGMA_URL;
   const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
   const id = process.env.FIGMA_NODE_ID ?? nodeId;
   if (!id) {
     console.error('Set FIGMA_NODE_ID in env or use a FIGMA_URL with node-id.');
     process.exit(1);
   }
-  const componentName = process.env.FIGMA_COMPONENT_NAME ?? 'HeroSection';
-  const source = process.env.FIGMA_SOURCE ?? 'src/components/HeroSection.tsx';
+
+  if (!process.env.FIGMA_COMPONENT_NAME) {
+    console.error('FIGMA_COMPONENT_NAME is not set. Set it in your environment and run again.');
+    console.error('Example: Button, HeroSection, etc.');
+    process.exit(1);
+  }
+
+  if (!process.env.FIGMA_SOURCE) {
+    console.error('FIGMA_SOURCE is not set. Set it in your environment and run again.');
+    console.error('Example: src/components/Button.tsx');
+    process.exit(1);
+  }
+
+  const componentName = process.env.FIGMA_COMPONENT_NAME;
+  const source = process.env.FIGMA_SOURCE;
   const label = process.env.FIGMA_LABEL ?? 'React';
 
   console.log('File key      :', fileKey);

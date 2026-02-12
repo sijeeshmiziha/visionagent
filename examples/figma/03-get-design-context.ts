@@ -13,9 +13,6 @@
 import { executeTool, figmaGetDesignContextTool, parseFigmaUrl } from 'visionagent';
 import type { DesignContext } from 'visionagent';
 
-const DEFAULT_FIGMA_URL =
-  'https://www.figma.com/design/e6yvvRTNOUyoSecHnjnpWZ/Fitstatic-V1?node-id=11301-18833';
-
 function printContext(ctx: DesignContext, indent = 0) {
   const pad = '  '.repeat(indent);
   console.log(`${pad}${ctx.type} "${ctx.name}" (${ctx.nodeId})`);
@@ -56,7 +53,13 @@ async function main() {
     process.exit(1);
   }
 
-  const figmaUrl = process.env.FIGMA_URL ?? DEFAULT_FIGMA_URL;
+  if (!process.env.FIGMA_URL) {
+    console.error('FIGMA_URL is not set. Set it in your environment and run again.');
+    console.error('Example: https://www.figma.com/design/<fileKey>/<fileName>?node-id=<nodeId>');
+    process.exit(1);
+  }
+
+  const figmaUrl = process.env.FIGMA_URL;
   const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
   if (!nodeId) {
     console.error('URL must contain a node-id. Got:', figmaUrl);
