@@ -1,6 +1,18 @@
 # Examples
 
-This directory contains runnable examples demonstrating VisionAgent's capabilities.
+<p align="center">
+  <strong>Runnable examples</strong> demonstrating VisionAgent's capabilities — models, tools, agents, Figma, and Stitch.
+</p>
+
+<p align="center">
+  <a href="../README.md">← Main README</a> •
+  <a href="../README.md#api-reference">API Reference</a> •
+  <a href="../CONTRIBUTING.md">Contributing</a>
+</p>
+
+---
+
+This directory contains copy-pasteable scripts you can run from the project root or adapt for your own project. Each example documents required env vars and how to run it.
 
 ## Table of Contents
 
@@ -136,6 +148,10 @@ Always run from the **project root** so that `--env-file=.env` and module resolu
 
 **Required**: `OPENAI_API_KEY`. For 02, also `ANTHROPIC_API_KEY` and `GOOGLE_GENERATIVE_AI_API_KEY`.
 
+**Example output** (01 - Basic Model): A one-sentence explanation of TypeScript from the model, e.g. `"TypeScript is a typed superset of JavaScript that compiles to plain JavaScript."`
+
+**Related**: [03 - Tool Calling](core/03-tool-calling.ts) builds on the model with a single tool; [04 - Agent with Multiple Tools](core/04-agent-with-multiple-tools.ts) shows a full multi-tool agent.
+
 ---
 
 ### Figma
@@ -157,6 +173,10 @@ Always run from the **project root** so that `--env-file=.env` and module resolu
 
 **Required**: `FIGMA_API_KEY` (Figma personal access token). Some examples also use `OPENAI_API_KEY` (e.g. design context, diagrams).
 
+**Example output** (01 - Whoami): Your Figma user handle and email. (02 - Get Screenshot): A PNG (or chosen format) of the requested node.
+
+**Related**: [03 - Get Design Context](figma/03-get-design-context.ts) for UI code; [12 - Generate Diagram](figma/12-generate-diagram.ts) for Mermaid diagrams in FigJam.
+
 ---
 
 ### Hello World
@@ -166,6 +186,10 @@ Always run from the **project root** so that `--env-file=.env` and module resolu
 | 01 - Hello World | `examples/hello-world/01-hello-world.ts` | Minimal agent with a greeting tool. |
 
 **Required**: `OPENAI_API_KEY`.
+
+**Example output**: The agent uses the greeting tool and returns a friendly message, e.g. `"Hello, World!"` or a custom name you provide.
+
+**Related**: [Core 03 - Tool Calling](core/03-tool-calling.ts) for a calculator tool; [Core 04 - Agent with Multiple Tools](core/04-agent-with-multiple-tools.ts) for a richer agent.
 
 ---
 
@@ -184,6 +208,10 @@ Always run from the **project root** so that `--env-file=.env` and module resolu
 | 09 - Run Agent         | `examples/stitch/09-run-agent.ts`         | Run the Stitch agent (autonomous loop). |
 
 **Required**: Stitch uses the same AI provider keys as the rest of VisionAgent (e.g. `OPENAI_API_KEY`). No separate Stitch API key.
+
+**Example output** (01 - Create Project): Project ID and title. (06 - Generate Screen): Generated screen metadata and preview URL.
+
+**Related**: [09 - Run Agent](stitch/09-run-agent.ts) runs the full Stitch agent; [Core 04 - Agent with Multiple Tools](core/04-agent-with-multiple-tools.ts) for the general agent pattern.
 
 ---
 

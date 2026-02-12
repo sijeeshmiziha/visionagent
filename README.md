@@ -10,11 +10,11 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/visionagent"><img src="https://img.shields.io/npm/v/visionagent.svg?style=flat-square" alt="npm version"></a>
-  <a href="https://github.com/sijeeshmiziha/visionagent/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/sijeeshmiziha/visionagent/ci.yml?branch=main&style=flat-square" alt="CI Status"></a>
   <a href="https://www.npmjs.com/package/visionagent"><img src="https://img.shields.io/npm/dm/visionagent.svg?style=flat-square" alt="npm downloads"></a>
-  <a href="https://github.com/sijeeshmiziha/visionagent/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/visionagent.svg?style=flat-square" alt="license"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript" alt="TypeScript"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-%3E%3D18-green?style=flat-square&logo=node.js" alt="Node.js"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Ready-blue?style=flat-square&logo=typescript" alt="TypeScript"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/node/v/visionagent?style=flat-square&logo=node.js" alt="Node.js"></a>
+  <a href="https://github.com/sijeeshmiziha/visionagent/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/visionagent.svg?style=flat-square" alt="License"></a>
+  <a href="https://github.com/sijeeshmiziha/visionagent/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-brightgreen?style=flat-square" alt="PRs Welcome"></a>
 </p>
 
 <p align="center">
@@ -49,6 +49,7 @@
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Support](#support)
+- [Sponsors](#sponsors)
 - [License](#license)
 
 ---
@@ -665,6 +666,14 @@ We especially welcome contributions for:
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
+**Contributors** – thank you to everyone who has contributed to VisionAgent:
+
+<p align="center">
+  <a href="https://github.com/sijeeshmiziha/visionagent/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=sijeeshmiziha/visionagent" alt="Contributors" />
+  </a>
+</p>
+
 ### Quick Start for Contributors
 
 ```bash
@@ -708,14 +717,21 @@ npm run build
 
 ### Stay Updated
 
-- Star the repo to get notified of releases
-- Watch for updates on new features
+- [Star the repo](https://github.com/sijeeshmiziha/visionagent) to get notified of releases
+- [Star History](https://star-history.com/#sijeeshmiziha/visionagent&Date) – view star growth over time
+- Watch the repo for updates on new features
 
 ### Sponsorship
 
 If VisionAgent helps your business, consider supporting development:
 
 - [GitHub Sponsors](https://github.com/sponsors/sijeeshmiziha)
+
+---
+
+## Sponsors
+
+Support VisionAgent by becoming a [sponsor](https://github.com/sponsors/sijeeshmiziha). Your logo will appear here with a link to your site.
 
 ---
 
@@ -726,5 +742,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 <p align="center">
-  Made with care by <a href="https://github.com/sijeeshmiziha">sijeeshmiziha</a>
+  Made with ❤️ by the CompilersLab team!
 </p>

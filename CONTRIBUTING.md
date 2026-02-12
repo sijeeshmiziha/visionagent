@@ -6,6 +6,7 @@ Thank you for your interest in contributing to VisionAgent! This guide will help
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
+  - [Quick Contribution Ideas](#quick-contribution-ideas)
 - [Development Setup](#development-setup)
 - [Making Changes](#making-changes)
 - [Code Style](#code-style)
@@ -45,6 +46,15 @@ New to the project? Look for issues labeled:
 - `good first issue` - Simple, well-defined tasks
 - `help wanted` - Issues where we need community help
 - `documentation` - Documentation improvements
+
+### Quick Contribution Ideas
+
+| Idea                              | Where to start                                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------------ |
+| Fix a typo or clarify docs        | [README.md](../README.md), [examples/README.md](../examples/README.md), or JSDoc in `src/` |
+| Add a test for existing code      | `tests/unit/`, `tests/tools/`, or `tests/core/`                                            |
+| Improve an example                | `examples/core/`, `examples/figma/`, or `examples/stitch/`                                 |
+| Report a bug or suggest a feature | [GitHub Issues](https://github.com/sijeeshmiziha/visionagent/issues)                       |
 
 ---
 
@@ -468,6 +478,18 @@ Contributors are recognized in:
 - Release notes
 - GitHub contributors page
 - Special mentions for significant contributions
+
+### Contributors
+
+Thank you to everyone who has contributed to VisionAgent:
+
+<p align="center">
+  <a href="https://github.com/sijeeshmiziha/visionagent/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=sijeeshmiziha/visionagent" alt="Contributors" />
+  </a>
+</p>
+
+_(Avatars are loaded from the [GitHub contributors graph](https://github.com/sijeeshmiziha/visionagent/graphs/contributors).)_
 
 ### Maintainers
 
