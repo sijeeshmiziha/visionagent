@@ -7,9 +7,6 @@
     "email": "sijeeshmonbalan@gmail.com",
     "url": "https://github.com/sijeeshmiziha"
   },
-  "engines": {
-    "node": ">=22.0.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/sijeeshmiziha/visionagent.git"
