@@ -60,3 +60,10 @@ export async function runStitchAgent(config: StitchAgentConfig): Promise<AgentRe
     onStep,
   });
 }
+
+export { runDesignRequirementsAgent } from './design-requirements';
+export type {
+  DesignRequirementsAgentConfig,
+  DesignRequirementsResult,
+  DesignRequirementsOutput,
+} from './design-requirements';

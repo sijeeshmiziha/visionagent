@@ -12,6 +12,7 @@ import { stitchGetScreenTool, createGetScreenTool } from './get-screen';
 import { stitchGenerateScreenTool, createGenerateScreenTool } from './generate-screen';
 import { stitchEditScreensTool, createEditScreensTool } from './edit-screens';
 import { stitchGenerateVariantsTool, createGenerateVariantsTool } from './generate-variants';
+import { stitchAnalyzeDesignTool, createAnalyzeDesignTool } from './analyze-design';
 
 export { stitchCreateProjectTool } from './create-project';
 export { stitchGetProjectTool } from './get-project';
@@ -21,6 +22,8 @@ export { stitchGetScreenTool } from './get-screen';
 export { stitchGenerateScreenTool } from './generate-screen';
 export { stitchEditScreensTool } from './edit-screens';
 export { stitchGenerateVariantsTool } from './generate-variants';
+export { stitchAnalyzeDesignTool } from './analyze-design';
+export type { ScreenDesignSummary } from './analyze-design';
 
 export function createStitchToolSet(config?: StitchConfig) {
   if (!config) {
@@ -33,6 +36,7 @@ export function createStitchToolSet(config?: StitchConfig) {
       stitch_generate_screen: stitchGenerateScreenTool,
       stitch_edit_screens: stitchEditScreensTool,
       stitch_generate_variants: stitchGenerateVariantsTool,
+      stitch_analyze_design: stitchAnalyzeDesignTool,
     });
   }
   return createToolSet({
@@ -44,5 +48,24 @@ export function createStitchToolSet(config?: StitchConfig) {
     stitch_generate_screen: createGenerateScreenTool(config),
     stitch_edit_screens: createEditScreensTool(config),
     stitch_generate_variants: createGenerateVariantsTool(config),
+    stitch_analyze_design: createAnalyzeDesignTool(config),
+  });
+}
+
+/** Read-only Stitch tools for subagents: get_project, list_screens, get_screen, analyze_design. */
+export function createStitchReadOnlyToolSet(config?: StitchConfig) {
+  if (!config) {
+    return createToolSet({
+      stitch_get_project: stitchGetProjectTool,
+      stitch_list_screens: stitchListScreensTool,
+      stitch_get_screen: stitchGetScreenTool,
+      stitch_analyze_design: stitchAnalyzeDesignTool,
+    });
+  }
+  return createToolSet({
+    stitch_get_project: createGetProjectTool(config),
+    stitch_list_screens: createListScreensTool(config),
+    stitch_get_screen: createGetScreenTool(config),
+    stitch_analyze_design: createAnalyzeDesignTool(config),
   });
 }

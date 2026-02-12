@@ -185,6 +185,12 @@ const EXAMPLES: ExampleEntry[] = [
     group: 'Stitch',
     envVars: ['STITCH_PROMPT', 'STITCH_MODEL', 'STITCH_MAX_ITERATIONS'],
   },
+  {
+    value: 'examples/stitch/10-design-requirements.ts',
+    name: '10 - Design to Technical Requirements',
+    group: 'Stitch',
+    envVars: ['STITCH_PROJECT_ID', 'STITCH_REQUIREMENTS_INPUT', 'STITCH_MODEL'],
+  },
 ];
 
 const ENV_VAR_LABELS: Record<string, string> = {
@@ -214,6 +220,7 @@ const ENV_VAR_LABELS: Record<string, string> = {
   STITCH_CREATIVE_RANGE: 'Creative range (REFINE | EXPLORE | REIMAGINE)',
   STITCH_MODEL: 'Model name (e.g. gpt-4o-mini)',
   STITCH_MAX_ITERATIONS: 'Max agent iterations',
+  STITCH_REQUIREMENTS_INPUT: 'Requirements analysis prompt / context',
 };
 
 const ENV_VAR_DEFAULTS: Record<string, string> = {
@@ -244,6 +251,7 @@ const ENV_VAR_DEFAULTS: Record<string, string> = {
   STITCH_CREATIVE_RANGE: 'EXPLORE',
   STITCH_MODEL: 'gpt-4o-mini',
   STITCH_MAX_ITERATIONS: '10',
+  STITCH_REQUIREMENTS_INPUT: 'Analyze this app design and generate technical requirements.',
 };
 
 async function promptForEnvVars(envVars: string[]): Promise<Record<string, string>> {

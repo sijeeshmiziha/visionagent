@@ -3,8 +3,13 @@
  * See: https://stitch.withgoogle.com/docs/mcp/setup
  */
 
-export { runStitchAgent } from './agents';
-export type { StitchAgentConfig } from './agents';
+export { runStitchAgent, runDesignRequirementsAgent } from './agents';
+export type {
+  StitchAgentConfig,
+  DesignRequirementsAgentConfig,
+  DesignRequirementsResult,
+  DesignRequirementsOutput,
+} from './agents';
 export {
   stitchCreateProjectTool,
   stitchGetProjectTool,
@@ -14,8 +19,10 @@ export {
   stitchGenerateScreenTool,
   stitchEditScreensTool,
   stitchGenerateVariantsTool,
+  stitchAnalyzeDesignTool,
   createStitchToolSet,
 } from './tools';
+export type { ScreenDesignSummary } from './tools';
 export { StitchClient } from './client';
 export type {
   StitchConfig,
