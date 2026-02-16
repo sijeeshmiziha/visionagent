@@ -269,7 +269,10 @@ async function promptForEnvVars(envVars: string[]): Promise<Record<string, strin
 }
 
 function runExample(scriptPath: string, envOverrides: Record<string, string>): void {
-  const env = { ...process.env, ...envOverrides };
+  const nonEmptyOverrides = Object.fromEntries(
+    Object.entries(envOverrides).filter(([, v]) => v !== '')
+  );
+  const env = { ...process.env, ...nonEmptyOverrides };
   execSync(`npx tsx --env-file=.env ${scriptPath}`, {
     cwd: projectRoot,
     env,
