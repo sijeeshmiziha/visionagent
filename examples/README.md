@@ -42,12 +42,12 @@ This directory contains copy-pasteable scripts you can run from the project root
 
 Set these in a `.env` file at the project root (copy from `.env.example`).
 
-| Purpose   | Environment Variable           | Required For                   |
-| --------- | ------------------------------ | ------------------------------ |
-| OpenAI    | `OPENAI_API_KEY`               | Core, Hello World, most agents |
-| Anthropic | `ANTHROPIC_API_KEY`            | Core (02 All Providers)        |
-| Google    | `GOOGLE_GENERATIVE_AI_API_KEY` | Core (02 All Providers)        |
-| Figma     | `FIGMA_API_KEY`                | All Figma examples (01–12)     |
+| Purpose   | Environment Variable           | Required For                                     |
+| --------- | ------------------------------ | ------------------------------------------------ |
+| OpenAI    | `OPENAI_API_KEY`               | Core, Hello World, most agents, Figma agent (16) |
+| Anthropic | `ANTHROPIC_API_KEY`            | Core (02 All Providers)                          |
+| Google    | `GOOGLE_GENERATIVE_AI_API_KEY` | Core (02 All Providers), Figma AI cleanup (15)   |
+| Figma     | `FIGMA_API_KEY`                | All Figma examples (01-16)                       |
 
 ---
 
@@ -156,6 +156,10 @@ Always run from the **project root** so that `--env-file=.env` and module resolu
 
 ### Figma
 
+VisionAgent provides the most comprehensive Figma integration of any AI framework -- 16 examples covering design inspection, design system management, and the industry's only built-in **design-to-code pipeline** (examples 13-16).
+
+#### Inspection and Design System Tools (01-12)
+
 | Example                           | Path                                                | Description                       |
 | --------------------------------- | --------------------------------------------------- | --------------------------------- |
 | 01 - Whoami                       | `examples/figma/01-whoami.ts`                       | Verify Figma auth (current user). |
@@ -171,11 +175,20 @@ Always run from the **project root** so that `--env-file=.env` and module resolu
 | 11 - Get FigJam                   | `examples/figma/11-get-figjam.ts`                   | Get FigJam board content.         |
 | 12 - Generate Diagram             | `examples/figma/12-generate-diagram.ts`             | Generate a diagram from a prompt. |
 
-**Required**: `FIGMA_API_KEY` (Figma personal access token). Some examples also use `OPENAI_API_KEY` (e.g. design context, diagrams).
+#### Design-to-Code (13-16)
 
-**Example output** (01 - Whoami): Your Figma user handle and email. (02 - Get Screenshot): A PNG (or chosen format) of the requested node.
+| Example                    | Path                                         | Description                                              |
+| -------------------------- | -------------------------------------------- | -------------------------------------------------------- |
+| 13 - Convert to React      | `examples/figma/13-convert-to-react.ts`      | Basic Figma URL to React component conversion.           |
+| 14 - Convert with Tailwind | `examples/figma/14-convert-with-tailwind.ts` | Conversion with Tailwind CSS and component optimization. |
+| 15 - Convert with Cleanup  | `examples/figma/15-convert-with-cleanup.ts`  | Conversion + AI-powered code cleanup.                    |
+| 16 - Design-to-Code Agent  | `examples/figma/16-figma-to-code-agent.ts`   | Full autonomous agent-driven design-to-code workflow.    |
 
-**Related**: [03 - Get Design Context](figma/03-get-design-context.ts) for UI code; [12 - Generate Diagram](figma/12-generate-diagram.ts) for Mermaid diagrams in FigJam.
+**Required**: `FIGMA_API_KEY` (Figma personal access token). Examples 13-14 need only `FIGMA_API_KEY`. Example 15 also requires `GOOGLE_GENERATIVE_AI_API_KEY` (or another provider key) for AI cleanup. Example 16 also requires `OPENAI_API_KEY` for the agent.
+
+**Example output** (01 - Whoami): Your Figma user handle and email. (13 - Convert to React): Production React JSX, CSS, component name, and font imports from a Figma design. (16 - Design-to-Code Agent): Autonomous agent that analyzes the design, generates code, and returns the result.
+
+**Related**: [03 - Get Design Context](figma/03-get-design-context.ts) for UI context; [13 - Convert to React](figma/13-convert-to-react.ts) for basic conversion; [16 - Design-to-Code Agent](figma/16-figma-to-code-agent.ts) for the full autonomous workflow.
 
 ---
 

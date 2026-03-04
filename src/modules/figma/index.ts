@@ -1,9 +1,9 @@
 /**
- * Figma module - tools and agent for Figma design context
+ * Figma module - tools, agent, and converter for Figma design-to-code
  */
 
-export { runFigmaAgent } from './agents';
-export type { FigmaAgentConfig } from './agents';
+export { runFigmaAgent, runFigmaToCodeAgent } from './agents';
+export type { FigmaAgentConfig, FigmaToCodeAgentConfig } from './agents';
 
 export {
   createFigmaToolSet,
@@ -19,9 +19,22 @@ export {
   figmaCreateDesignSystemRulesTool,
   figmaGetFigjamTool,
   figmaGenerateDiagramTool,
+  figmaConvertToReactTool,
+  figmaCleanupCodeTool,
+  figmaExtractComponentsTool,
   getStoredMappings,
   setStoredMappings,
 } from './tools';
+
+export {
+  FigmaToReact,
+  convertFigmaToReact,
+  FigmaToHTML,
+  FigmaToTailwindConverter,
+  transformJsx,
+  cleanupGeneratedCode,
+} from './converter';
+export type { FigmaToHTMLOptions, FigmaToReactOptions, FigmaToReactResult } from './converter';
 
 export { FigmaClient } from './client';
 export type { FigmaClientOptions } from './client';

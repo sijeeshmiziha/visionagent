@@ -9,27 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet
+- **Design-to-Code Engine** — the industry's first built-in Figma-to-React conversion pipeline in an AI agent framework
+  - `FigmaToReact` class and `convertFigmaToReact()` one-call API for converting any Figma design URL to production React + Tailwind CSS
+  - `FigmaToHTML` converter: 1,878-line engine handling auto-layout, fills, strokes, vectors, SVGs, gradients, shadows, images, and responsive sizing
+  - `FigmaToTailwindConverter`: CSS-to-Tailwind class mapping via PostCSS with full declaration/media/pseudo mappings
+  - `css-to-tailwind/` module: complete PostCSS-based CSS-to-Tailwind converter ported and adapted for VisionAgent
+  - Image asset pipeline: automatic image extraction, download, base64 encoding, and URL replacement in generated JSX
+- **AI-Powered Code Cleanup** — multi-provider code cleaner that works with OpenAI, Anthropic, or Google
+  - `cleanupGeneratedCode()` function accepts any VisionAgent `Model` or `ModelConfig`
+  - 80+ cleanup rules: removes machine-generated junk classes, fixes absolute positioning, makes code responsive, adds semantic HTML, and enhances UX with hover/focus states
+- **Component Extraction** — Babel AST analysis to refactor repeated JSX patterns into named sub-components
+  - `transformJsx()` function detects repeated sibling elements and extracts them into reusable components with props
+- **3 New Figma Tools** (15 total, up from 12)
+  - `figma_convert_to_react`: Convert a Figma design to React + Tailwind CSS (the main design-to-code tool)
+  - `figma_cleanup_code`: AI-powered cleanup of machine-generated JSX using any provider
+  - `figma_extract_components`: Extract repeated JSX patterns into sub-components
+- **Design-to-Code Agent** — `runFigmaToCodeAgent()` with a code-generation-focused system prompt that autonomously analyzes designs, generates code, and optionally cleans up the output
+- **4 New Examples** (examples/figma/13-16)
+  - `13-convert-to-react.ts`: Basic Figma URL to React conversion
+  - `14-convert-with-tailwind.ts`: Conversion with Tailwind CSS and component optimization
+  - `15-convert-with-cleanup.ts`: Conversion + AI code cleanup
+  - `16-figma-to-code-agent.ts`: Full autonomous agent-driven design-to-code workflow
 
 ### Changed
 
-- Nothing yet
-
-### Deprecated
-
-- Nothing yet
-
-### Removed
-
-- Nothing yet
-
-### Fixed
-
-- Nothing yet
-
-### Security
-
-- Nothing yet
+- `FigmaClient.getFile()` and `FigmaClient.getFileNodes()` now accept optional `geometry` and `depth` parameters for vector path data
+- `createFigmaToolSet()` now returns 15 tools (up from 12)
+- Figma module exports expanded with converter classes, design-to-code functions, and new tool references
+- ESLint config extended with relaxed rules for the ported converter directory
+- Updated test assertions for 15-tool count
 
 ---
 
@@ -95,9 +103,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-| Version | Date       | Highlights                                     |
-| ------- | ---------- | ---------------------------------------------- |
-| 0.0.1   | 2026-02-05 | Initial release with vision, tools, and agents |
+| Version | Date       | Highlights                                                              |
+| ------- | ---------- | ----------------------------------------------------------------------- |
+| 0.0.2   | TBD        | Design-to-Code engine, 15 Figma tools, AI cleanup, component extraction |
+| 0.0.1   | 2026-02-05 | Initial release with vision, tools, and agents                          |
 
 ---
 
@@ -119,12 +128,14 @@ While in 0.x.x versions:
 
 ### Stability Guarantees
 
-| Component               | Stability |
-| ----------------------- | --------- |
-| `createModel()`         | Stable    |
-| `defineTool()`          | Stable    |
-| `runAgent()`            | Stable    |
-| `analyzeFigmaDesigns()` | Stable    |
+| Component                | Stability |
+| ------------------------ | --------- |
+| `createModel()`          | Stable    |
+| `defineTool()`           | Stable    |
+| `runAgent()`             | Stable    |
+| `convertFigmaToReact()`  | Stable    |
+| `cleanupGeneratedCode()` | Stable    |
+| `runFigmaToCodeAgent()`  | Stable    |
 
 ---
 

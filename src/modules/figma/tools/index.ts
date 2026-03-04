@@ -16,6 +16,9 @@ import { figmaSendCodeConnectMappingsTool } from './send-code-connect-mappings';
 import { figmaCreateDesignSystemRulesTool } from './create-design-system-rules';
 import { figmaGetFigjamTool } from './get-figjam';
 import { figmaGenerateDiagramTool } from './generate-diagram';
+import { figmaConvertToReactTool } from './convert-to-react';
+import { figmaCleanupCodeTool } from './cleanup-code';
+import { figmaExtractComponentsTool } from './extract-components';
 
 export { figmaWhoamiTool } from './whoami';
 export { figmaGetScreenshotTool } from './get-screenshot';
@@ -33,6 +36,9 @@ export { figmaSendCodeConnectMappingsTool } from './send-code-connect-mappings';
 export { figmaCreateDesignSystemRulesTool } from './create-design-system-rules';
 export { figmaGetFigjamTool } from './get-figjam';
 export { figmaGenerateDiagramTool } from './generate-diagram';
+export { figmaConvertToReactTool } from './convert-to-react';
+export { figmaCleanupCodeTool } from './cleanup-code';
+export { figmaExtractComponentsTool } from './extract-components';
 
 export function createFigmaToolSet(_config?: FigmaConfig) {
   return createToolSet({
@@ -48,5 +54,8 @@ export function createFigmaToolSet(_config?: FigmaConfig) {
     figma_create_design_system_rules: figmaCreateDesignSystemRulesTool,
     figma_get_figjam: figmaGetFigjamTool,
     figma_generate_diagram: figmaGenerateDiagramTool,
+    figma_convert_to_react: figmaConvertToReactTool,
+    figma_cleanup_code: figmaCleanupCodeTool,
+    figma_extract_components: figmaExtractComponentsTool,
   });
 }

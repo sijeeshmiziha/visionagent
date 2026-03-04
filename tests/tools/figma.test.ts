@@ -286,9 +286,9 @@ describe('extractDesignTokens', () => {
 });
 
 describe('createFigmaToolSet', () => {
-  it('returns an object with 12 figma tools', () => {
+  it('returns an object with 15 figma tools', () => {
     const set = createFigmaToolSet();
-    expect(Object.keys(set)).toHaveLength(12);
+    expect(Object.keys(set)).toHaveLength(15);
     expect(set.figma_whoami).toBeDefined();
     expect(set.figma_get_screenshot).toBeDefined();
     expect(set.figma_get_design_context).toBeDefined();
@@ -301,6 +301,9 @@ describe('createFigmaToolSet', () => {
     expect(set.figma_create_design_system_rules).toBeDefined();
     expect(set.figma_get_figjam).toBeDefined();
     expect(set.figma_generate_diagram).toBeDefined();
+    expect(set.figma_convert_to_react).toBeDefined();
+    expect(set.figma_cleanup_code).toBeDefined();
+    expect(set.figma_extract_components).toBeDefined();
   });
 });
 

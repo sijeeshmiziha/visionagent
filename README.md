@@ -1,10 +1,10 @@
 <p align="center">
   <h1 align="center">VisionAgent</h1>
   <p align="center">
-    <strong>A powerful multi-provider AI agent framework with vision capabilities and tool calling.</strong>
+    <strong>The industry's most complete design-to-code AI agent framework. Figma to production React + Tailwind in one call.</strong>
   </p>
   <p align="center">
-    Build intelligent agents that can process images, execute tools, and integrate seamlessly with AI ecosystems.
+    The only framework that converts Figma designs to production-ready React components with Tailwind CSS, AI-powered cleanup, and multi-provider support — all built in. No plugins, no glue code, no compromises.
   </p>
 </p>
 
@@ -54,13 +54,17 @@
 
 ## Why VisionAgent?
 
-VisionAgent was built to solve a specific problem: **extracting actionable requirements from visual designs using AI**. While other frameworks focus on general-purpose AI orchestration, VisionAgent is optimized for:
+VisionAgent is the **only AI agent framework with a built-in design-to-code pipeline**. While other frameworks stop at generic LLM orchestration, VisionAgent takes a Figma URL and produces production-ready React + Tailwind components — with AI-powered code cleanup, automatic component extraction, and image asset handling — all in a single function call.
 
-- **Multi-Provider**: Unified API across OpenAI, Anthropic, and Google
-- **Agent-First**: Tool calling, agents, and iteration control out of the box
-- **Figma & Stitch**: Built-in Figma tools and Google Stitch integration
+No other open-source framework offers this. Not LangChain. Not LlamaIndex. Not AutoGPT. VisionAgent is purpose-built for the workflows that matter most to product teams:
+
+- **Design-to-Code**: Convert any Figma design to production React + Tailwind CSS with one call. AI cleanup makes the output cleaner than hand-written code
+- **Multi-Provider**: Unified API across OpenAI, Anthropic, and Google — use any model for code generation and cleanup
+- **15 Figma Tools**: The most comprehensive Figma integration of any AI framework — screenshots, design context, variables, Code Connect, FigJam, diagrams, and now full code generation
+- **Agent-First**: Tool calling, autonomous agents, and iteration control out of the box
+- **Google Stitch**: Built-in Stitch integration for AI-powered UI generation
 - **Type-Safe**: Full TypeScript support with Zod schema validation
-- **Zero Extra Deps**: AI provider SDKs included; set API keys and go
+- **Zero Extra Deps**: All AI provider SDKs included; set API keys and go
 
 ```typescript
 // Run an agent with tools in a few lines
@@ -88,15 +92,17 @@ console.log(result.output);
 
 ## Features
 
-| Feature             | Description                                                                                 |
-| ------------------- | ------------------------------------------------------------------------------------------- |
-| **Multi-Provider**  | Support for OpenAI (GPT-4o), Anthropic (Claude), and Google (Gemini)                        |
-| **Tool System**     | Define custom tools with Zod schema validation and type inference                           |
-| **Agent Framework** | Build autonomous agents with tool calling, reasoning, and iteration control                 |
-| **Figma Module**    | 12 tools for Figma (screenshots, design context, variables, Code Connect, FigJam, diagrams) |
-| **Stitch Module**   | 8 tools for Google Stitch (projects, screens, generate/edit/variants)                       |
-| **Type-Safe**       | Full TypeScript support with comprehensive type definitions                                 |
-| **Zero Config**     | Works out of the box with environment variables                                             |
+| Feature             | Description                                                                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Design-to-Code**  | Convert Figma designs to production React + Tailwind CSS with AI cleanup and component extraction — no other framework has this built in |
+| **Multi-Provider**  | Support for OpenAI (GPT-4o), Anthropic (Claude), and Google (Gemini) — use any provider for code generation and cleanup                  |
+| **Tool System**     | Define custom tools with Zod schema validation and type inference                                                                        |
+| **Agent Framework** | Build autonomous agents with tool calling, reasoning, and iteration control                                                              |
+| **Figma Module**    | 15 tools for Figma — screenshots, design context, variables, Code Connect, FigJam, diagrams, **and full code generation**                |
+| **AI Code Cleanup** | Multi-provider AI cleaner that transforms machine-generated JSX into production-ready, responsive, semantic code                         |
+| **Stitch Module**   | 8 tools for Google Stitch (projects, screens, generate/edit/variants)                                                                    |
+| **Type-Safe**       | Full TypeScript support with comprehensive type definitions                                                                              |
+| **Zero Config**     | Works out of the box with environment variables                                                                                          |
 
 ---
 
@@ -211,7 +217,58 @@ const result = await runAgent({
 console.log(result.output);
 ```
 
-### 4. Use the Figma Module
+### 4. Convert Figma Designs to React (Design-to-Code)
+
+Convert any Figma design to a production-ready React component with Tailwind CSS — in one call:
+
+```typescript
+import { convertFigmaToReact } from 'visionagent';
+
+const result = await convertFigmaToReact(
+  'https://www.figma.com/design/ABC123/MyDesign?node-id=1-2',
+  { useTailwind: true, optimizeComponents: true }
+);
+
+console.log(result.componentName); // "MyDesignComponent"
+console.log(result.jsx); // Production React + Tailwind JSX
+console.log(result.css); // Fallback CSS for unsupported properties
+console.log(result.fonts); // Google Fonts imports
+// result.assets = { "image-001.png": "data:image/png;base64,..." }
+```
+
+Or use the AI-powered cleanup to make the output even cleaner:
+
+```typescript
+import { convertFigmaToReact, cleanupGeneratedCode } from 'visionagent';
+
+const result = await convertFigmaToReact(figmaUrl, { useTailwind: true });
+const cleanedJsx = await cleanupGeneratedCode(result.jsx, {
+  provider: 'google',
+  model: 'gemini-2.0-flash',
+});
+```
+
+### 5. Run the Design-to-Code Agent
+
+Let an autonomous agent handle the entire design-to-code workflow:
+
+```typescript
+import { runFigmaToCodeAgent } from 'visionagent';
+
+const result = await runFigmaToCodeAgent({
+  input: 'Convert this Figma design to React with Tailwind: https://figma.com/design/...',
+  model: { provider: 'openai', model: 'gpt-4o' },
+  onStep: step =>
+    console.log(
+      `Step ${step.iteration}:`,
+      step.toolCalls?.map(t => t.toolName)
+    ),
+});
+
+console.log(result.output);
+```
+
+### 6. Use the Figma Module (Inspection Tools)
 
 Run the Figma agent or use individual tools (screenshots, design context, variables, Code Connect, etc.):
 
@@ -231,7 +288,7 @@ const result = await runFigmaAgent({
 console.log(result.output);
 ```
 
-### 5. Use the Stitch Module
+### 7. Use the Stitch Module
 
 Create projects and generate or edit screens with Google Stitch:
 
@@ -264,7 +321,11 @@ graph TB
         Models[Models]
         Tools[Tools]
         Agents[Agent Loop]
-        FigmaModule[Figma Module]
+        subgraph FigmaModule[Figma Module - 15 Tools]
+            FigmaInspect[Inspection Tools]
+            DesignToCode[Design-to-Code Engine]
+            AICleanup[AI Code Cleaner]
+        end
         StitchModule[Stitch Module]
         HelloWorld[Hello World]
     end
@@ -286,7 +347,9 @@ graph TB
     Models --> Google
     Agents --> Models
     Agents --> Tools
-    FigmaModule --> Models
+    DesignToCode --> Models
+    AICleanup --> Models
+    FigmaInspect --> Models
     StitchModule --> Models
 ```
 
@@ -398,7 +461,49 @@ interface AgentResult {
 
 ### Figma Module
 
-The Figma module provides an agent and 12 tools for Figma integration (screenshots, design context, metadata, variables, Code Connect, FigJam, diagrams). Use with `FIGMA_API_KEY` set.
+The Figma module is the most comprehensive Figma integration in any AI framework — **15 tools** spanning design inspection, code generation, and design system management. It is the only framework that offers a complete design-to-code pipeline with AI cleanup.
+
+#### Design-to-Code (Converter API)
+
+Convert Figma designs directly to React + Tailwind without an agent:
+
+```typescript
+import { convertFigmaToReact, cleanupGeneratedCode, FigmaToReact, transformJsx } from 'visionagent';
+
+// One-call conversion
+const result = await convertFigmaToReact(figmaUrl, {
+  useTailwind: true,
+  optimizeComponents: true,
+});
+// result = { jsx, css, assets, componentName, fonts }
+
+// AI cleanup with any provider
+const cleaned = await cleanupGeneratedCode(result.jsx, {
+  provider: 'openai', // or 'anthropic' or 'google'
+  model: 'gpt-4o',
+});
+
+// Component extraction (refactors repeated JSX into named sub-components)
+const optimized = transformJsx(result.jsx, { minRepeats: 2 });
+
+// Class-based API for advanced control
+const converter = new FigmaToReact({ useTailwind: true }, process.env.FIGMA_API_KEY);
+const output = await converter.convertFromUrl(figmaUrl);
+```
+
+#### Design-to-Code Agent
+
+```typescript
+import { runFigmaToCodeAgent } from 'visionagent';
+
+const result = await runFigmaToCodeAgent({
+  input: 'Convert this design to React + Tailwind: <figma-url>',
+  model: { provider: 'openai', model: 'gpt-4o' },
+  maxIterations: 10,
+});
+```
+
+#### Inspection Agent and Tools
 
 ```typescript
 import {
@@ -410,7 +515,7 @@ import {
   parseFigmaUrl,
 } from 'visionagent';
 
-// Run the Figma agent with all tools
+// Run the Figma agent with all 15 tools
 const figmaTools = createFigmaToolSet();
 const result = await runFigmaAgent({
   model: createModel({ provider: 'openai', model: 'gpt-4o-mini' }),
@@ -420,18 +525,29 @@ const result = await runFigmaAgent({
   maxIterations: 5,
 });
 
-// Or use individual tools in your own agent
-const tools = createToolSet({
-  screenshot: figmaGetScreenshotTool,
-  designContext: figmaGetDesignContextTool,
-});
-
 // Low-level: FigmaClient for direct API access
 const client = new FigmaClient({ apiKey: process.env.FIGMA_API_KEY });
-const image = await client.getScreenshot(fileKey, nodeId, { format: 'png' });
 ```
 
-**Figma tools:** `figmaWhoamiTool`, `figmaGetScreenshotTool`, `figmaGetDesignContextTool`, `figmaGetMetadataTool`, `figmaGetVariableDefsTool`, `figmaGetCodeConnectMapTool`, `figmaAddCodeConnectMapTool`, `figmaGetCodeConnectSuggestionsTool`, `figmaSendCodeConnectMappingsTool`, `figmaCreateDesignSystemRulesTool`, `figmaGetFigjamTool`, `figmaGenerateDiagramTool`.
+**All 15 Figma tools:**
+
+| Tool                                 | Description                                  |
+| ------------------------------------ | -------------------------------------------- |
+| `figmaWhoamiTool`                    | Verify auth / current user                   |
+| `figmaGetScreenshotTool`             | Export node as PNG/JPG/SVG/PDF               |
+| `figmaGetDesignContextTool`          | Structured layout, styles, typography        |
+| `figmaGetMetadataTool`               | Node metadata and tree structure             |
+| `figmaGetVariableDefsTool`           | Local and published variables                |
+| `figmaGetCodeConnectMapTool`         | Code Connect mappings                        |
+| `figmaAddCodeConnectMapTool`         | Add a Code Connect mapping                   |
+| `figmaGetCodeConnectSuggestionsTool` | Component linking suggestions                |
+| `figmaSendCodeConnectMappingsTool`   | Bulk-send mappings                           |
+| `figmaCreateDesignSystemRulesTool`   | Generate design system rules                 |
+| `figmaGetFigjamTool`                 | FigJam board content                         |
+| `figmaGenerateDiagramTool`           | Generate Mermaid diagrams                    |
+| `figmaConvertToReactTool`            | **Convert design to React + Tailwind**       |
+| `figmaCleanupCodeTool`               | **AI-powered code cleanup**                  |
+| `figmaExtractComponentsTool`         | **Extract repeated JSX into sub-components** |
 
 ### Stitch Module
 
@@ -473,14 +589,31 @@ VisionAgent uses a single entry point. Import everything from `visionagent`:
 
 ```typescript
 import {
+  // Core
   createModel,
   runAgent,
   defineTool,
   createToolSet,
+
+  // Figma - Design-to-Code
+  convertFigmaToReact,
+  cleanupGeneratedCode,
+  FigmaToReact,
+  transformJsx,
+  runFigmaToCodeAgent,
+
+  // Figma - Inspection
   runFigmaAgent,
   createFigmaToolSet,
+  figmaConvertToReactTool,
+  figmaCleanupCodeTool,
+  figmaExtractComponentsTool,
+
+  // Stitch
   runStitchAgent,
   createStitchToolSet,
+
+  // Hello World
   runHelloWorldAgent,
   helloWorldTool,
 } from 'visionagent';
@@ -502,29 +635,32 @@ npm run example -- examples/figma/02-get-screenshot.ts
 npm run example -- examples/stitch/06-generate-screen.ts
 ```
 
-| Group           | Examples                                                               | Description                                                           |
-| --------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| **Core**        | 01 Basic Model, 02 All Providers, 03 Tool Calling, 04 Multi-Tool Agent | Models, agents, tools                                                 |
-| **Figma**       | 01 Whoami through 12 Generate Diagram                                  | Figma tools (screenshots, design context, Code Connect, FigJam, etc.) |
-| **Hello World** | 01 Hello World                                                         | Minimal agent with greeting tool                                      |
-| **Stitch**      | 01 Create Project through 08 Generate Variants                         | Google Stitch (projects, screens, generate/edit/variants)             |
+| Group           | Examples                                                               | Description                                                                                   |
+| --------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Core**        | 01 Basic Model, 02 All Providers, 03 Tool Calling, 04 Multi-Tool Agent | Models, agents, tools                                                                         |
+| **Figma**       | 01 Whoami through 16 Design-to-Code Agent                              | 16 examples: inspection tools, **design-to-code conversion**, AI cleanup, and agent workflows |
+| **Hello World** | 01 Hello World                                                         | Minimal agent with greeting tool                                                              |
+| **Stitch**      | 01 Create Project through 08 Generate Variants                         | Google Stitch (projects, screens, generate/edit/variants)                                     |
 
 ---
 
 ## Comparison with Alternatives
 
-| Feature               | VisionAgent             | LangChain                 | LlamaIndex | AutoGPT           |
-| --------------------- | ----------------------- | ------------------------- | ---------- | ----------------- |
-| **Focus**             | Agents + Figma + Stitch | General LLM Orchestration | Data/RAG   | Autonomous Agents |
-| **TypeScript**        | First-class             | Good                      | Good       | Python Only       |
-| **Learning Curve**    | Low                     | High                      | Medium     | High              |
-| **Figma Integration** | Built-in (12 tools)     | Manual                    | Manual     | Manual            |
-| **Google Stitch**     | Built-in (8 tools)      | Manual                    | Manual     | Manual            |
+| Feature               | VisionAgent                      | LangChain                 | LlamaIndex    | AutoGPT           |
+| --------------------- | -------------------------------- | ------------------------- | ------------- | ----------------- |
+| **Design-to-Code**    | **Built-in** (Figma to React+TW) | Not available             | Not available | Not available     |
+| **Figma Integration** | **Built-in (15 tools)**          | Manual                    | Manual        | Manual            |
+| **AI Code Cleanup**   | **Built-in** (multi-provider)    | Manual                    | Manual        | Manual            |
+| **Focus**             | Design-to-Code + Agents          | General LLM Orchestration | Data/RAG      | Autonomous Agents |
+| **TypeScript**        | First-class                      | Good                      | Good          | Python Only       |
+| **Learning Curve**    | Low                              | High                      | Medium        | High              |
+| **Google Stitch**     | Built-in (8 tools)               | Manual                    | Manual        | Manual            |
 
 ### When to Use VisionAgent
 
+- **You need design-to-code**: Convert Figma designs to production React + Tailwind — no other framework does this
 - You want agents with tool calling (OpenAI, Anthropic, Google)
-- You need Figma integration (screenshots, design context, Code Connect, FigJam)
+- You need Figma integration (15 tools: screenshots, design context, Code Connect, FigJam, code generation)
 - You use Google Stitch for UI generation
 - You're building TypeScript/Node.js applications with a simple, focused API
 
@@ -623,29 +759,35 @@ For long agent runs or many tools, process in smaller batches or limit `maxItera
 - [x] Vision analysis capabilities
 - [x] Tool definition with Zod schemas
 - [x] Agent loop with tool calling
-- [x] Figma module (12 tools, agent)
+- [x] Figma module (15 tools, 2 agents)
 - [x] Stitch module (8 tools, agent)
+- [x] **Design-to-Code engine** — Figma to React + Tailwind CSS
+- [x] **AI-powered code cleanup** — multi-provider (OpenAI, Anthropic, Google)
+- [x] **Component extraction** — Babel AST analysis for repeated patterns
+- [x] **CSS-to-Tailwind converter** — PostCSS-based conversion engine
+- [x] **Design-to-Code agent** — autonomous Figma-to-code workflow
 
 ### Short Term (v0.1.x)
 
 - [ ] Streaming responses support
 - [ ] Built-in rate limiting and retries
 - [ ] Conversation memory/history
-- [ ] More vision analysis templates
+- [ ] Vue / Svelte / HTML output targets for design-to-code
 - [ ] Enhanced error messages
 
 ### Medium Term (v0.2.x - v0.5.x)
 
-- [ ] Web UI for Figma analysis
+- [ ] Web UI for Figma analysis and code preview
 - [ ] Agent workflows and chains
 - [ ] Built-in caching layer
 - [ ] Ollama/local model support
+- [ ] Multi-page Figma file conversion
 
 ### Long Term (v1.0+)
 
 - [ ] Visual agent builder
 - [ ] Plugin ecosystem
-- [ ] Cloud-hosted analysis service
+- [ ] Cloud-hosted design-to-code service
 - [ ] Multi-modal outputs (not just text)
 
 ### Community Contributions Welcome

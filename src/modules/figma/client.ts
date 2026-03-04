@@ -79,18 +79,34 @@ export class FigmaClient {
   /**
    * GET /v1/files/:file_key - Full file with document tree
    */
-  async getFile(fileKey: string): Promise<FigmaFileResponse> {
-    return this.request<FigmaFileResponse>(`/v1/files/${encodeURIComponent(fileKey)}`);
+  async getFile(
+    fileKey: string,
+    opts?: { geometry?: 'paths'; depth?: number }
+  ): Promise<FigmaFileResponse> {
+    const params = new URLSearchParams();
+    if (opts?.geometry) params.set('geometry', opts.geometry);
+    if (opts?.depth != null) params.set('depth', String(opts.depth));
+    const qs = params.toString();
+    return this.request<FigmaFileResponse>(
+      `/v1/files/${encodeURIComponent(fileKey)}${qs ? `?${qs}` : ''}`
+    );
   }
 
   /**
    * GET /v1/files/:file_key/nodes?ids=... - Specific nodes
    * nodeIds should be in API form (e.g. "1:2")
    */
-  async getFileNodes(fileKey: string, nodeIds: string[]): Promise<FigmaFileNodesResponse> {
+  async getFileNodes(
+    fileKey: string,
+    nodeIds: string[],
+    opts?: { geometry?: 'paths'; depth?: number }
+  ): Promise<FigmaFileNodesResponse> {
     const ids = nodeIds.map(id => id.replace(':', '-')).join(',');
+    const params = new URLSearchParams({ ids });
+    if (opts?.geometry) params.set('geometry', opts.geometry);
+    if (opts?.depth != null) params.set('depth', String(opts.depth));
     return this.request<FigmaFileNodesResponse>(
-      `/v1/files/${encodeURIComponent(fileKey)}/nodes?ids=${encodeURIComponent(ids)}`
+      `/v1/files/${encodeURIComponent(fileKey)}/nodes?${params.toString()}`
     );
   }
 
