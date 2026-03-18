@@ -13,7 +13,7 @@ export { runAgent } from './agents';
 export type { AgentConfig, AgentResult, AgentStep } from './agents';
 
 // Models
-export { createModel } from './models';
+export { createModel, registerProvider, KNOWN_MODELS } from './models';
 export { createOpenAIModel } from './models/providers/openai';
 export { createAnthropicModel } from './models/providers/anthropic';
 export { createGoogleModel } from './models/providers/google';

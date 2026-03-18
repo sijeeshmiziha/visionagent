@@ -34,17 +34,18 @@ async function main() {
     optimizeComponents: true,
   });
 
-  if (!result) {
-    console.error('Conversion failed.');
+  if (!result.success) {
+    console.error('Conversion failed:', result.error);
     process.exit(1);
   }
 
-  console.log(`  Component: ${result.componentName}`);
-  console.log(`  Assets: ${Object.keys(result.assets).length}`);
-  console.log(`  Raw JSX length: ${result.jsx.length} chars\n`);
+  const { data } = result;
+  console.log(`  Component: ${data.componentName}`);
+  console.log(`  Assets: ${Object.keys(data.assets).length}`);
+  console.log(`  Raw JSX length: ${data.jsx.length} chars\n`);
 
   console.log('Step 2: Cleaning up with AI...');
-  const cleaned = await cleanupGeneratedCode(result.jsx, {
+  const cleaned = await cleanupGeneratedCode(data.jsx, {
     provider: 'google',
     model: 'gemini-2.0-flash',
   });

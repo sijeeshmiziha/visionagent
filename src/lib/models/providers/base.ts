@@ -67,7 +67,11 @@ export function createAIModel(params: CreateAIModelParams): Model {
         };
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
-        throw new ModelError(`Failed to invoke ${provider} model`, provider, err);
+        throw new ModelError(
+          `Failed to invoke ${provider}/${modelName}: ${err.message}`,
+          provider,
+          err
+        );
       }
     },
 

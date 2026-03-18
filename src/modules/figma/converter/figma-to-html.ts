@@ -1,12 +1,22 @@
-// @ts-nocheck
-import type { FigmaToHTMLOptions } from './types';
+import type {
+  FigmaToHTMLOptions,
+  FigmaNode,
+  FigmaBoundingBox,
+  FigmaColor,
+  FigmaFill,
+  FigmaEffect,
+  FigmaGeometrySegment,
+  FigmaTextStyle,
+  CSSStyles,
+} from './types';
 import { FigmaToTailwindConverter } from './figma-to-tailwind';
+// @ts-ignore — htmltojsx has no TypeScript declarations
 import HTMLtoJSX from 'htmltojsx';
 import { generateComponentName } from './utils/component-name';
 import { transformJsx } from './transform-jsx';
 
 export class FigmaToHTML {
-  options: FigmaToHTMLOptions & Record<string, any>;
+  options: FigmaToHTMLOptions;
   styles: Map<string, Record<string, string | number>>;
   fontFamilies: Set<string>;
   zIndexCounter: number;
@@ -42,7 +52,7 @@ export class FigmaToHTML {
       : null;
   }
 
-  async convert(figmaNode: any) {
+  async convert(figmaNode: FigmaNode): Promise<string> {
     if (!figmaNode) return '';
 
     this.zIndexCounter = 1;
@@ -121,7 +131,10 @@ ${finalHtml}
 </html>`;
   }
 
-  async convertJSX(figmaNode: any, noTailwindImport = false) {
+  async convertJSX(
+    figmaNode: FigmaNode,
+    _noTailwindImport = false
+  ): Promise<{ componentName: string; jsx: string; fonts: string; css: string }> {
     this.zIndexCounter = 1;
     const html = this.convertNode(figmaNode);
     let css = this.generateCSS();
@@ -166,7 +179,10 @@ ${finalHtml}
     };
   }
 
-  convertNode(node: any, parentContext: { bounds?: any; node?: any } | null = null) {
+  convertNode(
+    node: FigmaNode | null,
+    parentContext: { bounds?: FigmaBoundingBox; node?: FigmaNode } | null = null
+  ): string {
     if (!node || !node.type) return '';
     if (node.visible === false) return '';
 
@@ -214,7 +230,13 @@ ${finalHtml}
     }
   }
 
-  convertFrame(node: any, className: string, classAttr: string, inlineStyles: string, styles: any) {
+  convertFrame(
+    node: FigmaNode,
+    _className: string,
+    classAttr: string,
+    inlineStyles: string,
+    styles: CSSStyles
+  ): string {
     const children = node.children || [];
     const childrenHTML = children
       .map((child: any) => this.convertNode(child, { bounds: node.absoluteBoundingBox, node }))
@@ -238,7 +260,13 @@ ${childrenHTML}
 </${tag}>`;
   }
 
-  convertGroup(node: any, className: string, classAttr: string, inlineStyles: string, styles: any) {
+  convertGroup(
+    node: FigmaNode,
+    _className: string,
+    classAttr: string,
+    inlineStyles: string,
+    styles: CSSStyles
+  ): string {
     const children = node.children || [];
     const childrenHTML = children
       .map((child: any) => this.convertNode(child, { bounds: node.absoluteBoundingBox, node }))
@@ -262,7 +290,13 @@ ${childrenHTML}
 </${tag}>`;
   }
 
-  convertText(node: any, className: string, classAttr: string, inlineStyles: string, styles: any) {
+  convertText(
+    node: FigmaNode,
+    _className: string,
+    classAttr: string,
+    inlineStyles: string,
+    _styles: CSSStyles
+  ): string {
     const text = this.escapeHtml(node.characters || '');
     const tag = this.getTextTag(node);
 
@@ -274,12 +308,12 @@ ${childrenHTML}
   }
 
   convertVector(
-    node: any,
+    node: FigmaNode,
     className: string,
     classAttr: string,
     inlineStyles: string,
-    styles: any
-  ) {
+    styles: CSSStyles
+  ): string {
     if (this.shouldRenderAsSvg(node)) {
       const workingStyles = { ...styles };
       this.stripVectorFillStyles(workingStyles);
@@ -310,7 +344,7 @@ ${childrenHTML}
     return `<div${classAttr}${inlineStyles}></div>`;
   }
 
-  shouldRenderAsSvg(node: any) {
+  shouldRenderAsSvg(node: FigmaNode | null): boolean {
     if (!node || !node.type) return false;
     const svgTypes = new Set([
       'VECTOR',
@@ -329,7 +363,7 @@ ${childrenHTML}
     return hasFillGeometry || hasStrokeGeometry;
   }
 
-  stripVectorFillStyles(styles: any = {}) {
+  stripVectorFillStyles(styles: CSSStyles = {}): void {
     if (!styles) return;
     delete styles.background;
     delete styles.backgroundColor;
@@ -338,7 +372,7 @@ ${childrenHTML}
     delete styles.outline;
   }
 
-  generateVectorSVG(node: any, classAttr: string, inlineStyles: string) {
+  generateVectorSVG(node: FigmaNode, classAttr: string, inlineStyles: string): string | null {
     const bounds = node.absoluteBoundingBox;
     if (!bounds) {
       return null;
@@ -389,7 +423,7 @@ ${childrenHTML}
     return `<svg${classAttr}${inlineStyles} xmlns="http://www.w3.org/2000/svg"${xlinkNamespace} width="${width}" height="${height}" viewBox="${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}" preserveAspectRatio="none">\n${defsMarkup}${content}\n</svg>`;
   }
 
-  combineGeometryPaths(geometry: any[] = []) {
+  combineGeometryPaths(geometry: FigmaGeometrySegment[] = []): string | null {
     if (!Array.isArray(geometry) || geometry.length === 0) {
       return null;
     }
@@ -444,7 +478,7 @@ ${childrenHTML}
 
       const readNumber = () => {
         if (index >= tokens.length) return null;
-        const value = valueToNumber(tokens[index]);
+        const value = valueToNumber(tokens[index]!);
         index += 1;
         return value;
       };
@@ -477,7 +511,7 @@ ${childrenHTML}
           current = isRelative ? { x: current.x + point.x, y: current.y + point.y } : point;
           start = { ...current };
           updateBounds(current.x, current.y);
-          while (index < tokens.length && !/^[a-zA-Z]$/.test(tokens[index])) {
+          while (index < tokens.length && !/^[a-zA-Z]$/.test(tokens[index] ?? '')) {
             const linePoint = readPoint();
             if (!linePoint) break;
             current = isRelative
@@ -521,7 +555,11 @@ ${childrenHTML}
         if (cmd === 'C') {
           const points = [readPoint(), readPoint(), readPoint()];
           if (points.some(p => !p)) break;
-          const [c1, c2, end] = points as { x: number; y: number }[];
+          const [c1, c2, end] = points as [
+            { x: number; y: number },
+            { x: number; y: number },
+            { x: number; y: number },
+          ];
           const absC1 = isRelative ? { x: current.x + c1.x, y: current.y + c1.y } : c1;
           const absC2 = isRelative ? { x: current.x + c2.x, y: current.y + c2.y } : c2;
           const absEnd = isRelative ? { x: current.x + end.x, y: current.y + end.y } : end;
@@ -535,7 +573,7 @@ ${childrenHTML}
         if (cmd === 'S') {
           const points = [readPoint(), readPoint()];
           if (points.some(p => !p)) break;
-          const [c2, end] = points as { x: number; y: number }[];
+          const [c2, end] = points as [{ x: number; y: number }, { x: number; y: number }];
           const absC2 = isRelative ? { x: current.x + c2.x, y: current.y + c2.y } : c2;
           const absEnd = isRelative ? { x: current.x + end.x, y: current.y + end.y } : end;
           updateBounds(absC2.x, absC2.y);
@@ -547,7 +585,7 @@ ${childrenHTML}
         if (cmd === 'Q') {
           const points = [readPoint(), readPoint()];
           if (points.some(p => !p)) break;
-          const [c1, end] = points as { x: number; y: number }[];
+          const [c1, end] = points as [{ x: number; y: number }, { x: number; y: number }];
           const absC1 = isRelative ? { x: current.x + c1.x, y: current.y + c1.y } : c1;
           const absEnd = isRelative ? { x: current.x + end.x, y: current.y + end.y } : end;
           updateBounds(absC1.x, absC1.y);
@@ -595,7 +633,7 @@ ${childrenHTML}
     return bounds;
   }
 
-  getWindingRule(geometry: any[] = []) {
+  getWindingRule(geometry: FigmaGeometrySegment[] = []): string {
     if (!Array.isArray(geometry) || geometry.length === 0) {
       return 'nonzero';
     }
@@ -603,7 +641,12 @@ ${childrenHTML}
     return rule ? rule.toLowerCase() : 'nonzero';
   }
 
-  buildFillElements(node: any, pathData: any, fillRule: any, bounds: any) {
+  buildFillElements(
+    node: FigmaNode,
+    pathData: string | null,
+    fillRule: string,
+    bounds: FigmaBoundingBox | null
+  ): { elements: string[]; defs: string[] } {
     const elements: string[] = [];
     const defs: string[] = [];
 
@@ -611,8 +654,8 @@ ${childrenHTML}
       return { elements, defs };
     }
 
-    const fills: any[] = Array.isArray(node.fills)
-      ? node.fills.filter((fill: any) => fill && fill.visible !== false)
+    const fills: FigmaFill[] = Array.isArray(node.fills)
+      ? node.fills.filter(fill => fill && fill.visible !== false)
       : [];
 
     if (fills.length === 0) {
@@ -679,7 +722,12 @@ ${childrenHTML}
     return { elements, defs };
   }
 
-  createLinearGradientDef(paint: any, node: any, bounds: any, key: string) {
+  createLinearGradientDef(
+    paint: FigmaFill,
+    node: FigmaNode,
+    _bounds: FigmaBoundingBox | null,
+    key: string
+  ): { id: string; def: string } | null {
     if (!paint || !Array.isArray(paint.gradientStops) || paint.gradientStops.length === 0) {
       return null;
     }
@@ -705,7 +753,12 @@ ${childrenHTML}
     return { id: gradientId, def: gradientDef };
   }
 
-  createRadialGradientDef(paint: any, node: any, bounds: any, key: string) {
+  createRadialGradientDef(
+    paint: FigmaFill,
+    node: FigmaNode,
+    _bounds: FigmaBoundingBox | null,
+    key: string
+  ): { id: string; def: string } | null {
     if (!paint || !Array.isArray(paint.gradientStops) || paint.gradientStops.length === 0) {
       return null;
     }
@@ -734,7 +787,7 @@ ${childrenHTML}
     return { id: gradientId, def: gradientDef };
   }
 
-  mapScaleModeToPreserveAspectRatio(scaleMode: any) {
+  mapScaleModeToPreserveAspectRatio(scaleMode: string | undefined): string {
     switch (scaleMode) {
       case 'FIT':
         return 'xMidYMid meet';
@@ -748,7 +801,10 @@ ${childrenHTML}
     }
   }
 
-  colorToSvgComponents(color: any = {}, opacity = 1) {
+  colorToSvgComponents(
+    color: Partial<FigmaColor> = {},
+    opacity = 1
+  ): { color: string; opacity: number } {
     const r = Math.round((color?.r ?? 0) * 255);
     const g = Math.round((color?.g ?? 0) * 255);
     const b = Math.round((color?.b ?? 0) * 255);
@@ -759,7 +815,7 @@ ${childrenHTML}
     };
   }
 
-  mapStrokeCap(cap: any) {
+  mapStrokeCap(cap: string | string[] | undefined): string {
     const value = Array.isArray(cap) ? cap[0] : cap;
     if (!value) return 'butt';
     const normalized: any = String(value).toUpperCase();
@@ -774,7 +830,7 @@ ${childrenHTML}
     return mapping[normalized] || normalized.toLowerCase();
   }
 
-  mapStrokeJoin(join: any) {
+  mapStrokeJoin(join: string | undefined): string {
     if (!join) return 'miter';
     const normalized = String(join).toUpperCase();
     const mapping: Record<string, string> = {
@@ -795,7 +851,7 @@ ${childrenHTML}
     return `${this.sanitizeId(prefix)}${this.uniqueIdCounter}`;
   }
 
-  formatNumber(value: any) {
+  formatNumber(value: unknown): string {
     if (typeof value !== 'number' || !Number.isFinite(value)) {
       return '0';
     }
@@ -803,9 +859,14 @@ ${childrenHTML}
     return fixed.replace(/\.0+$/, '').replace(/(\.[0-9]*[1-9])0+$/, '$1');
   }
 
-  buildStrokeElements(node: any, pathData: any, strokeRule: any, bounds: any) {
-    const elements: any[] = [];
-    const defs: any[] = [];
+  buildStrokeElements(
+    node: FigmaNode,
+    pathData: string | null,
+    strokeRule: string,
+    bounds: FigmaBoundingBox | null
+  ): { elements: string[]; defs: string[] } {
+    const elements: string[] = [];
+    const defs: string[] = [];
 
     if (!pathData) {
       return { elements, defs };
@@ -931,12 +992,12 @@ ${childrenHTML}
   }
 
   convertGeneric(
-    node: any,
-    className: string,
+    node: FigmaNode,
+    _className: string,
     classAttr: string,
     inlineStyles: string,
-    styles: any
-  ) {
+    styles: CSSStyles
+  ): string {
     const children = node.children || [];
 
     const imageTag = this.generateImageTag(node, styles);
@@ -968,8 +1029,12 @@ ${childrenHTML}
 </${tag}>`;
   }
 
-  getNodeStyles(node: any, parentBounds: any, parentNode: any) {
-    const styles: any = {};
+  getNodeStyles(
+    node: FigmaNode,
+    parentBounds: FigmaBoundingBox | null,
+    parentNode: FigmaNode | null
+  ): CSSStyles {
+    const styles: CSSStyles = {};
     const bounds = node.absoluteBoundingBox;
     const parentLayoutMode = parentNode?.layoutMode ?? 'NONE';
     const isParentAutoLayout = parentLayoutMode && parentLayoutMode !== 'NONE';
@@ -988,8 +1053,8 @@ ${childrenHTML}
       if (treatAsAbsolute) {
         styles.position = 'absolute';
 
-        const offsetX = bounds.x - parentBounds.x;
-        const offsetY = bounds.y - parentBounds.y;
+        const offsetX = bounds.x - parentBounds!.x;
+        const offsetY = bounds.y - parentBounds!.y;
         const usePixelPosition = node.type === 'TEXT';
 
         if (this.options.responsive && parentWidth > 0 && !usePixelPosition) {
@@ -1007,8 +1072,8 @@ ${childrenHTML}
       if (treatAsAbsolute) {
         styles.position = 'absolute';
 
-        const offsetX = bounds.x - parentBounds.x;
-        const offsetY = bounds.y - parentBounds.y;
+        const offsetX = bounds.x - parentBounds!.x;
+        const offsetY = bounds.y - parentBounds!.y;
 
         if (this.options.responsive && parentWidth > 0) {
           styles.left = `${((offsetX / parentWidth) * 100).toFixed(2)}%`;
@@ -1058,7 +1123,7 @@ ${childrenHTML}
         };
 
         if (node.layoutAlign && alignSelfMap[node.layoutAlign]) {
-          styles.alignSelf = alignSelfMap[node.layoutAlign];
+          styles.alignSelf = alignSelfMap[node.layoutAlign] as string;
         }
 
         if (typeof node.layoutGrow === 'number') {
@@ -1119,39 +1184,39 @@ ${childrenHTML}
     }
 
     if (node.type !== 'TEXT' && node.fills && Array.isArray(node.fills) && node.fills.length > 0) {
-      const visibleFills: any = node.fills.filter((fill: any) => fill.visible !== false);
+      const visibleFills: FigmaFill[] = node.fills.filter(fill => fill.visible !== false);
 
       const shouldUseImgTag = this.shouldUseImgTag(node, visibleFills);
 
       if (visibleFills.length > 0 && !shouldUseImgTag) {
-        const backgrounds: any[] = [];
+        const backgrounds: string[] = [];
 
         for (const fill of visibleFills) {
-          if (fill.type === 'SOLID') {
+          if (fill.type === 'SOLID' && fill.color) {
             backgrounds.push(this.rgbaToCSS(fill.color, fill.opacity));
           } else if (fill.type === 'GRADIENT_LINEAR') {
             backgrounds.push(this.gradientToCSS(fill));
           } else if (fill.type === 'GRADIENT_RADIAL') {
             backgrounds.push(this.radialGradientToCSS(fill));
           } else if (fill.type === 'IMAGE') {
-            backgrounds.push(this.imageToCSS(fill, bounds, node.id));
+            backgrounds.push(this.imageToCSS(fill, bounds ?? null, node.id));
           }
         }
 
         if (backgrounds.length === 1) {
-          if (backgrounds[0].startsWith('url') || backgrounds[0].includes('gradient')) {
-            styles.background = backgrounds[0];
+          if (backgrounds[0]!.startsWith('url') || backgrounds[0]!.includes('gradient')) {
+            styles.background = backgrounds[0]!;
           } else {
-            styles.backgroundColor = backgrounds[0];
+            styles.backgroundColor = backgrounds[0]!;
           }
         } else if (backgrounds.length > 1) {
           styles.background = backgrounds.join(', ');
         }
       } else if (shouldUseImgTag) {
-        const backgrounds: any = [];
+        const backgrounds: string[] = [];
 
         for (const fill of visibleFills) {
-          if (fill.type === 'SOLID') {
+          if (fill.type === 'SOLID' && fill.color) {
             backgrounds.push(this.rgbaToCSS(fill.color, fill.opacity));
           } else if (fill.type === 'GRADIENT_LINEAR') {
             backgrounds.push(this.gradientToCSS(fill));
@@ -1161,10 +1226,10 @@ ${childrenHTML}
         }
 
         if (backgrounds.length === 1) {
-          if (backgrounds[0].includes('gradient')) {
-            styles.background = backgrounds[0];
+          if (backgrounds[0]!.includes('gradient')) {
+            styles.background = backgrounds[0]!;
           } else {
-            styles.backgroundColor = backgrounds[0];
+            styles.backgroundColor = backgrounds[0]!;
           }
         } else if (backgrounds.length > 1) {
           styles.background = backgrounds.join(', ');
@@ -1180,8 +1245,8 @@ ${childrenHTML}
       const visibleStrokes = node.strokes.filter((stroke: any) => stroke.visible !== false);
 
       if (visibleStrokes.length > 0) {
-        const stroke = visibleStrokes[0];
-        if (stroke.type === 'SOLID') {
+        const stroke = visibleStrokes[0] as FigmaFill;
+        if (stroke.type === 'SOLID' && stroke.color) {
           const borderWidth = node.strokeWeight || 1;
           const borderColor = this.rgbaToCSS(stroke.color, stroke.opacity);
 
@@ -1257,9 +1322,10 @@ ${childrenHTML}
       Object.assign(styles, this.getTextStyles(node.style));
 
       if (node.fills && node.fills.length > 0) {
-        const visibleFills = node.fills.filter((f: any) => f.visible !== false);
-        if (visibleFills.length > 0 && visibleFills[0].type === 'SOLID') {
-          styles.color = this.rgbaToCSS(visibleFills[0].color, visibleFills[0].opacity);
+        const visibleFills: FigmaFill[] = node.fills.filter(f => f.visible !== false);
+        const firstFill = visibleFills[0];
+        if (firstFill && firstFill.type === 'SOLID' && firstFill.color) {
+          styles.color = this.rgbaToCSS(firstFill.color, firstFill.opacity);
         }
       }
     }
@@ -1271,8 +1337,8 @@ ${childrenHTML}
     return styles;
   }
 
-  getTextStyles(style: any) {
-    const textStyles: any = {
+  getTextStyles(style: FigmaTextStyle): CSSStyles {
+    const textStyles: CSSStyles = {
       margin: '0',
     };
 
@@ -1318,7 +1384,7 @@ ${childrenHTML}
     return textStyles;
   }
 
-  rgbaToCSS(color: any, opacity = 1) {
+  rgbaToCSS(color: FigmaColor, opacity = 1): string {
     const r = Math.round(color.r * 255);
     const g = Math.round(color.g * 255);
     const b = Math.round(color.b * 255);
@@ -1326,15 +1392,15 @@ ${childrenHTML}
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   }
 
-  gradientToCSS(gradient: any) {
+  gradientToCSS(gradient: FigmaFill): string {
     if (!gradient.gradientStops || gradient.gradientStops.length < 2) {
       return 'transparent';
     }
 
     let angle = 90;
     if (gradient.gradientHandlePositions && gradient.gradientHandlePositions.length >= 2) {
-      const start = gradient.gradientHandlePositions[0];
-      const end = gradient.gradientHandlePositions[1];
+      const start = gradient.gradientHandlePositions[0]!;
+      const end = gradient.gradientHandlePositions[1]!;
       const deltaX = end.x - start.x;
       const deltaY = end.y - start.y;
       angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI) + 90;
@@ -1351,7 +1417,7 @@ ${childrenHTML}
     return `linear-gradient(${angle}deg, ${stops})`;
   }
 
-  radialGradientToCSS(gradient: any) {
+  radialGradientToCSS(gradient: FigmaFill): string {
     if (!gradient.gradientStops || gradient.gradientStops.length < 2) {
       return 'transparent';
     }
@@ -1367,7 +1433,7 @@ ${childrenHTML}
     return `radial-gradient(circle, ${stops})`;
   }
 
-  imageToCSS(imageFill: any, bounds: any, nodeId: string) {
+  imageToCSS(imageFill: FigmaFill, bounds: FigmaBoundingBox | null, nodeId: string): string {
     if (!imageFill.imageRef) {
       return 'transparent';
     }
@@ -1398,11 +1464,11 @@ ${childrenHTML}
     return cssValue;
   }
 
-  shouldUseImgTag(node: any, visibleFills: any) {
-    return visibleFills.some((fill: any) => fill.type === 'IMAGE' && fill.imageRef);
+  shouldUseImgTag(_node: FigmaNode, visibleFills: FigmaFill[]): boolean {
+    return visibleFills.some(fill => fill.type === 'IMAGE' && fill.imageRef);
   }
 
-  generateImageTag(node: any, styles: any) {
+  generateImageTag(node: FigmaNode, styles: CSSStyles): string | null {
     if (node.type === 'TEXT') return null;
     if (!node.fills || !Array.isArray(node.fills)) return null;
 
@@ -1415,13 +1481,13 @@ ${childrenHTML}
 
     const bounds = node.absoluteBoundingBox;
 
-    this.imageRefs.add(imageFill.imageRef);
+    this.imageRefs.add(imageFill.imageRef!);
     if (node.id) {
-      this.imageNodes.set(node.id, imageFill.imageRef);
+      this.imageNodes.set(node.id, imageFill.imageRef!);
     }
 
     const imageUrl =
-      this?.options?.imageUrls?.[imageFill.imageRef] ||
+      (imageFill.imageRef && this?.options?.imageUrls?.[imageFill.imageRef]) ||
       `https://via.placeholder.com/${Math.round(bounds?.width || 100)}x${Math.round(bounds?.height || 100)}?text=Image`;
 
     const scaleMode = imageFill.scaleMode || 'FILL';
@@ -1440,7 +1506,7 @@ ${childrenHTML}
 
     const altText = this.escapeHtml(node.name || 'Image');
 
-    const imgStyles: any = {
+    const imgStyles: CSSStyles = {
       width: '100%',
       height: '100%',
       objectFit: objectFit,
@@ -1459,12 +1525,12 @@ ${childrenHTML}
     return `<img src="${imageUrl}" alt="${altText}" style="${imgStyleString}" loading="lazy" />`;
   }
 
-  dropShadowToCSS(effect: any) {
+  dropShadowToCSS(effect: FigmaEffect): string {
     const x = effect.offset?.x || 0;
     const y = effect.offset?.y || 0;
     const blur = effect.radius || 0;
     const spread = effect.spread || 0;
-    const color = this.rgbaToCSS(effect.color);
+    const color = effect.color ? this.rgbaToCSS(effect.color) : 'rgba(0,0,0,0.25)';
 
     if (spread !== 0) {
       return `${x}px ${y}px ${blur}px ${spread}px ${color}`;
@@ -1472,12 +1538,12 @@ ${childrenHTML}
     return `${x}px ${y}px ${blur}px ${color}`;
   }
 
-  innerShadowToCSS(effect: any) {
+  innerShadowToCSS(effect: FigmaEffect): string {
     const x = effect.offset?.x || 0;
     const y = effect.offset?.y || 0;
     const blur = effect.radius || 0;
     const spread = effect.spread || 0;
-    const color = this.rgbaToCSS(effect.color);
+    const color = effect.color ? this.rgbaToCSS(effect.color) : 'rgba(0,0,0,0.25)';
 
     if (spread !== 0) {
       return `inset ${x}px ${y}px ${blur}px ${spread}px ${color}`;
@@ -1485,8 +1551,8 @@ ${childrenHTML}
     return `inset ${x}px ${y}px ${blur}px ${color}`;
   }
 
-  blendModeToCSS(blendMode: any) {
-    const mapping = {
+  blendModeToCSS(blendMode: string): string {
+    const mapping: Record<string, string> = {
       MULTIPLY: 'multiply',
       SCREEN: 'screen',
       OVERLAY: 'overlay',
@@ -1502,11 +1568,11 @@ ${childrenHTML}
       SATURATION: 'saturation',
       COLOR: 'color',
       LUMINOSITY: 'luminosity',
-    } as any;
-    return mapping[blendMode] || 'normal';
+    };
+    return mapping[blendMode] ?? 'normal';
   }
 
-  generateClassName(node: any) {
+  generateClassName(node: FigmaNode): string {
     const safeName = node.name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -1514,7 +1580,7 @@ ${childrenHTML}
     return `${this.options.classPrefix}${safeName}-${node.id.replace(/[^a-z0-9]/gi, '')}`;
   }
 
-  getTextTag(node: any) {
+  getTextTag(node: FigmaNode): string {
     if (!node.style) return 'p';
 
     const fontSize = node.style.fontSize || 16;
@@ -1524,7 +1590,7 @@ ${childrenHTML}
     return 'p';
   }
 
-  isButton(node: any): boolean {
+  isButton(node: FigmaNode | null): boolean {
     if (!node || !node.name) return false;
 
     const nodeName = node.name.toLowerCase();
@@ -1572,7 +1638,7 @@ ${childrenHTML}
   <link href="https://fonts.googleapis.com/css2?family=${fonts}:wght@400;500;600;700&display=swap" rel="stylesheet">`;
   }
 
-  stylesToString(styles: any) {
+  stylesToString(styles: CSSStyles): string {
     return Object.entries(styles)
       .map(([prop, value]) => `${this.camelToKebab(prop)}: ${value}`)
       .join('; ');
@@ -1589,8 +1655,8 @@ ${childrenHTML}
       '>': '&gt;',
       '"': '&quot;',
       "'": '&#039;',
-    } as any;
-    return text.replace(/[&<>"']/g, m => map[m]);
+    } as Record<string, string>;
+    return text.replace(/[&<>"']/g, m => map[m] ?? m);
   }
 
   /**

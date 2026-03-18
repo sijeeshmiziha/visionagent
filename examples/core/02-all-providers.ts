@@ -16,8 +16,8 @@ import { createModel } from 'visionagent';
 
 const MODEL_MAP: Record<string, string> = {
   openai: 'gpt-4o-mini',
-  anthropic: 'claude-3-haiku-20240307',
-  google: 'gemini-1.5-flash',
+  anthropic: 'claude-haiku-4-5',
+  google: 'gemini-2.0-flash',
 };
 
 async function testProvider(provider: 'openai' | 'anthropic' | 'google', prompt: string) {

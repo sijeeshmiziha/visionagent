@@ -30,16 +30,65 @@ import { executeToolByName } from '../tools';
  * ```
  */
 export async function runAgent(config: AgentConfig): Promise<AgentResult> {
-  const { model, tools, systemPrompt, input, maxIterations = 10, onStep } = config;
+  const {
+    model,
+    tools,
+    systemPrompt,
+    input,
+    maxIterations = 10,
+    onStep,
+    timeoutMs,
+    signal,
+  } = config;
 
+  // Build a combined abort signal from timeout + external signal
+  const signals: AbortSignal[] = [];
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  if (timeoutMs !== undefined) {
+    const controller = new AbortController();
+    timeoutId = setTimeout(() => {
+      controller.abort(new AgentError(`Agent timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+    signals.push(controller.signal);
+  }
+  if (signal) signals.push(signal);
+  const combinedSignal = signals.length > 0 ? AbortSignal.any(signals) : undefined;
+
+  const stepsAccumulator: AgentStep[] = [];
+  try {
+    return await runAgentLoop(
+      model,
+      tools,
+      systemPrompt,
+      input,
+      maxIterations,
+      onStep,
+      combinedSignal,
+      stepsAccumulator
+    );
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId);
+  }
+}
+
+async function runAgentLoop(
+  model: AgentConfig['model'],
+  tools: AgentConfig['tools'],
+  systemPrompt: string,
+  input: string,
+  maxIterations: number,
+  onStep: AgentConfig['onStep'],
+  signal: AbortSignal | undefined,
+  steps: AgentStep[]
+): Promise<AgentResult> {
   const messages: ModelMessage[] = [
     { role: 'system', content: systemPrompt },
     { role: 'user', content: input },
   ];
 
-  const steps: AgentStep[] = [];
-
   for (let iteration = 0; iteration < maxIterations; iteration++) {
+    const stepStart = Date.now();
+    const startedAt = new Date().toISOString();
     const response = await model.invoke(messages, { tools });
 
     const step: AgentStep = {
@@ -47,6 +96,8 @@ export async function runAgent(config: AgentConfig): Promise<AgentResult> {
       content: response.text,
       toolCalls: response.toolCalls,
       usage: response.usage,
+      durationMs: Date.now() - stepStart,
+      startedAt,
     };
 
     if (!response.toolCalls?.length) {
@@ -76,6 +127,7 @@ export async function runAgent(config: AgentConfig): Promise<AgentResult> {
     for (const toolCall of response.toolCalls) {
       const execResult = await executeToolByName(tools, toolCall.toolName, toolCall.input, {
         toolCallId: toolCall.toolCallId,
+        abortSignal: signal,
       });
 
       const agentResult: AgentToolResult = {
@@ -114,8 +166,12 @@ export async function runAgent(config: AgentConfig): Promise<AgentResult> {
     onStep?.(step);
   }
 
+  const lastContent = steps.at(-1)?.content;
+  const snippet = lastContent
+    ? ` Last response: "${lastContent.slice(0, 100)}${lastContent.length > 100 ? '...' : ''}"`
+    : '';
   throw new AgentError(
-    `Agent reached maximum iterations (${maxIterations}) without completing`,
+    `Agent reached maximum iterations (${maxIterations}) without completing.${snippet}`,
     maxIterations - 1
   );
 }

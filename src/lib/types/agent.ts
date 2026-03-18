@@ -41,6 +41,14 @@ export interface AgentConfig {
   maxIterations?: number;
   /** Callback for each step */
   onStep?: (step: AgentStep) => void;
+  /** Wall-clock timeout in milliseconds for the entire agent run */
+  timeoutMs?: number;
+  /** External abort signal — abort the agent from outside */
+  signal?: AbortSignal;
+  /** Convenience streaming: called for each text delta as it arrives */
+  onToken?: (delta: string) => void;
+  /** Maximum concurrent tool executions per step (default: 1) */
+  maxConcurrentTools?: number;
 }
 
 /**
@@ -57,6 +65,10 @@ export interface AgentStep {
   toolResults?: AgentToolResult[];
   /** Token usage for this step */
   usage?: LanguageModelUsage;
+  /** Time spent on the model call for this step (ms) */
+  durationMs?: number;
+  /** ISO timestamp when this step started */
+  startedAt?: string;
 }
 
 /**

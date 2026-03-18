@@ -75,7 +75,10 @@ export async function executeToolByName(
   options?: { toolCallId?: string; abortSignal?: AbortSignal }
 ): Promise<ToolExecutionResult> {
   const toolImpl = tools[name];
-  if (!toolImpl) throw new ToolError(`Tool not found: ${name}`);
+  if (!toolImpl) {
+    const available = Object.keys(tools).join(', ') || '(none)';
+    throw new ToolError(`Tool not found: "${name}". Available tools: ${available}`);
+  }
   return executeTool(toolImpl, input, options);
 }
 

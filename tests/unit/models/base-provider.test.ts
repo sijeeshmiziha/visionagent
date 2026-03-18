@@ -120,7 +120,7 @@ describe('createAIModel', () => {
     await expect(model.invoke([{ role: 'user', content: 'Hi' }])).rejects.toMatchObject({
       name: 'ModelError',
       provider: 'google',
-      message: expect.stringContaining('Failed to invoke google model'),
+      message: expect.stringContaining('Failed to invoke google/'),
     });
   });
 

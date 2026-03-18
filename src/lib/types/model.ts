@@ -15,9 +15,14 @@ export type { LanguageModelUsage, FinishReason } from 'ai';
 export type ModelTool = Tool;
 
 /**
- * Supported model providers
+ * Built-in model providers
  */
-export type ModelProvider = 'openai' | 'anthropic' | 'google';
+export type BuiltinProvider = 'openai' | 'anthropic' | 'google';
+
+/**
+ * Supported model providers — open for extension via registerProvider()
+ */
+export type ModelProvider = BuiltinProvider | (string & {});
 
 /**
  * Configuration for creating a model

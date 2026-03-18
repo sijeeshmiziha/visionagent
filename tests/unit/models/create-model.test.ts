@@ -71,7 +71,7 @@ describe('createModel', () => {
   it('should route to createAnthropicModel for provider anthropic', () => {
     const config: ModelConfig = {
       provider: 'anthropic',
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5',
     };
     const model = createModel(config);
     expect(anthropicProvider.createAnthropicModel).toHaveBeenCalledWith(config);

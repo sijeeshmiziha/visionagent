@@ -56,26 +56,27 @@ export const figmaConvertToReactTool = defineTool({
     });
 
     const result = await converter.convertFromUrl(url);
-    if (!result) {
-      return { error: 'Conversion failed. Check the URL and API key.' };
+    if (!result.success) {
+      return { error: result.error };
     }
 
-    let jsx = result.jsx;
+    const { data } = result;
+    let jsx = data.jsx;
     if (useCodeCleaner) {
       jsx = await cleanupGeneratedCode(jsx);
     }
 
     const assetsSummary: Record<string, string> = {};
-    for (const [filename] of Object.entries(result.assets)) {
+    for (const [filename] of Object.entries(data.assets)) {
       assetsSummary[filename] = `[base64 image - ${filename}]`;
     }
 
     return {
       jsx,
-      css: result.css,
-      componentName: result.componentName,
-      fonts: result.fonts,
-      assetsCount: Object.keys(result.assets).length,
+      css: data.css,
+      componentName: data.componentName,
+      fonts: data.fonts,
+      assetsCount: Object.keys(data.assets).length,
       assets: assetsSummary,
     };
   },

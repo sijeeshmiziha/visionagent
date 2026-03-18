@@ -13,7 +13,9 @@ export class FigmaToReact {
     this.options = options;
   }
 
-  async convertFromUrl(figmaUrl: string): Promise<FigmaToReactResult | null> {
+  async convertFromUrl(
+    figmaUrl: string
+  ): Promise<{ success: true; data: FigmaToReactResult } | { success: false; error: string }> {
     try {
       const { fileKey, nodeId } = parseFigmaUrl(figmaUrl);
 
@@ -86,19 +88,25 @@ export class FigmaToReact {
       }
 
       return {
-        jsx,
-        assets,
-        componentName: jsxResult.componentName,
-        fonts: jsxResult.fonts,
-        css: jsxResult.css,
+        success: true,
+        data: {
+          jsx,
+          assets,
+          componentName: jsxResult.componentName,
+          fonts: jsxResult.fonts,
+          css: jsxResult.css,
+        },
       };
     } catch (error) {
-      console.error('Error converting Figma to React:', error);
-      return null;
+      const message = error instanceof Error ? error.message : String(error);
+      return { success: false, error: `Error converting Figma to React: ${message}` };
     }
   }
 
-  async convertFromFileKey(fileKey: string, nodeId?: string): Promise<FigmaToReactResult | null> {
+  async convertFromFileKey(
+    fileKey: string,
+    nodeId?: string
+  ): Promise<{ success: true; data: FigmaToReactResult } | { success: false; error: string }> {
     const url = nodeId
       ? `https://www.figma.com/design/${fileKey}/?node-id=${nodeId.replace(':', '-')}`
       : `https://www.figma.com/design/${fileKey}/`;
@@ -187,7 +195,7 @@ export async function convertFigmaToReact(
   figmaUrl: string,
   options: FigmaToReactOptions = {},
   apiKey?: string
-): Promise<FigmaToReactResult | null> {
+): Promise<{ success: true; data: FigmaToReactResult } | { success: false; error: string }> {
   const converter = new FigmaToReact(options, apiKey);
   return converter.convertFromUrl(figmaUrl);
 }

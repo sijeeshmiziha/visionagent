@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/sijeeshmiziha/Desktop/visionagent && echo '\\n─────────────────────────────────────' && echo '  Session complete. Run npm run ci to verify.' && echo '─────────────────────────────────────'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "true"
+          }
+        ]
+      }
+    ]
+  },
+  "cleanupPeriodDays": 7
+}
