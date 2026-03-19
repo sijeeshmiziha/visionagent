@@ -1,6 +1,6 @@
 {
   "name": "visionagent",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "The most complete AI agent framework for design-to-code. Convert Figma designs to production React + Tailwind with multi-provider AI support, 15 Figma tools, and autonomous agents.",
   "author": {
     "name": "sijeeshmiziha",
