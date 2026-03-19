@@ -1,0 +1,48 @@
+---
+description: Tool design for agents—self-contained tools, minimal sets, token-efficient results, progressive disclosure
+alwaysApply: true
+---
+
+# Tool Design for Agents
+
+## Self-Contained Tools
+
+- Each tool: **single clear purpose**, robust to errors, **unambiguous** description and parameters.
+- Use **descriptive, typed inputs** (e.g. Zod schemas); avoid overlapping or ambiguous tool contracts.
+
+## Minimal Tool Sets / Choosing the Right Tools
+
+- Keep the tool set **minimal**. No bloated or overlapping tools; if a human can’t choose which tool to use, the agent can’t either.
+- Agents have **limited context**; prefer tools that match how agents work (e.g. `search_contacts` over `list_all_contacts`).
+- Build a few **workflow-oriented** tools for high-impact tasks; avoid wrapping every API endpoint.
+- **Consolidate**: e.g. `schedule_event` (find availability + schedule) instead of `list_users` + `list_events` + `create_event`; `search_logs` instead of `read_logs`; `get_customer_context` instead of separate get/list tools. Each tool should subdivide tasks like a human would and reduce context from intermediate outputs.
+
+## Namespacing
+
+- Use consistent **prefixes or suffixes** (e.g. by service: `asana_search`, `jira_search`; by resource: `asana_projects_search`, `asana_users_search`) so agents can select the right tool. Naming can affect evaluations; try prefix vs suffix in your own evals.
+
+## Returning Meaningful Context
+
+- Prefer **high-signal, human-interpretable** fields (e.g. `name`, `file_type`) over low-level ones (`uuid`, `mime_type`).
+- Resolve opaque IDs to **semantic labels** or simple schemes (e.g. 0-indexed) to reduce retrieval hallucinations.
+- Optional **response_format** (e.g. concise vs detailed) so the agent can request less context when IDs aren’t needed.
+
+## Token-Efficient Results
+
+- Return **minimal, relevant** data; filter, aggregate, or transform before returning. Prefer summaries or slices over full dumps.
+- Add **pagination, range selection, filtering, or truncation** with sensible defaults; cap response size where appropriate.
+- **Truncation messages** should steer the agent (e.g. “use smaller or more targeted searches”).
+- **Error responses**: give specific, actionable guidance and valid examples—not opaque codes or raw tracebacks.
+
+## Progressive Disclosure
+
+- Present tools as **discoverable** (e.g. file tree, search) so the agent loads only what it needs. Prefer on-demand loading of tool definitions over loading all up front.
+
+## Tool Descriptions and Specs
+
+- Describe as for a **new hire**: make implicit context explicit (query formats, terminology, relationships between resources).
+- Use **unambiguous parameter names** (e.g. `user_id` not `user`); enforce strict input/output data models. Small description refinements can have large impact; validate with evaluation.
+
+## State and Persistence
+
+- Use **file-based persistence** for intermediate results and reusable workflows so agents can resume and share state across sessions. Consider saving proven code/scripts as reusable “skills” with clear interfaces.

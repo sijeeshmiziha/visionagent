@@ -1,0 +1,38 @@
+---
+description: Agentic workflow patterns—when to use agents vs workflows, prompt chaining, routing, evaluator-optimizer
+alwaysApply: true
+---
+
+# Agentic Workflow Patterns
+
+## Complexity Decision Framework
+
+- Start with the **simplest solution**: single LLM call with retrieval or in-context examples. Often sufficient.
+- Use **workflows** (predefined code paths) for well-defined tasks where predictability and consistency matter.
+- Use **agents** (LLM-directed tool use and planning) only for open-ended tasks where flexibility and model-driven decision-making are needed.
+- Add complexity only when it **demonstrably improves outcomes**. Measure first; agentic systems trade latency and cost for task performance.
+
+## Workflow Patterns
+
+### Prompt Chaining
+
+- Decompose a task into a **sequence of steps**; each LLM call consumes the previous step’s output.
+- Add **gates** (programmatic checks) on intermediate steps to keep the process on track.
+- Use when the task decomposes cleanly into fixed subtasks; trade latency for higher accuracy per step.
+
+### Routing
+
+- **Classify** input and direct to specialized prompts, tools, or models.
+- Use when distinct categories are better handled separately (e.g. easy questions → small model, hard → capable model; support types → different downstream flows).
+- Classification can be LLM-based or a traditional classifier.
+
+### Evaluator-Optimizer
+
+- One LLM **generates** a response; another **evaluates** and gives feedback in a loop.
+- Use when you have clear evaluation criteria and iterative refinement adds measurable value (e.g. translation with critique, multi-round search with “need more?” decisions).
+
+## Agent Design Principles
+
+- **Simplicity**: Keep agent design as simple as the task allows; avoid extra abstraction.
+- **Transparency**: Expose the agent’s planning steps explicitly so behavior is interpretable.
+- **Agent-Computer Interface (ACI)**: Invest in tool documentation and ergonomics as seriously as in human-facing interfaces; unclear tools are a major source of failure.

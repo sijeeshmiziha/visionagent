@@ -1,0 +1,95 @@
+---
+description: Design patterns (GoF) and file size conventions for sweagent TypeScript codebase
+globs: '**/*.ts'
+alwaysApply: true
+---
+
+# Design Patterns and Code Organization
+
+## File Size Limit: 150 Lines Maximum
+
+Every source file must contain **at most 150 lines of code**.
+
+- Enforces Single Responsibility and keeps files navigable.
+- When a file grows toward the limit, split before adding more.
+- **Splitting strategies**: Extract interfaces to `*.interface.ts` or `types.ts`; move helpers to `*.utils.ts`; split a class into a base in one file and concrete impl in another; one pattern/feature per file.
+
+## Pattern Selection
+
+| Pattern                     | Use When                                                          | Avoid When                     |
+| --------------------------- | ----------------------------------------------------------------- | ------------------------------ |
+| **State**                   | Behavior varies by internal state; replacing switch/case on state | Simple flags; few states       |
+| **Strategy**                | Interchangeable algorithms at runtime                             | Single algorithm               |
+| **Chain of Responsibility** | Multiple handlers may process a request; dynamic chains           | Single handler; fixed flow     |
+| **Builder**                 | Complex object, many optional parts, step-by-step construction    | Simple objects; few params     |
+| **Observer**                | Multiple listeners for the same events                            | Single consumer                |
+| **Decorator**               | Add/stack behaviors dynamically (retry, log, cache)               | Static, single behavior        |
+| **Factory Method**          | Creation delegated to callers; varying product types              | One product type; simple `new` |
+
+## State vs Strategy
+
+- **State**: Context has a _current state_; state object handles requests and may _transition_ context to another state. Use for stage machines, wizards, workflows (e.g. discovery → requirements → design).
+- **Strategy**: Context delegates an _algorithm_ to a strategy; no notion of "current state" or transitions. Use for swapping sort/search/format logic.
+
+## Chain of Responsibility vs Decorator
+
+- **Chain**: Request passes along a chain until one handler handles it (or none). Handlers can be reordered; each handles or forwards. Use for validation, auth, middleware pipelines.
+- **Decorator**: Wrap one component; all wrappers see every request. Use for adding retry, logging, caching around a single execution path.
+
+## TypeScript Conventions
+
+- Prefer **interfaces** for public contracts; use **abstract classes** only when you need shared implementation for the pattern (e.g. base handler, base state).
+- Keep pattern types in `src/lib/patterns/<pattern>/` (e.g. `state/state.interface.ts`, `chain/handler.interface.ts`).
+- Export from `index.ts` per subfolder; main entry at `src/lib/patterns/index.ts`.
+
+## Builder Pattern
+
+Use for complex config/context objects. Fluent API, return `this` from setters.
+
+```typescript
+// Good: fluent builder, under 150 lines
+class RequirementContextBuilder {
+  private data: Partial<RequirementContext> = {};
+  withProjectBrief(brief: ProjectBrief): this {
+    this.data.projectBrief = brief;
+    return this;
+  }
+  withActors(actors: Actor[]): this {
+    this.data.actors = actors;
+    return this;
+  }
+  build(): RequirementContext {
+    return { ...defaults, ...this.data } as RequirementContext;
+  }
+}
+```
+
+## Observer Pattern
+
+Use for agent/stage events when multiple listeners are needed (logging, metrics, UI). Subject holds observers and calls `update()` (or specific methods) on notify.
+
+```typescript
+// Subject: attach/detach/notify; Observer: update(subject)
+interface AgentObserver {
+  onStageChange?(stage: string, ctx: unknown): void;
+  onToolExecution?(tool: string, result: unknown): void;
+}
+```
+
+## File Layout for Patterns
+
+Keep each file under 150 lines by splitting by role:
+
+```
+src/lib/patterns/
+  state/
+    index.ts
+    state.interface.ts
+    base-state.ts
+  chain/
+    index.ts
+    handler.interface.ts
+    abstract-handler.ts
+```
+
+Reference: [Refactoring.Guru – Design Patterns in TypeScript](https://refactoring.guru/design-patterns/typescript).

@@ -1,0 +1,32 @@
+---
+description: Context engineering for agents—finite context, prompt altitude, compaction, note-taking, sub-agents
+alwaysApply: true
+---
+
+# Context Engineering for Agents
+
+## Context Is Finite
+
+- Treat the context window as a **scarce resource** with diminishing returns; every token consumes attention budget.
+- Aim for the **smallest high-signal set** of tokens that maximizes the chance of the desired outcome.
+
+## System Prompts
+
+- **Right altitude**: Specific enough to guide behavior, flexible enough for heuristics. Avoid brittle if-else logic in prompts or vague, high-level hand-waving.
+- **Organize** prompts with clear sections (e.g. XML tags or Markdown headers like `## Tool guidance`, `## Output description`). Keep them minimal but sufficient.
+
+## Just-in-Time Context
+
+- Prefer **lightweight references** (file paths, stored queries) and load data **on demand** via tools instead of pre-loading everything.
+- Use **progressive disclosure**: let the agent discover and load only what it needs for the current step.
+
+## Compaction and Long Horizons
+
+- When context nears limits: **summarize and compress**; clear old tool call results; **preserve** architectural decisions and unresolved issues.
+- Use **structured note-taking**: agents write persistent notes (e.g. `NOTES.md`, progress files) outside the context window for cross-session memory.
+
+## Sub-Agent Architectures
+
+- Use **focused sub-agents** with clean context windows for deep work (e.g. research, code cleanup).
+- Sub-agents should return **condensed summaries** (on the order of 1–2k tokens) to the lead agent; keep detailed context isolated.
+- For orchestration, delegation, scaling effort, and production patterns, see the multi-agent-systems rule.

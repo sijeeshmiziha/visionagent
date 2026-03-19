@@ -1,0 +1,46 @@
+---
+description: Multi-agent systems—orchestrator-worker, delegation, scaling, evaluation, production
+alwaysApply: true
+---
+
+# Multi-Agent Systems
+
+## When to Use Multi-Agent
+
+- Best for **open-ended, path-dependent** tasks (e.g. research) where steps can’t be hardcoded; single linear pipelines are insufficient.
+- Subagents provide **compression** (parallel context windows, then condense for the lead) and **separation of concerns** (distinct tools, prompts, trajectories).
+- Strong fit: **breadth-first**, parallelizable work; information exceeding one context window; many tools. Token usage drives much of performance; multi-agent scales token capacity.
+- Poor fit: tasks requiring **shared context** or **heavy inter-agent dependencies**; multi-agent uses ~15× tokens vs chat—reserve for high-value tasks.
+
+## Orchestrator-Worker Pattern
+
+- **Lead agent**: analyzes query, plans strategy, spawns subagents (in parallel), synthesizes results, decides if more work is needed.
+- **Subagents**: clear objective, **output format**, guidance on tools/sources, **task boundaries**. Vague delegation causes duplicated work, gaps, or misinterpretation.
+- **Scale effort to query**: e.g. simple (1 agent, 3–10 tool calls), comparison (2–4 subagents, 10–15 each), complex (10+ subagents with divided responsibilities). Embed scaling rules in prompts to avoid over- or under-investment.
+
+## Parallel Execution and Thinking
+
+- **Parallelize**: lead spawns 3–5 subagents in parallel; subagents use 3+ tools in parallel where possible—large latency gains.
+- **Guide thinking**: use extended thinking so the lead plans (complexity, subagent count, roles); subagents plan then evaluate tool results and refine next steps. Heuristics over rigid rules; add guardrails to prevent spiraling.
+
+## Prompting and Tools
+
+- **Think like your agents**: simulate with exact prompts and tools (e.g. in Console) to see failure modes.
+- **Tool design**: match tools to user intent; give heuristics (e.g. examine all tools, prefer specialized). Consider agents that test tools and rewrite descriptions to improve ergonomics.
+- **Search strategy**: start broad, then narrow; avoid overly long, specific queries that return too little.
+
+## Evaluation (Multi-Agent)
+
+- **Outcomes over steps**: multiple valid paths; evaluate whether the **right outcome** and a **reasonable process** were achieved, not a prescribed sequence.
+- **Start small**: ~20 representative queries; early changes have large effect sizes, so small evals are useful.
+- **LLM-as-judge**: rubric (e.g. factual accuracy, citation accuracy, completeness, source quality, tool efficiency); single LLM call with scores and pass/fail can align with human judgement.
+- **Human evaluation**: essential for edge cases (hallucinations, source bias, system failures).
+- **Emergent behavior**: optimize **frameworks for collaboration** (division of labor, effort budgets), not only per-agent instructions.
+
+## Production and Long-Horizon
+
+- **Stateful, errors compound**: support **resume** from checkpoints; durable execution; let the agent adapt when tools fail (plus retries/safeguards).
+- **Debugging**: full tracing; monitor decision patterns and interaction structure (not conversation content) to preserve privacy and diagnose failures.
+- **Deployment**: **rainbow deployments** so updates don’t break in-flight agents; run old and new versions in parallel during rollout.
+- **Long-horizon**: summarize completed phases and store in **memory**; when near context limit, spawn subagents with clean context and hand off; retrieve plan from memory.
+- **Subagent artifacts**: let subagents write outputs to a **filesystem or store** and pass **lightweight references** to the lead to avoid “game of telephone” and reduce token overhead; good for structured outputs (reports, code).

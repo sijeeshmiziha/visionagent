@@ -1,0 +1,21 @@
+---
+description: Coding agents—prompt pattern for code tasks, error-proofing file/edit tools, minimal scaffolding
+alwaysApply: true
+---
+
+# Coding Agents
+
+## Prompt Pattern for Code Tasks
+
+- Suggest a **clear sequence** in the prompt; do not hardcode the flow in code. Example: **explore repo** → **reproduce the error** (e.g. run a small script) → **edit source** → **rerun to verify** → **consider edge cases**.
+- Keep the prompt **concise**; let the model choose how to move between steps. Optionally encourage longer reasoning if not token-sensitive.
+
+## Error-Proofing for File and Code-Editing Tools
+
+- **Paths**: Prefer **absolute paths** for file/directory parameters so behavior is unambiguous after working-directory changes; avoid relative-path confusion.
+- **Edits**: Prefer **single-match string replace** (`old_str` → `new_str`) over full-file rewrites or diffs when the model must specify edits. Require exact match (including whitespace); on multiple or zero matches, return a **clear error** so the model can retry with more context.
+- **Tool descriptions**: Put **environment and usage constraints** in the description (e.g. no internet, state persistence, how to view files or line ranges, running long-lived commands in background). Test tools against real model outputs and fix recurring misuse in the spec.
+
+## Minimal Scaffolding
+
+- Keep scaffolding **minimal**: give the model maximum control (e.g. one or two general-purpose tools like run-command + edit), and avoid hardcoded workflows. See agentic-patterns for simplicity and model-directed agents.

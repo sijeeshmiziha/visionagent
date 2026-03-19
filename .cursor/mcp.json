@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sweagent": {
+      "command": "node",
+      "args": ["--env-file=.env", "dist/stdio.js"]
+    }
+  }
+}

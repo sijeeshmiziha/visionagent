@@ -1,0 +1,39 @@
+---
+description: Best practices for long-running agents (initializer/coding pattern, incremental progress, clean state)
+alwaysApply: true
+---
+
+# Long-Running Agent Harness
+
+## Two-Agent Pattern
+
+- **Initializer agent** (first run): Set up the environment—feature list (JSON), init script (e.g. `init.sh`), progress file (e.g. `*-progress.txt`), and an initial git commit.
+- **Coding agent** (every subsequent run): Make incremental progress only; leave structured updates (git commit + progress file) so the next session can resume.
+
+## Incremental Progress
+
+- Work on **one feature at a time**. Never attempt to one-shot complex tasks; this leads to half-implemented, undocumented work when context resets.
+- Choose the next feature from the feature list; do not skip or batch unrelated work.
+
+## Progress and Clean State
+
+- Maintain a **structured progress file** (e.g. `*-progress.txt` or JSON) and write **descriptive git commits** at the end of each session.
+- End every session with **clean state**: code that could be merged to main—no major bugs, orderly and well-documented. Use git to revert bad changes if needed.
+
+## Feature List
+
+- Use **structured JSON** (not Markdown) for feature tracking with pass/fail status.
+- Do not remove or edit feature definitions; only update the `passes` (or equivalent) field. Removing tests leads to missing or buggy functionality.
+
+## Getting Up to Speed
+
+At the start of each new session:
+
+1. Run `pwd`; read progress file and git log to understand recent work.
+2. Read the feature list and pick the highest-priority incomplete feature.
+3. Run init script / dev server and run a basic smoke test before implementing anything new. Fix existing bugs first.
+
+## End-to-End Testing
+
+- Verify features as a user would (e.g. browser automation for web apps).
+- Only mark a feature as passing after **careful testing**. Do not mark features done without proper verification.

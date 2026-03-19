@@ -1,0 +1,34 @@
+---
+description: Evaluation-driven tool improvement—prototype, evaluate, analyze, collaborate with agents
+alwaysApply: true
+---
+
+# Tool Evaluation and Improvement
+
+## Mindset
+
+- Tools are contracts between deterministic systems and **non-deterministic agents**; design for agents, not just for APIs.
+- Use **evaluation** to measure and improve tool effectiveness.
+
+## Process
+
+1. **Prototype**: Build a quick prototype (e.g. MCP server or tools passed into the API); test locally and collect user feedback.
+2. **Evaluate**: Run a **programmatic evaluation**—one agentic loop per task, each with a single task prompt and your tools.
+3. **Analyze**: Read transcripts and reasoning; identify where agents get stuck or misuse tools.
+4. **Collaborate**: Feed evaluation transcripts into an agent (e.g. Claude Code) to refactor tools and descriptions; use a **held-out test set** to avoid overfitting.
+
+## Evaluation Tasks
+
+- Ground tasks in **real-world use**; prefer multi-step, multi-tool scenarios over trivial sandbox prompts.
+- Pair each prompt with a **verifiable outcome** (exact match or LLM-as-judge). Avoid verifiers that reject correct answers due to formatting or phrasing.
+- In evaluation system prompts, ask agents to output **reasoning or feedback blocks** (or use extended thinking) to diagnose why tools are or aren’t used.
+
+## Metrics
+
+- Track **accuracy** plus: tool-call count, token consumption, tool errors, runtime.
+- Redundant tool calls may suggest pagination or token limits; many invalid-parameter errors may suggest clearer descriptions or examples.
+
+## Analysis
+
+- Read evaluation agents’ reasoning and raw transcripts (including tool calls and responses); “read between the lines”—agents don’t always say what they mean.
+- Use metrics to spot improvement areas: e.g. rightsizing pagination, clarifying parameter descriptions, consolidating common workflows.

@@ -1,0 +1,22 @@
+---
+description: When and how to use a "think" tool or extended thinking for complex tool-use agents
+alwaysApply: true
+---
+
+# Think Tool / Reasoning During Tool Use
+
+## Extended Thinking vs Think Tool
+
+- **Prefer extended thinking** when the provider supports it and the task is simpler (e.g. planning before acting, or no need to reason over tool outputs). Use the platform’s extended-thinking feature where available.
+- **Consider a "think" tool** when the model must reason **after** receiving tool results (e.g. long chains of tool calls, policy checks, or sequential decisions where each step depends on previous outputs). The think tool is a no-side-effect tool (e.g. single `thought` string, handler that only logs or appends to the trace) so the model can “stop and think” between tool rounds.
+
+## When to Add a Think Tool
+
+- **Add** when: long chains of tool calls; policy-heavy or compliance-sensitive flows; sequential decisions where mistakes are costly; or the model needs to analyze tool output (e.g. verify rules, check completeness) before acting.
+- **Skip** when: single or parallel tool calls only; simple instruction following with few constraints; or extended thinking already covers the needed reasoning.
+
+## Implementation
+
+- **Tool**: Minimal spec (e.g. one parameter such as `thought`); handler has no side effects (log/trace only). Description should state that it does not change state and is for reasoning/scratchpad use.
+- **Prompting**: Provide domain-specific examples in the system prompt for _when_ and _how_ to use the tool (e.g. list applicable rules, verify information is complete, check compliance before acting). Put longer or complex guidance in the system prompt rather than only in the tool description.
+- **Cost**: Think tool increases output tokens but does not change external behavior unless the model uses it; low downside to including it when the scenario matches.
