@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { LanguageModelUsage } from 'ai';
+import type { LanguageModelUsage } from '../../../src/lib/types/model';
 import type { Model, ModelResponse } from '../../../src/lib/types/model';
 import type { ModelMessage } from '../../../src/lib/types/common';
 import type { Tool } from '../../../src/lib/types/tool';

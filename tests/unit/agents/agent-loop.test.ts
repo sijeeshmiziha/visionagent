@@ -3,7 +3,7 @@ import { runAgent } from '../../../src/lib/agents';
 import { createToolSet, defineTool } from '../../../src/lib/tools';
 import { z } from 'zod';
 import type { Model, ModelResponse } from '../../../src/lib/types/model';
-import type { LanguageModelUsage } from 'ai';
+import type { LanguageModelUsage } from '../../../src/lib/types/model';
 import { AgentError } from '../../../src/lib/utils/errors';
 
 function mockUsage(u: {
@@ -110,7 +110,10 @@ describe('Agent Loop (Unit - Mocked)', () => {
     });
 
     expect(result.steps.length).toBe(2);
-    expect(mockHandler).toHaveBeenCalledWith({ test: true }, undefined);
+    expect(mockHandler).toHaveBeenCalledWith(
+      { test: true },
+      expect.objectContaining({ toolCallId: 'call_123', messages: [] })
+    );
     expect(result.output).toBe('Final answer after tool execution');
   });
 
@@ -338,8 +341,14 @@ describe('Agent Loop (Unit - Mocked)', () => {
     expect(result.steps.length).toBe(2);
     expect(result.steps[0]?.toolCalls).toHaveLength(2);
     expect(result.steps[0]?.toolResults).toHaveLength(2);
-    expect(addHandler).toHaveBeenCalledWith({ a: 2, b: 3 }, undefined);
-    expect(mulHandler).toHaveBeenCalledWith({ a: 3, b: 4 }, undefined);
+    expect(addHandler).toHaveBeenCalledWith(
+      { a: 2, b: 3 },
+      expect.objectContaining({ toolCallId: 'call_add', messages: [] })
+    );
+    expect(mulHandler).toHaveBeenCalledWith(
+      { a: 3, b: 4 },
+      expect.objectContaining({ toolCallId: 'call_mul', messages: [] })
+    );
     expect(result.output).toBe('Done: 5 and 12');
   });
 

@@ -33,12 +33,13 @@ async function main() {
     process.exit(1);
   }
 
-  const format = (process.env.FIGMA_FORMAT ?? 'png') as 'png' | 'jpg' | 'svg' | 'pdf';
+  const rawFormat = process.env.FIGMA_FORMAT ?? 'png';
+  const format = (rawFormat === 'pdf' ? 'png' : rawFormat) as 'png' | 'jpg' | 'svg' | undefined;
   const scale = Number(process.env.FIGMA_SCALE ?? '2') || 2;
 
   console.log('File key:', fileKey);
   console.log('Node ID :', nodeId);
-  console.log('Format  :', format, '\n');
+  console.log('Format  :', rawFormat, '\n');
 
   const result = await executeTool(figmaGetScreenshotTool, {
     fileKey,

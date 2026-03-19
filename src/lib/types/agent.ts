@@ -1,19 +1,15 @@
 /**
  * Agent-related types
- * Uses AI SDK types for messages, tool calls/results, and usage
+ * Canonical types for agent config and results (no AI SDK dependency)
  */
 
-import type { Tool } from 'ai';
+import type { AnyTool } from './tool';
 import type { Model } from './model';
 import type { ModelMessage } from './common';
-import type { LanguageModelUsage } from './model';
-import type { ModelToolCall } from './model';
+import type { LanguageModelUsage, ModelToolCall } from './model';
 
-/**
- * Tool type for agent context
- * Uses the default Tool type which accepts any input/output schema
- */
-export type AgentTool = Tool;
+/** Tool type for agent context (accepts any VisionAgent Tool) */
+export type AgentTool = AnyTool;
 
 /**
  * Tool result shape (AI SDK compatible)

@@ -8,4 +8,10 @@ export {
   zodToJsonSchema,
 } from './tools';
 export type { ToolSet, JsonSchemaObject } from './tools';
-export type { Tool, ToolConfig, ToolContext, ToolExecutionResult } from '../types/tool';
+export type {
+  Tool,
+  ToolConfig,
+  ToolContext,
+  ToolExecutionOptions,
+  ToolExecutionResult,
+} from '../types/tool';

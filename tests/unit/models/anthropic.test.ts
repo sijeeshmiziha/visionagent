@@ -1,39 +1,34 @@
 /**
- * Tests for createAnthropicModel
+ * Tests for createAnthropicModel (native @anthropic-ai/sdk)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ModelMessage } from '../../../src/lib/types/common';
 import type { Tool } from '../../../src/lib/types/tool';
 
-const mockGenerateText = vi.fn();
+const { mockMessagesCreate } = vi.hoisted(() => ({ mockMessagesCreate: vi.fn() }));
 
-vi.mock('ai', () => ({
-  generateText: (...args: unknown[]) => mockGenerateText(...args),
-}));
-
-vi.mock('@ai-sdk/anthropic', () => ({
-  createAnthropic: vi.fn(() => vi.fn(() => ({ id: 'claude-haiku-4-5' }))),
-}));
+vi.mock('@anthropic-ai/sdk', () => {
+  class MockAnthropic {
+    messages = { create: mockMessagesCreate };
+  }
+  return { default: MockAnthropic };
+});
 
 import { createAnthropicModel } from '../../../src/lib/models/providers/anthropic';
 
 const mockUsage = {
-  inputTokens: 12,
-  outputTokens: 8,
-  totalTokens: 20,
-  inputTokenDetails: {},
-  outputTokenDetails: {},
+  input_tokens: 12,
+  output_tokens: 8,
 };
 
 describe('createAnthropicModel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGenerateText.mockResolvedValue({
-      text: 'Mocked Anthropic response',
-      toolCalls: [],
+    mockMessagesCreate.mockResolvedValue({
+      content: [{ type: 'text', text: 'Mocked Anthropic response' }],
+      stop_reason: 'end_turn',
       usage: mockUsage,
-      finishReason: 'stop',
     });
   });
 
@@ -43,36 +38,36 @@ describe('createAnthropicModel', () => {
     expect(model.modelName).toBe('claude-haiku-4-5');
   });
 
-  it('should call generateText with messages on invoke', async () => {
+  it('should call messages.create with messages on invoke', async () => {
     const model = createAnthropicModel({ provider: 'anthropic', model: 'claude-haiku-4-5' });
     const messages: ModelMessage[] = [{ role: 'user', content: 'Hello' }];
     const response = await model.invoke(messages);
-    expect(mockGenerateText).toHaveBeenCalledOnce();
+    expect(mockMessagesCreate).toHaveBeenCalledOnce();
     expect(response.text).toBe('Mocked Anthropic response');
     expect(response.finishReason).toBe('stop');
   });
 
-  it('should strip execute from tools before passing to generateText', async () => {
+  it('should pass tools without execute to messages.create', async () => {
     const model = createAnthropicModel({ provider: 'anthropic', model: 'claude-sonnet-4-6' });
     const tools = {
       my_tool: {
         description: 'A tool',
-        inputSchema: { type: 'object', properties: {} },
+        parameters: { type: 'object', properties: {} },
         execute: async () => ({}),
       } as unknown as Tool,
     };
     await model.invoke([{ role: 'user', content: 'Hi' }], { tools });
-    const call = mockGenerateText.mock.calls[0]![0];
-    expect(call.tools.my_tool).not.toHaveProperty('execute');
-    expect(call.tools.my_tool).toHaveProperty('description');
+    const call = mockMessagesCreate.mock.calls[0]![0];
+    expect(call.tools).toBeDefined();
+    expect(call.tools[0]).toMatchObject({ name: 'my_tool', description: 'A tool' });
+    expect(call.tools[0]).not.toHaveProperty('execute');
   });
 
-  it('should map tool calls in the response', async () => {
-    mockGenerateText.mockResolvedValueOnce({
-      text: '',
-      toolCalls: [{ toolCallId: 'call_1', toolName: 'search', input: { q: 'test' } }],
+  it('should map tool_use to toolCalls in the response', async () => {
+    mockMessagesCreate.mockResolvedValueOnce({
+      content: [{ type: 'tool_use', id: 'call_1', name: 'search', input: { q: 'test' } }],
+      stop_reason: 'tool_use',
       usage: mockUsage,
-      finishReason: 'tool-calls',
     });
     const model = createAnthropicModel({ provider: 'anthropic', model: 'claude-haiku-4-5' });
     const response = await model.invoke([{ role: 'user', content: 'Search' }]);
@@ -82,7 +77,7 @@ describe('createAnthropicModel', () => {
   });
 
   it('should wrap errors in ModelError with provider anthropic', async () => {
-    mockGenerateText.mockRejectedValueOnce(new Error('Rate limit'));
+    mockMessagesCreate.mockRejectedValueOnce(new Error('Rate limit'));
     const model = createAnthropicModel({ provider: 'anthropic', model: 'claude-haiku-4-5' });
     await expect(model.invoke([{ role: 'user', content: 'Hi' }])).rejects.toMatchObject({
       name: 'ModelError',
@@ -94,11 +89,12 @@ describe('createAnthropicModel', () => {
   it('should build correct image content in generateVision', async () => {
     const model = createAnthropicModel({ provider: 'anthropic', model: 'claude-haiku-4-5' });
     await model.generateVision('Describe', [{ base64: 'YWJj', mimeType: 'image/png' }]);
-    const call = mockGenerateText.mock.calls[0]![0];
-    const userMsg = call.messages.find((m: { role: string }) => m.role === 'user');
+    const call = mockMessagesCreate.mock.calls[0]![0];
+    const userMsg = call.messages[0];
+    expect(userMsg.role).toBe('user');
     expect(userMsg.content).toEqual(
       expect.arrayContaining([
-        { type: 'image', image: 'data:image/png;base64,YWJj', mimeType: 'image/png' },
+        { type: 'image', source: { type: 'base64', media_type: 'image/png', data: 'YWJj' } },
         { type: 'text', text: 'Describe' },
       ])
     );
@@ -109,12 +105,12 @@ describe('createAnthropicModel', () => {
     await model.generateVision('What?', [{ base64: 'x', mimeType: 'image/png' }], {
       systemPrompt: 'You are a vision expert.',
     });
-    const call = mockGenerateText.mock.calls[0]![0];
-    expect(call.messages[0]).toEqual({ role: 'system', content: 'You are a vision expert.' });
+    const call = mockMessagesCreate.mock.calls[0]![0];
+    expect(call.system).toBe('You are a vision expert.');
   });
 
   it('should wrap generateVision errors in ModelError', async () => {
-    mockGenerateText.mockRejectedValueOnce(new Error('Vision error'));
+    mockMessagesCreate.mockRejectedValueOnce(new Error('Vision error'));
     const model = createAnthropicModel({ provider: 'anthropic', model: 'claude-haiku-4-5' });
     await expect(
       model.generateVision('Describe', [{ base64: 'x', mimeType: 'image/png' }])

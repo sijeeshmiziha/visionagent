@@ -2,7 +2,7 @@
  * Utility functions
  */
 
-import type { LanguageModelUsage } from 'ai';
+import type { LanguageModelUsage } from '../types/model';
 
 /**
  * Retry a function with exponential backoff and jitter.

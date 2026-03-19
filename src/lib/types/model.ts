@@ -1,18 +1,40 @@
 /**
  * Model-related types
- * Uses AI SDK types for messages, tools, usage, and result shape
+ * Canonical types for model invocation and responses (no AI SDK dependency)
  */
 
-import type { Tool, ModelMessage, FinishReason, LanguageModelUsage } from 'ai';
-import type { ImageInput } from './common';
+import type { ImageInput, ModelMessage } from './common';
+import type { AnyTool } from './tool';
 
-export type { LanguageModelUsage, FinishReason } from 'ai';
+export type { ModelMessage } from './common';
 
 /**
- * Tool type for model invocation
- * Uses the default Tool type which accepts any input/output schema
+ * Token usage returned by model invocations
  */
-export type ModelTool = Tool;
+export interface LanguageModelUsage {
+  inputTokens?: number;
+  outputTokens?: number;
+  totalTokens?: number;
+  inputTokenDetails?: {
+    noCacheTokens?: number;
+    cacheReadTokens?: number;
+    cacheWriteTokens?: number;
+  };
+  outputTokenDetails?: {
+    textTokens?: number;
+    reasoningTokens?: number;
+  };
+}
+
+/**
+ * Finish reason from model
+ */
+export type FinishReason = 'stop' | 'length' | 'content-filter' | 'tool-calls' | 'error' | 'other';
+
+/**
+ * Tool type for model invocation (VisionAgent Tool, any shape)
+ */
+export type ModelTool = AnyTool;
 
 /**
  * Built-in model providers
@@ -43,7 +65,7 @@ export interface ModelConfig {
 }
 
 /**
- * Tool call shape returned by the model (AI SDK compatible)
+ * Tool call shape returned by the model
  */
 export interface ModelToolCall {
   toolCallId: string;
@@ -76,7 +98,7 @@ export interface VisionOptions extends InvokeOptions {
 }
 
 /**
- * Response from a model invocation (AI SDK GenerateTextResult subset)
+ * Response from a model invocation
  */
 export interface ModelResponse {
   /** The generated text */
@@ -99,7 +121,7 @@ export interface Model {
   modelName: string;
 
   /**
-   * Invoke the model with messages (AI SDK ModelMessage[])
+   * Invoke the model with messages
    */
   invoke(messages: ModelMessage[], options?: InvokeOptions): Promise<ModelResponse>;
 

@@ -5,7 +5,7 @@
 import { describe, it, expect } from 'vitest';
 import { sumTokenUsage } from '../../src/lib/utils/utils';
 
-import type { LanguageModelUsage } from 'ai';
+import type { LanguageModelUsage } from '../../src/lib/types/model';
 
 function usage(input: number, output: number, total?: number): LanguageModelUsage {
   return {

@@ -77,7 +77,7 @@ describe('Model Integration Tests', () => {
 
       const response = await model.invoke([
         { role: 'user', content: 'My name is Alice.' },
-        { role: 'assistant', content: 'Nice to meet you, Alice!' },
+        { role: 'assistant', content: [{ type: 'text', text: 'Nice to meet you, Alice!' }] },
         { role: 'user', content: 'What is my name?' },
       ]);
 

@@ -8,7 +8,7 @@ import { defineTool } from '../../src/lib/tools';
 import { ToolError } from '../../src/lib/utils/errors';
 
 describe('defineTool', () => {
-  it('should return AI SDK Tool with description and execute', () => {
+  it('should return VisionAgent Tool with description and execute', () => {
     const t = defineTool({
       name: 'test_tool',
       description: 'A test tool',
@@ -17,7 +17,7 @@ describe('defineTool', () => {
     });
 
     expect(t.description).toBe('A test tool');
-    expect(t.inputSchema).toBeDefined();
+    expect(t.parameters).toBeDefined();
     expect(t.execute).toBeDefined();
   });
 
@@ -29,7 +29,7 @@ describe('defineTool', () => {
       handler: async ({ message }) => ({ echoed: message }),
     });
 
-    const result = await t.execute!({ message: 'hello' }, { toolCallId: '', messages: [] });
+    const result = await t.execute({ message: 'hello' }, { toolCallId: '', messages: [] });
     expect(result).toEqual({ echoed: 'hello' });
   });
 
@@ -42,7 +42,7 @@ describe('defineTool', () => {
     });
 
     await expect(
-      t.execute!({ num: 'not a number' as unknown as number }, { toolCallId: '', messages: [] })
+      t.execute({ num: 'not a number' as unknown as number }, { toolCallId: '', messages: [] })
     ).rejects.toThrow();
   });
 
@@ -55,7 +55,7 @@ describe('defineTool', () => {
     });
 
     await expect(
-      t.execute!({ x: 'invalid' as unknown as number }, { toolCallId: '', messages: [] })
+      t.execute({ x: 'invalid' as unknown as number }, { toolCallId: '', messages: [] })
     ).rejects.toMatchObject({
       name: 'ToolError',
       toolName: 'named_tool',
@@ -63,7 +63,7 @@ describe('defineTool', () => {
     });
   });
 
-  it('should have inputSchema (Zod) with object shape', () => {
+  it('should have parameters (JSON schema) with object shape', () => {
     const t = defineTool({
       name: 'schema_tool',
       description: 'Tool with schema',
@@ -74,9 +74,8 @@ describe('defineTool', () => {
       handler: async input => input,
     });
 
-    const schema = t.inputSchema as z.ZodType;
-    expect(schema).toBeDefined();
-    const jsonSchema = z.toJSONSchema(schema) as Record<string, unknown>;
+    const jsonSchema = t.parameters as Record<string, unknown>;
+    expect(jsonSchema).toBeDefined();
     expect(jsonSchema.type).toBe('object');
     const props = jsonSchema.properties as Record<string, unknown> | undefined;
     expect(props?.name).toBeDefined();
@@ -93,10 +92,10 @@ describe('defineTool', () => {
       handler: async ({ required, optional }) => ({ required, optional: optional ?? 0 }),
     });
 
-    const result = await t.execute!({ required: 'a' }, { toolCallId: '', messages: [] });
+    const result = await t.execute({ required: 'a' }, { toolCallId: '', messages: [] });
     expect(result).toEqual({ required: 'a', optional: 0 });
 
-    const result2 = await t.execute!(
+    const result2 = await t.execute(
       { required: 'b', optional: 10 },
       { toolCallId: '', messages: [] }
     );
@@ -116,14 +115,14 @@ describe('defineTool', () => {
       handler: async ({ outer }) => ({ result: `${outer.inner}-${outer.count}` }),
     });
 
-    const result = await t.execute!(
+    const result = await t.execute(
       { outer: { inner: 'x', count: 2 } },
       { toolCallId: '', messages: [] }
     );
     expect(result).toEqual({ result: 'x-2' });
 
     await expect(
-      t.execute!({ outer: { inner: 'x', count: 'not number' } } as never, {
+      t.execute({ outer: { inner: 'x', count: 'not number' } } as never, {
         toolCallId: '',
         messages: [],
       })
@@ -141,7 +140,7 @@ describe('defineTool', () => {
       handler: async ({ tags, kind }) => ({ tags: tags.length, kind }),
     });
 
-    const result = await t.execute!(
+    const result = await t.execute(
       { tags: ['x', 'y'], kind: 'b' },
       { toolCallId: '', messages: [] }
     );
@@ -159,8 +158,8 @@ describe('defineTool', () => {
       },
     });
 
-    await expect(t.execute!({}, { toolCallId: '', messages: [] })).rejects.toBe(originalError);
-    await expect(t.execute!({}, { toolCallId: '', messages: [] })).rejects.toMatchObject({
+    await expect(t.execute({}, { toolCallId: '', messages: [] })).rejects.toBe(originalError);
+    await expect(t.execute({}, { toolCallId: '', messages: [] })).rejects.toMatchObject({
       message: 'Original tool error',
       toolName: 'my_tool',
     });
@@ -176,7 +175,7 @@ describe('defineTool', () => {
       },
     });
 
-    await expect(t.execute!({}, { toolCallId: '', messages: [] })).rejects.toMatchObject({
+    await expect(t.execute({}, { toolCallId: '', messages: [] })).rejects.toMatchObject({
       name: 'ToolError',
       toolName: 'string_throw_tool',
       message: expect.stringContaining('something went wrong'),

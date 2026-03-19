@@ -3,25 +3,33 @@
  */
 
 import { z } from 'zod';
-import { tool } from 'ai';
-import type { Tool, ToolExecutionOptions } from 'ai';
-import type { ToolConfig, ToolContext, ToolExecutionResult } from '../types/tool';
+import type {
+  Tool,
+  ToolConfig,
+  ToolContext,
+  ToolExecutionOptions,
+  ToolExecutionResult,
+  JsonSchemaObject,
+  AnyTool,
+} from '../types/tool';
 import { ToolError } from '../utils/errors';
 
-/** Tool has description (and optional title) in config; name is the key in createToolSet. */
+/** Build a VisionAgent Tool from config (name is the key in createToolSet). */
 export function defineTool<TInput extends z.ZodType, TOutput>(
   config: ToolConfig<TInput, TOutput>
-): Tool {
+): Tool<z.infer<TInput>, TOutput> {
   const { name, description, input: inputSchema, handler } = config;
-  return tool({
+  const parameters = zodToJsonSchema(inputSchema);
+  return {
+    name,
     description,
-    inputSchema,
-    execute: async (args: unknown): Promise<TOutput> => {
+    parameters,
+    execute: async (args: unknown, ctx?: ToolExecutionOptions): Promise<TOutput> => {
       const parsed = inputSchema.safeParse(args);
       if (!parsed.success)
         throw new ToolError(`Invalid input: ${parsed.error.message}`, name, parsed.error);
       try {
-        return await handler(parsed.data as z.infer<TInput>, undefined as ToolContext | undefined);
+        return await handler(parsed.data as z.infer<TInput>, ctx as ToolContext | undefined);
       } catch (e) {
         if (e instanceof ToolError) throw e;
         throw new ToolError(
@@ -31,10 +39,10 @@ export function defineTool<TInput extends z.ZodType, TOutput>(
         );
       }
     },
-  } as unknown as Parameters<typeof tool>[0]);
+  };
 }
 
-export type ToolSet = Record<string, Tool>;
+export type ToolSet = Record<string, AnyTool>;
 
 /** Pass a record: key = tool name (same as in defineTool config). */
 export function createToolSet(tools: ToolSet): ToolSet {
@@ -60,7 +68,7 @@ export async function executeTool<TInput, TOutput>(
       toolCallId: options?.toolCallId ?? '',
       messages: [],
       abortSignal: options?.abortSignal,
-    } as ToolExecutionOptions);
+    });
     return { success: true, output: out as TOutput };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -82,8 +90,6 @@ export async function executeToolByName(
   return executeTool(toolImpl, input, options);
 }
 
-export type JsonSchemaObject = Record<string, unknown>;
-
 export function zodToJsonSchema(schema: z.ZodType): JsonSchemaObject {
   const result = z.toJSONSchema(schema) as JsonSchemaObject & {
     $schema?: string;
@@ -92,3 +98,5 @@ export function zodToJsonSchema(schema: z.ZodType): JsonSchemaObject {
   const { $schema: _s, definitions: _d, ...rest } = result;
   return rest as JsonSchemaObject;
 }
+
+export type { JsonSchemaObject };

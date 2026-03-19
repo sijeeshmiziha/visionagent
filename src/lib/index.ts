@@ -27,7 +27,6 @@ export type {
 } from './models';
 
 // Tools
-export { tool, jsonSchema } from './types/tool';
 export {
   defineTool,
   executeTool,
@@ -35,8 +34,17 @@ export {
   createToolSet,
   getTools,
   getTool,
+  zodToJsonSchema,
 } from './tools';
-export type { ToolSet, Tool, ToolConfig, ToolContext, ToolExecutionResult } from './tools';
+export type {
+  ToolSet,
+  JsonSchemaObject,
+  Tool,
+  ToolConfig,
+  ToolContext,
+  ToolExecutionOptions,
+  ToolExecutionResult,
+} from './tools';
 
 // Subagents
 export {
